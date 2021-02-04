@@ -1,7 +1,11 @@
-package fsbm
+package main
 
-import "fsbm/server"
+import (
+	"fsbm/db"
+	"fsbm/server"
+)
 
 func main() {
+	db.Init()
 	server.Run()
 }
