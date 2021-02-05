@@ -9,6 +9,7 @@ import (
 
 type Handler struct {
 	db       *gorm.DB
+	config   *gorm.Config
 	user     string
 	password string
 	ip       string
@@ -17,7 +18,7 @@ type Handler struct {
 }
 
 func NewHandler() *Handler {
-	return &Handler{}
+	return &Handler{config: &gorm.Config{}}
 }
 
 func (h *Handler) GetConnection() (*gorm.DB, error) {
@@ -27,7 +28,7 @@ func (h *Handler) GetConnection() (*gorm.DB, error) {
 	}
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		h.user, h.password, h.ip, h.port, h.dbName)
-	h.db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	h.db, err = gorm.Open(mysql.Open(dsn), h.config)
 	if err != nil {
 		return nil, err
 	}
