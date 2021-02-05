@@ -4,6 +4,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func LoginServer(ctx *gin.Context) {
+func UserLoginServer(ctx *gin.Context) {
+
+}
+
+func UserRegisterServer(ctx *gin.Context) {
+
+}
+
+func LogoutServer(ctx *gin.Context) {
 
 }
