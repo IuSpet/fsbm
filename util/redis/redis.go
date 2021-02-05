@@ -32,7 +32,7 @@ func GetWithRetry(ctx context.Context, key string) (res string, err error) {
 func SetWithRetry(ctx context.Context, key string, value interface{}, expiration time.Duration) (err error) {
 	for i := 0; i < 5; i++ {
 		_, err = redisClient.Set(ctx, key, value, expiration).Result()
-		if err == nil{
+		if err == nil {
 			return
 		}
 	}
