@@ -9,7 +9,8 @@ const (
 	UserNotExist      = 5
 	InvalidPassword   = 6
 	// redis key template
-	UserLoginTemplate = "%s:login_in"
+	UserLoginTemplate                 = "%s:login_in"
+	UserLoginVerificationCodeTemplate = "%s:login_verification_code"
 	// 密码加盐
 	Salt = "fsbmpwd"
 )

@@ -101,6 +101,7 @@ func isEmailLegal(email string) bool {
 	return legalEmailAddr.MatchString(email)
 }
 
+// 密码加盐后sha256加密
 func encryptPassword(password string) string {
 	return util.Sha256(util.Salt + password)
 }

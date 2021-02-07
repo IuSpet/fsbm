@@ -38,3 +38,8 @@ func SetWithRetry(ctx context.Context, key string, value interface{}, expiration
 	}
 	return
 }
+
+func Del(ctx context.Context, key string) {
+	redisClient.Del(ctx, key)
+	return
+}

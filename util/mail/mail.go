@@ -7,6 +7,12 @@ import (
 
 var mailConfig *smtpConfig
 
+type DefaultMail struct {
+	Dest    []string
+	Subject string
+	Text    []byte
+}
+
 type smtpConfig struct {
 	from     string
 	username string
@@ -25,16 +31,16 @@ func init() {
 	}
 }
 
-func newMail(dest []string, subject string, text []byte) *email.Email {
+func newMail(h *DefaultMail) *email.Email {
 	e := email.NewEmail()
-	e.To = dest
-	e.Subject = subject
-	e.Text = text
+	e.To = h.Dest
+	e.Subject = h.Subject
+	e.Text = h.Text
 	return e
 }
 
-func SendMail(dest []string, subject string, text []byte) error {
-	e := newMail(dest, subject, text)
+func SendMail(msg *DefaultMail) error {
+	e := newMail(msg)
 	e.From = mailConfig.from
 	return e.Send(mailConfig.smtpAddr, smtp.PlainAuth("", mailConfig.username, mailConfig.passport, mailConfig.host))
 }

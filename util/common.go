@@ -4,7 +4,10 @@ import (
 	"crypto/md5"
 	"crypto/sha256"
 	"fmt"
+	"math/rand"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -34,4 +37,25 @@ func EndJson(ctx *gin.Context, data interface{}) {
 		"message": "OK",
 		"data":    data,
 	})
+}
+
+func MinInt(a, b int) int {
+	if a > b {
+		return b
+	}
+	return a
+}
+
+func MinInt64(a, b int64) int64 {
+	if a > b {
+		return b
+	}
+	return a
+}
+
+func GenerateRandCode(n int) string {
+	rand.Seed(time.Now().Unix())
+	r := rand.Int63()
+	hash := Sha256(strconv.FormatInt(r, 10))
+	return hash[:MinInt(32, n)]
 }
