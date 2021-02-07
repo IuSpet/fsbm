@@ -1,12 +1,17 @@
 package userAccount
 
 import (
+	"fmt"
 	"fsbm/db"
 	"fsbm/util"
 	"fsbm/util/logs"
+	"fsbm/util/redis"
 	"github.com/gin-gonic/gin"
 	"regexp"
+	"time"
 )
+
+const loginExpiration = 30 * time.Minute
 
 var legalEmailAddr = regexp.MustCompile("")
 
@@ -18,8 +23,30 @@ func UserLoginServer(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.ParamError, "参数错误")
 		return
 	}
-	db.GetUserByEmail(req.Email)
-
+	logs.CtxInfo(ctx, "req: %+v", req)
+	res, err := db.GetUserByEmail(req.Email)
+	if err != nil {
+		logs.CtxError(ctx, "get user by email error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "内部错误")
+		return
+	}
+	if res.ID == 0 {
+		logs.CtxInfo(ctx, "user not exist")
+		util.ErrorJson(ctx, util.UserNotExist, "该邮箱未注册")
+		return
+	}
+	if res.Password != encryptPassword(req.Password) {
+		logs.CtxInfo(ctx, "wrong password")
+		util.ErrorJson(ctx, util.InvalidPassword, "密码错误")
+		return
+	}
+	// 登陆成功
+	key := fmt.Sprintf(util.UserLoginTemplate, req.Email)
+	err = redis.SetWithRetry(ctx, key, "ok", loginExpiration)
+	if err != nil {
+		logs.CtxError(ctx, "set login status error")
+	}
+	util.EndJson(ctx, nil)
 }
 
 func UserRegisterServer(ctx *gin.Context) {
@@ -53,7 +80,7 @@ func UserRegisterServer(ctx *gin.Context) {
 		Name:     req.Name,
 		Email:    req.Email,
 		Status:   0,
-		Password: util.Sha256(util.Salt + req.Password),
+		Password: util.Sha256(req.Password),
 	}
 	err = db.SaveUserInfo(newUser)
 	if err != nil {
@@ -72,4 +99,8 @@ func LogoutServer(ctx *gin.Context) {
 // 检查邮箱地址是否合法
 func isEmailLegal(email string) bool {
 	return legalEmailAddr.MatchString(email)
+}
+
+func encryptPassword(password string) string {
+	return util.Sha256(util.Salt + password)
 }

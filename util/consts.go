@@ -6,6 +6,10 @@ const (
 	DbError           = 2
 	RepeatedEmailAddr = 3
 	IllegalEmailAddr  = 4
+	UserNotExist      = 5
+	InvalidPassword   = 6
+	// redis key template
+	UserLoginTemplate = "%s:login_in"
 	// 密码加盐
 	Salt = "fsbmpwd"
 )
