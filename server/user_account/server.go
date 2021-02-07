@@ -1,6 +1,7 @@
 package userAccount
 
 import (
+	"context"
 	"fmt"
 	"fsbm/db"
 	"fsbm/util"
@@ -15,7 +16,8 @@ const loginExpiration = 30 * time.Minute
 
 var legalEmailAddr = regexp.MustCompile("")
 
-func UserLoginServer(ctx *gin.Context) {
+// 密码登陆接口
+func UserPasswordLoginServer(ctx *gin.Context) {
 	var req userCommonRequest
 	err := ctx.Bind(&req)
 	if err != nil {
@@ -41,14 +43,42 @@ func UserLoginServer(ctx *gin.Context) {
 		return
 	}
 	// 登陆成功
-	key := fmt.Sprintf(util.UserLoginTemplate, req.Email)
-	err = redis.SetWithRetry(ctx, key, "ok", loginExpiration)
+	err = setLoginStatus(ctx, req.Email)
 	if err != nil {
 		logs.CtxError(ctx, "set login status error")
 	}
 	util.EndJson(ctx, nil)
 }
 
+// 验证登陆接口
+func UserVerifyLoginServer(ctx *gin.Context) {
+	var req userCommonRequest
+	err := ctx.Bind(&req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	key := fmt.Sprintf(util.UserLoginVerificationCodeTemplate, req.Email)
+	res, err := redis.GetWithRetry(ctx, key)
+	if err != nil {
+		logs.CtxWarn(ctx, "redis get error. key: %+v, err: %+v", key, err)
+		util.ErrorJson(ctx, util.DbError, "获取验证码失败")
+		return
+	}
+	if res != req.VerifyCode {
+		logs.CtxInfo(ctx, "verification error")
+		util.ErrorJson(ctx, util.InvalidVerificationCode, "验证码错误")
+		return
+	}
+	err = setLoginStatus(ctx, req.Email)
+	if err != nil {
+		logs.CtxError(ctx, "set login status error")
+	}
+	util.EndJson(ctx, nil)
+}
+
+// 注册接口
 func UserRegisterServer(ctx *gin.Context) {
 	var req userCommonRequest
 	err := ctx.Bind(&req)
@@ -104,4 +134,10 @@ func isEmailLegal(email string) bool {
 // 密码加盐后sha256加密
 func encryptPassword(password string) string {
 	return util.Sha256(util.Salt + password)
+}
+
+func setLoginStatus(ctx context.Context, email string) error {
+	key := fmt.Sprintf(util.UserLoginTemplate, email)
+	err := redis.SetWithRetry(ctx, key, "ok", loginExpiration)
+	return err
 }
