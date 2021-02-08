@@ -39,8 +39,11 @@ func SetGlobalLogLevel(l logLevel) {
 
 // 生成单次请求唯一后缀
 func getSuffix(ctx context.Context) string {
-	reqId := ctx.Value("req_id").(string)
-	return "[reqId=" + reqId + "]"
+	reqId, ok := ctx.Value("req_id").(string)
+	if ok {
+		return "[reqId=" + reqId + "]"
+	}
+	return "[]"
 }
 
 func CtxDebug(ctx context.Context, format string, v ...interface{}) {

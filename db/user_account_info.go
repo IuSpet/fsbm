@@ -1,5 +1,7 @@
 package db
 
+import "gorm.io/gorm"
+
 type UserAccountInfo struct {
 	ID       int64  `gorm:"column:id" json:"id"`
 	Name     string `gorm:"column:name" json:"name"`
@@ -28,5 +30,8 @@ func GetUserByEmail(email string) (res *UserAccountInfo, err error) {
 	}
 	res = &UserAccountInfo{}
 	err = conn.Debug().Where("email = ? and status = 0", email).First(&res).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
 	return
 }

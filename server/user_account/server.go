@@ -9,6 +9,7 @@ import (
 	"fsbm/util/redis"
 	"github.com/gin-gonic/gin"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -32,7 +33,7 @@ func UserPasswordLoginServer(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.DbError, "内部错误")
 		return
 	}
-	if res.ID == 0 {
+	if res == nil {
 		logs.CtxInfo(ctx, "user not exist")
 		util.ErrorJson(ctx, util.UserNotExist, "该邮箱未注册")
 		return
@@ -59,6 +60,20 @@ func UserVerifyLoginServer(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.ParamError, "参数错误")
 		return
 	}
+	logs.CtxInfo(ctx, "req: %+v", req)
+	// 检查用户是否注册
+	user, err := db.GetUserByEmail(req.Email)
+	if err != nil {
+		logs.CtxError(ctx, "get user by email error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "内部错误")
+		return
+	}
+	if user == nil {
+		logs.CtxInfo(ctx, "user not exist")
+		util.ErrorJson(ctx, util.UserNotExist, "该邮箱未注册")
+		return
+	}
+	// 查询验证码
 	key := fmt.Sprintf(util.UserLoginVerificationCodeTemplate, req.Email)
 	res, err := redis.GetWithRetry(ctx, key)
 	if err != nil {
@@ -100,7 +115,7 @@ func UserRegisterServer(ctx *gin.Context) {
 		return
 	}
 	// 邮箱注册过
-	if res.Email != "" {
+	if res != nil {
 		logs.CtxInfo(ctx, "email used")
 		util.ErrorJson(ctx, util.RepeatedEmailAddr, "邮箱已被注册")
 		return
@@ -158,8 +173,8 @@ func ModifyServer(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.DbError, "获取验证码失败")
 		return
 	}
-	if res != req.VerifyCode {
-		logs.CtxInfo(ctx, "verification error")
+	if strings.ToLower(res) != strings.ToLower(req.VerifyCode) {
+		logs.CtxInfo(ctx, "verification error, %+v, %+v", res, req.VerifyCode)
 		util.ErrorJson(ctx, util.InvalidVerificationCode, "验证码错误")
 		return
 	}

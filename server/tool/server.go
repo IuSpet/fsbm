@@ -27,11 +27,13 @@ func GenerateVerificationCode(ctx *gin.Context) {
 	err = redis.SetWithRetry(ctx, key, code, verificationExpiration)
 	if err != nil {
 		logs.CtxError(ctx, "redis set error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "内部错误")
 		return
 	}
 	err = mail.SendMail(newVerificationMail(req.Email, code))
 	if err != nil {
 		logs.CtxError(ctx, "send mail error. err: %+v", err)
+		util.ErrorJson(ctx, util.EmailSendError, "邮件发送失败")
 		return
 	}
 }

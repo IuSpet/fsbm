@@ -1,6 +1,7 @@
 package mail
 
 import (
+	"fmt"
 	"github.com/jordan-wright/email"
 	"net/smtp"
 )
@@ -23,7 +24,7 @@ type smtpConfig struct {
 
 func init() {
 	mailConfig = &smtpConfig{
-		from:     "fsbm",
+		from:     "fsbm <luSpet@163.com>",
 		username: "luSpet@163.com",
 		passport: "CELSWCJKLYLATBOC",
 		smtpAddr: "smtp.163.com:25",
@@ -40,6 +41,7 @@ func newMail(h *DefaultMail) *email.Email {
 }
 
 func SendMail(msg *DefaultMail) error {
+	fmt.Println(msg)
 	e := newMail(msg)
 	e.From = mailConfig.from
 	return e.Send(mailConfig.smtpAddr, smtp.PlainAuth("", mailConfig.username, mailConfig.passport, mailConfig.host))
