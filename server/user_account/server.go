@@ -38,6 +38,10 @@ func UserPasswordLoginServer(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.UserNotExist, "该邮箱未注册")
 		return
 	}
+	if res.Status == 1 {
+		logs.CtxInfo(ctx, "user has been deleted")
+		util.ErrorJson(ctx, util.UserDeleted, "用户已被删除 ")
+	}
 	if res.Password != encryptPassword(req.Password) {
 		logs.CtxInfo(ctx, "wrong password")
 		util.ErrorJson(ctx, util.InvalidPassword, "密码错误")
@@ -72,6 +76,10 @@ func UserVerifyLoginServer(ctx *gin.Context) {
 		logs.CtxInfo(ctx, "user not exist")
 		util.ErrorJson(ctx, util.UserNotExist, "该邮箱未注册")
 		return
+	}
+	if user.Status == 1 {
+		logs.CtxInfo(ctx, "user has been deleted")
+		util.ErrorJson(ctx, util.UserDeleted, "用户已被删除 ")
 	}
 	// 查询验证码
 	key := fmt.Sprintf(util.UserLoginVerificationCodeTemplate, req.Email)
