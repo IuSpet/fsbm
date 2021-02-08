@@ -168,12 +168,6 @@ func ModifyServer(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.ParamError, "参数错误")
 		return
 	}
-	// 验证登陆
-	if !checkLoginStatus(ctx, req.Email) {
-		logs.CtxInfo(ctx, "未登陆")
-		util.ErrorJson(ctx, util.UserNotLogin, "用户未登陆")
-		return
-	}
 	key := fmt.Sprintf(util.UserLoginVerificationCodeTemplate, req.Email)
 	res, err := redis.GetWithRetry(ctx, key)
 	if err != nil {
@@ -215,12 +209,6 @@ func DeleteServer(ctx *gin.Context) {
 	if err != nil {
 		logs.CtxError(ctx, "bind req error. err: %+v", err)
 		util.ErrorJson(ctx, util.ParamError, "参数错误")
-		return
-	}
-	// 验证登陆
-	if !checkLoginStatus(ctx, req.Email) {
-		logs.CtxInfo(ctx, "未登陆")
-		util.ErrorJson(ctx, util.UserNotLogin, "用户未登陆")
 		return
 	}
 	user, err := db.GetUserByEmail(req.Email)
