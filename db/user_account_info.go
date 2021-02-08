@@ -27,6 +27,6 @@ func GetUserByEmail(email string) (res *UserAccountInfo, err error) {
 		return
 	}
 	res = &UserAccountInfo{}
-	err = conn.Debug().Where("email = ?", email).First(&res).Error
+	err = conn.Debug().Where("email = ? and status = 0", email).First(&res).Error
 	return
 }
