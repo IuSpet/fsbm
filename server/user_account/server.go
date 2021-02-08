@@ -178,7 +178,38 @@ func ModifyServer(ctx *gin.Context) {
 	}
 	err = db.SaveUserInfo(modifyInfo)
 	if err != nil {
-		logs.CtxError(ctx, "write in db error, err: %+v", err)
+		logs.CtxError(ctx, "save user info error, err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "内部错误")
+		return
+	}
+	util.EndJson(ctx, nil)
+}
+
+// 删除接口
+func DeleteServer(ctx *gin.Context) {
+	var req userCommonRequest
+	err := ctx.Bind(&req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	// 验证登陆
+	if !checkLoginStatus(ctx, req.Email) {
+		logs.CtxInfo(ctx, "未登陆")
+		util.ErrorJson(ctx, util.UserNotLogin, "用户未登陆")
+		return
+	}
+	user, err := db.GetUserByEmail(req.Email)
+	if err != nil {
+		logs.CtxError(ctx, "get user by email error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "内部错误")
+		return
+	}
+	user.Status = 1
+	err = db.SaveUserInfo(user)
+	if err != nil {
+		logs.CtxError(ctx, "save user info error. err: %+v", err)
 		util.ErrorJson(ctx, util.DbError, "内部错误")
 		return
 	}

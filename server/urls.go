@@ -14,8 +14,8 @@ func Register(router *gin.Engine) {
 	userModule.POST("/login/password", userAccount.UserPasswordLoginServer)
 	userModule.POST("/login/verify", userAccount.UserVerifyLoginServer)
 	userModule.POST("/logout", userAccount.LogoutServer)
-	userModule.POST("/modify")
-	userModule.POST("/delete")
+	userModule.POST("/modify", userAccount.ModifyServer)
+	userModule.POST("/delete", userAccount.DeleteServer)
 	// 工具模块
 	toolModule := router.Group("/tool")
 	toolModule.POST("/no_auth/generate_verification_code", tool.GenerateVerificationCode)
