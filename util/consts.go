@@ -9,6 +9,7 @@ const (
 	UserNotExist            = 5
 	InvalidPassword         = 6
 	InvalidVerificationCode = 7
+	UserNotLogin            = 8
 	// redis key template
 	UserLoginTemplate                 = "%s:login_in"
 	UserLoginVerificationCodeTemplate = "%s:login_verification_code"

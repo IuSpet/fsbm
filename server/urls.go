@@ -13,7 +13,7 @@ func Register(router *gin.Engine) {
 	userModule.POST("/register", userAccount.UserRegisterServer)
 	userModule.POST("/login/password", userAccount.UserPasswordLoginServer)
 	userModule.POST("/login/verify", userAccount.UserVerifyLoginServer)
-	userModule.POST("/logout")
+	userModule.POST("/logout", userAccount.LogoutServer)
 	userModule.POST("/modify")
 	userModule.POST("/delete")
 	// 工具模块

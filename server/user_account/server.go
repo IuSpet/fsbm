@@ -110,7 +110,7 @@ func UserRegisterServer(ctx *gin.Context) {
 		Name:     req.Name,
 		Email:    req.Email,
 		Status:   0,
-		Password: util.Sha256(req.Password),
+		Password: encryptPassword(req.Password),
 	}
 	err = db.SaveUserInfo(newUser)
 	if err != nil {
@@ -122,8 +122,67 @@ func UserRegisterServer(ctx *gin.Context) {
 	util.EndJson(ctx, nil)
 }
 
+// 注销接口
 func LogoutServer(ctx *gin.Context) {
+	var req userCommonRequest
+	err := ctx.Bind(&req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	logs.CtxInfo(ctx, "req: %+v", req)
+	delLoginStatus(ctx, req.Email)
+	util.EndJson(ctx, nil)
+}
 
+// 修改接口
+func ModifyServer(ctx *gin.Context) {
+	var req userCommonRequest
+	err := ctx.Bind(&req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	// 验证登陆
+	if !checkLoginStatus(ctx, req.Email) {
+		logs.CtxInfo(ctx, "未登陆")
+		util.ErrorJson(ctx, util.UserNotLogin, "用户未登陆")
+		return
+	}
+	key := fmt.Sprintf(util.UserLoginVerificationCodeTemplate, req.Email)
+	res, err := redis.GetWithRetry(ctx, key)
+	if err != nil {
+		logs.CtxWarn(ctx, "redis get error. key: %+v, err: %+v", key, err)
+		util.ErrorJson(ctx, util.DbError, "获取验证码失败")
+		return
+	}
+	if res != req.VerifyCode {
+		logs.CtxInfo(ctx, "verification error")
+		util.ErrorJson(ctx, util.InvalidVerificationCode, "验证码错误")
+		return
+	}
+	existInfo, err := db.GetUserByEmail(req.Email)
+	if err != nil {
+		logs.CtxError(ctx, "get user by email error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "内部错误")
+		return
+	}
+	modifyInfo := &db.UserAccountInfo{
+		ID:       existInfo.ID,
+		Name:     req.Name,
+		Email:    existInfo.Email,
+		Status:   0,
+		Password: encryptPassword(req.Password),
+	}
+	err = db.SaveUserInfo(modifyInfo)
+	if err != nil {
+		logs.CtxError(ctx, "write in db error, err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "内部错误")
+		return
+	}
+	util.EndJson(ctx, nil)
 }
 
 // 检查邮箱地址是否合法
@@ -136,8 +195,24 @@ func encryptPassword(password string) string {
 	return util.Sha256(util.Salt + password)
 }
 
+// 写入登陆状态
 func setLoginStatus(ctx context.Context, email string) error {
 	key := fmt.Sprintf(util.UserLoginTemplate, email)
 	err := redis.SetWithRetry(ctx, key, "ok", loginExpiration)
 	return err
+}
+
+// 删除登陆状态
+func delLoginStatus(ctx context.Context, email string) {
+	key := fmt.Sprintf(util.UserLoginTemplate, email)
+	redis.Del(ctx, key)
+}
+
+func checkLoginStatus(ctx context.Context, email string) bool {
+	key := fmt.Sprintf(util.UserLoginTemplate, email)
+	res, err := redis.GetWithRetry(ctx, key)
+	if err != nil || res == "" {
+		return false
+	}
+	return true
 }

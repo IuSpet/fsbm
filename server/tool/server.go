@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const verificationExpiration = time.Minute
+const verificationExpiration = 3 * time.Minute
 
 // 产生邮箱验证码
 func GenerateVerificationCode(ctx *gin.Context) {
@@ -39,7 +39,7 @@ func GenerateVerificationCode(ctx *gin.Context) {
 func newVerificationMail(dest, code string) *mail.DefaultMail {
 	return &mail.DefaultMail{
 		Dest:    []string{dest},
-		Subject: "登陆验证码",
-		Text:    []byte(code),
+		Subject: "验证码",
+		Text:    []byte(code + "，有效期3分钟"),
 	}
 }
