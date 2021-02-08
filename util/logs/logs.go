@@ -39,11 +39,16 @@ func SetGlobalLogLevel(l logLevel) {
 
 // 生成单次请求唯一后缀
 func getSuffix(ctx context.Context) string {
+	ret := "["
 	reqId, ok := ctx.Value("req_id").(string)
 	if ok {
-		return "[reqId=" + reqId + "]"
+		ret += "reqId=" + reqId + " "
 	}
-	return "[]"
+	email, ok := ctx.Value("email").(string)
+	if ok {
+		ret += "email=" + email + " "
+	}
+	return ret + "]"
 }
 
 func CtxDebug(ctx context.Context, format string, v ...interface{}) {
@@ -52,7 +57,7 @@ func CtxDebug(ctx context.Context, format string, v ...interface{}) {
 	}
 	msg := fmt.Sprintf(format, v...)
 	msg += getSuffix(ctx)
-	debugLogger.Println(msg)
+	_ = debugLogger.Output(2, msg)
 }
 
 func CtxInfo(ctx context.Context, format string, v ...interface{}) {
@@ -61,7 +66,7 @@ func CtxInfo(ctx context.Context, format string, v ...interface{}) {
 	}
 	msg := fmt.Sprintf(format, v...)
 	msg += getSuffix(ctx)
-	infoLogger.Println(msg)
+	_ = infoLogger.Output(2, msg)
 }
 
 func CtxWarn(ctx context.Context, format string, v ...interface{}) {
@@ -70,7 +75,7 @@ func CtxWarn(ctx context.Context, format string, v ...interface{}) {
 	}
 	msg := fmt.Sprintf(format, v...)
 	msg += getSuffix(ctx)
-	warnLogger.Println(msg)
+	_ = warnLogger.Output(2, msg)
 }
 
 func CtxError(ctx context.Context, format string, v ...interface{}) {
@@ -79,5 +84,5 @@ func CtxError(ctx context.Context, format string, v ...interface{}) {
 	}
 	msg := fmt.Sprintf(format, v...)
 	msg += getSuffix(ctx)
-	errorLogger.Println(msg)
+	_ = errorLogger.Output(2, msg)
 }
