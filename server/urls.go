@@ -29,7 +29,7 @@ func Register(router *gin.Engine) {
 func GenerateReqId(ctx *gin.Context) {
 	// 用请求到达的时间戳当req_id
 	now := time.Now()
-	ctx.Set("req_id", strconv.FormatInt(now.Unix(), 10))
+	ctx.Set("req_id", strconv.FormatInt(now.UnixNano(), 10))
 }
 
 func CheckLoginStatus(ctx *gin.Context) {

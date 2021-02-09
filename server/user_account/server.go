@@ -168,6 +168,7 @@ func ModifyServer(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.ParamError, "参数错误")
 		return
 	}
+	logs.CtxInfo(ctx, "req: %+v", req)
 	key := fmt.Sprintf(util.UserLoginVerificationCodeTemplate, req.Email)
 	res, err := redis.GetWithRetry(ctx, key)
 	if err != nil {
