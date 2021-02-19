@@ -10,8 +10,9 @@ const (
 	InvalidPassword         = 6
 	InvalidVerificationCode = 7
 	UserNotLogin            = 8
-	UserDeleted
-	EmailSendError
+	AuthenticationFail      = 9
+	UserDeleted             = 10
+	EmailSendError          = 11
 	// redis key template
 	UserLoginTemplate                 = "%s:login_in"
 	UserLoginVerificationCodeTemplate = "%s:login_verification_code"

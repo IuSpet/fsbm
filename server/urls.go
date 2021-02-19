@@ -5,6 +5,8 @@ import (
 	"fsbm/server/tool"
 	userAccount "fsbm/server/user_account"
 	"fsbm/util"
+	"fsbm/util/auth"
+	"fsbm/util/logs"
 	"fsbm/util/redis"
 	"github.com/gin-gonic/gin"
 	"strconv"
@@ -34,11 +36,31 @@ func GenerateReqId(ctx *gin.Context) {
 
 func CheckLoginStatus(ctx *gin.Context) {
 	email := ctx.GetHeader("email")
+	ctx.Set("email", email)
 	key := fmt.Sprintf(util.UserLoginTemplate, email)
 	res, err := redis.GetWithRetry(ctx, key)
 	if err != nil || res == "" {
-		ctx.Abort()
 		util.ErrorJson(ctx, util.UserNotLogin, "用户未登陆")
+		ctx.Abort()
+		return
+	}
+}
+
+func Authentication(ctx *gin.Context) {
+	email := ctx.GetString("email")
+	userRoleSubject, err := auth.NewUserRoleSubject(email)
+	if err != nil {
+		logs.CtxError(ctx, "db error: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "内部错误")
+		ctx.Abort()
+		return
+	}
+	path := ctx.FullPath()
+	hasPermission := userRoleSubject.HasPermission(ctx, AllPathPermission[path])
+	if !hasPermission {
+		logs.CtxInfo(ctx, "%s has no permission. permission: %+v", email, AllPathPermission[path])
+		util.ErrorJson(ctx, util.AuthenticationFail, "没有权限")
+		ctx.Abort()
 		return
 	}
 }
