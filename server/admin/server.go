@@ -78,3 +78,52 @@ func UserDetailServer(ctx *gin.Context) {
 	}
 	util.EndJson(ctx, rsp)
 }
+
+// 修改用户信息接口
+func ModifyUserDetailServer(ctx *gin.Context) {
+	var req modifyUserDetailRequest
+	err := ctx.Bind(&req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	logs.CtxInfo(ctx, "req: %+v", req)
+	// 修改用户基本信息
+	user, err := db.GetUserByEmail(req.Email)
+	if err != nil {
+		logs.CtxError(ctx, "get user by email error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "内部错误")
+		return
+	}
+	user.Name = req.Name
+	user.Status = req.Status
+	err = db.SaveUserInfo(user)
+	if err != nil {
+		logs.CtxError(ctx, "save user info error, err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "内部错误")
+		return
+	}
+	// 增加用户角色
+	msg := ""
+	if len(req.AddRoles) > 0 {
+		err = db.SaveUserRole(user.ID, req.AddRoles)
+		if err != nil {
+			logs.CtxWarn(ctx, "user add role fail. err: %+v", err)
+			msg += "用户角色增加失败"
+		}
+	}
+	// 删除用户角色
+	if len(req.DeleteRoles) > 0 {
+		err = db.RemoveUserRole(user.ID, req.DeleteRoles)
+		if err != nil {
+			logs.CtxWarn(ctx, "user delete role fail. err: %+v", err)
+			msg += "用户角色删除失败"
+		}
+	}
+	if msg != "" {
+		util.ErrorJson(ctx, util.DbError, msg)
+		return
+	}
+	util.EndJson(ctx, nil)
+}

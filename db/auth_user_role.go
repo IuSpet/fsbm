@@ -27,3 +27,12 @@ func SaveUserRole(userID int64, roleIDList []int64) (err error) {
 	err = conn.Save(userRoleList).Error
 	return
 }
+
+func RemoveUserRole(userID int64, roleIDList []int64) (err error) {
+	conn, err := fsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	err = conn.Where("user_id = ? and role_id in (?)", userID, roleIDList).Delete(AuthUserRole{}).Error
+	return
+}

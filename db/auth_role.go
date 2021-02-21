@@ -31,3 +31,13 @@ func SaveRole(role *AuthRole) (err error) {
 	err = conn.Save(role).Error
 	return
 }
+
+func GetRoleByName(t string, name string) (res *AuthRole, err error) {
+	conn, err := fsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	res = &AuthRole{}
+	err = conn.Debug().Where("type = ? and role = ?", t, name).Find(res).Error
+	return
+}

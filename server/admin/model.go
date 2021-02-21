@@ -31,3 +31,11 @@ type userDetailRole struct {
 	Type string `json:"type"`
 	Name string `json:"name"`
 }
+
+type modifyUserDetailRequest struct {
+	Email       string  `json:"email"`
+	Name        string  `json:"name"`
+	Status      int8    `json:"status"`
+	AddRoles    []int64 `json:"add_roles"`
+	DeleteRoles []int64 `json:"delete_roles"`
+}

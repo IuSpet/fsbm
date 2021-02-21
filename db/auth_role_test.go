@@ -24,3 +24,11 @@ func TestGetRoleById(t *testing.T) {
 	}
 	fmt.Printf("%+v\n", res)
 }
+
+func TestGetRoleByName(t *testing.T) {
+	res, err := GetRoleByName("test", "role_1")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%+v\n", res)
+}
