@@ -25,3 +25,11 @@ func TestGetUserByEmail(t *testing.T) {
 	}
 	fmt.Printf("%+v", res)
 }
+
+func TestGetAllUser(t *testing.T) {
+	res, err := GetAllUser()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%+v", res)
+}

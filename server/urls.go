@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"fsbm/server/admin"
 	"fsbm/server/tool"
 	userAccount "fsbm/server/user_account"
 	"fsbm/util"
@@ -15,8 +16,14 @@ import (
 
 func Register(router *gin.Engine) {
 	router.GET("/ping", pong)
+	router.Use(GenerateReqId)
+	// 管理员api
+	adminModule := router.Group("/admin", CheckLoginStatus, Authentication)
+	adminModule.POST("/user_list", admin.UserListServer)
+	adminModule.POST("/authority/modify")
+	adminModule.POST("/user_detail", admin.UserDetailServer)
 	// 用户模块
-	userModule := router.Group("/user", GenerateReqId)
+	userModule := router.Group("/user")
 	userModule.POST("/register", userAccount.UserRegisterServer)
 	userModule.POST("/login/password", userAccount.UserPasswordLoginServer)
 	userModule.POST("/login/verify", userAccount.UserVerifyLoginServer)
@@ -26,6 +33,8 @@ func Register(router *gin.Engine) {
 	// 工具模块
 	toolModule := router.Group("/tool")
 	toolModule.POST("/no_auth/generate_verification_code", tool.GenerateVerificationCode)
+	toolModule.POST("/need_auth/apply_authority", Authentication,)
+
 }
 
 func GenerateReqId(ctx *gin.Context) {
@@ -56,6 +65,7 @@ func Authentication(ctx *gin.Context) {
 		return
 	}
 	path := ctx.FullPath()
+	// api权限检查
 	hasPermission := userRoleSubject.HasPermission(ctx, AllPathPermission[path])
 	if !hasPermission {
 		logs.CtxInfo(ctx, "%s has no permission. permission: %+v", email, AllPathPermission[path])

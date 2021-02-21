@@ -45,3 +45,6 @@ func newVerificationMail(dest, code string) *mail.DefaultMail {
 		Text:    []byte(code + "，有效期3分钟"),
 	}
 }
+
+// 申请角色
+func ApplyRoleServer(ctx *gin.Context) {}

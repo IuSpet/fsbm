@@ -35,3 +35,12 @@ func GetUserByEmail(email string) (res *UserAccountInfo, err error) {
 	}
 	return
 }
+
+func GetAllUser() (res []UserAccountInfo, err error) {
+	conn, err := fsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	err = conn.Debug().Order("id").Find(&res).Error
+	return
+}
