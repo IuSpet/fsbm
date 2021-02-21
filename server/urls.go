@@ -30,10 +30,10 @@ func Register(router *gin.Engine) {
 	userModule.POST("/logout", userAccount.LogoutServer)
 	userModule.POST("/modify", CheckLoginStatus, userAccount.ModifyServer)
 	userModule.POST("/delete", CheckLoginStatus, userAccount.DeleteServer)
+	userModule.POST("/apply_role", CheckLoginStatus, userAccount.ApplyRoleServer)
 	// 工具模块
 	toolModule := router.Group("/tool")
 	toolModule.POST("/no_auth/generate_verification_code", tool.GenerateVerificationCode)
-	toolModule.POST("/need_auth/apply_authority", Authentication,)
 
 }
 

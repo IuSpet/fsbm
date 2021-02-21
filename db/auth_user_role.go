@@ -28,6 +28,15 @@ func SaveUserRole(userID int64, roleIDList []int64) (err error) {
 	return
 }
 
+func SaveAuthUserRoleRows(rows []AuthUserRole) (err error) {
+	conn, err := fsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	err = conn.Save(rows).Error
+	return
+}
+
 func RemoveUserRole(userID int64, roleIDList []int64) (err error) {
 	conn, err := fsbmSession.GetConnection()
 	if err != nil {

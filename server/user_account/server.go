@@ -228,6 +228,11 @@ func DeleteServer(ctx *gin.Context) {
 	util.EndJson(ctx, nil)
 }
 
+// 申请角色
+func ApplyRoleServer(ctx *gin.Context) {
+
+}
+
 // 检查邮箱地址是否合法
 func isEmailLegal(email string) bool {
 	return legalEmailAddr.MatchString(email)
