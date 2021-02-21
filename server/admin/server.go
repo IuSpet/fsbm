@@ -107,7 +107,7 @@ func ModifyUserDetailServer(ctx *gin.Context) {
 	// 增加用户角色
 	msg := ""
 	if len(req.AddRoles) > 0 {
-		err = db.SaveUserRole(user.ID, req.AddRoles)
+		err = db.SaveAuthUserRoleRows(generateAuthUserRoleRows(user.ID, req.AddRoles))
 		if err != nil {
 			logs.CtxWarn(ctx, "user add role fail. err: %+v", err)
 			msg += "用户角色增加失败"
@@ -126,4 +126,16 @@ func ModifyUserDetailServer(ctx *gin.Context) {
 		return
 	}
 	util.EndJson(ctx, nil)
+}
+
+func generateAuthUserRoleRows(userID int64, roleIDList []int64) []db.AuthUserRole {
+	var userRoleList []db.AuthUserRole
+	for _, roleID := range roleIDList {
+		userRoleList = append(userRoleList, db.AuthUserRole{
+			UserID: userID,
+			RoleID: roleID,
+			Status: 1,
+		})
+	}
+	return userRoleList
 }
