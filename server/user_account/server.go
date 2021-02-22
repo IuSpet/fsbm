@@ -212,6 +212,7 @@ func DeleteServer(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.ParamError, "参数错误")
 		return
 	}
+	logs.CtxInfo(ctx, "req: %+v", req)
 	user, err := db.GetUserByEmail(req.Email)
 	if err != nil {
 		logs.CtxError(ctx, "get user by email error. err: %+v", err)
@@ -230,7 +231,39 @@ func DeleteServer(ctx *gin.Context) {
 
 // 申请角色
 func ApplyRoleServer(ctx *gin.Context) {
+	var req applyRoleRequest
+	err := ctx.Bind(&req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	logs.CtxInfo(ctx, "req: %+v", req)
+	user, err := db.GetUserByEmail(req.Email)
+	if err != nil {
+		logs.CtxError(ctx, "get user by email error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "内部错误")
+		return
+	}
+	err = db.SaveUserApplyRoleRows(GenerateApplyRoleRows(user.ID, req.RoleIDList))
+	if err != nil {
+		logs.CtxError(ctx, "save user apply role rows error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "内部错误")
+		return
+	}
+	util.EndJson(ctx, nil)
+}
 
+func GenerateApplyRoleRows(UserID int64, RoleIDList []int64) []db.UserApplyRole {
+	var rows []db.UserApplyRole
+	for _, roleID := range RoleIDList {
+		rows = append(rows, db.UserApplyRole{
+			UserID: UserID,
+			RoleID: roleID,
+			Status: 1,
+		})
+	}
+	return rows
 }
 
 // 检查邮箱地址是否合法
