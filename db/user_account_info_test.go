@@ -33,3 +33,14 @@ func TestGetAllUser(t *testing.T) {
 	}
 	fmt.Printf("%+v", res)
 }
+
+func TestFuzzySearchUser(t *testing.T) {
+	conditions := []string{
+		"email like %@%",
+	}
+	res, err := FuzzySearchUser(conditions)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%+v\n", res)
+}

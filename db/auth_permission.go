@@ -1,14 +1,32 @@
 package db
 
+import "time"
+
 type AuthPermission struct {
-	ID         int64  `gorm:"column:id" json:"id"`
-	Permission string `gorm:"column:permission" json:"permission"`
-	Type       string `gorm:"column:type" json:"type"`
-	Status     int8   `gorm:"column:status" json:"status"`
+	ID         int64     `gorm:"type:bigint; primaryKey"`
+	Permission string    `gorm:"type:varchar(128); not null"`
+	Type       string    `gorm:"type:varchar(128); not null"`
+	Status     int8      `gorm:"type:tinyint; not null; comment:0:正常"`
+	CreatedAt  time.Time `gorm:"autoCreateTime; not null"`
+	UpdatedAt  time.Time `gorm:"autoUpdateTime; not null"`
 }
 
 func (AuthPermission) TableName() string {
 	return "auth_permission"
+}
+
+func init() {
+	table := AuthPermission{}
+	RegisterMigration(table.TableName(), func() {
+		conn, err := fsbmSession.GetConnection()
+		if err != nil {
+			panic(err)
+		}
+		err = conn.Debug().Set("gorm:table_options", "ENGINE=INNODB CHARSET=utf8").AutoMigrate(&table)
+		if err != nil {
+			panic(err)
+		}
+	})
 }
 
 func GetPermissionByRoleID(roleID []int64) (res []AuthPermission, err error) {
