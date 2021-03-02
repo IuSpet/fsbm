@@ -18,7 +18,9 @@ type Handler struct {
 }
 
 func NewHandler() *Handler {
-	return &Handler{config: &gorm.Config{}}
+	return &Handler{config: &gorm.Config{
+		DisableForeignKeyConstraintWhenMigrating: true,
+	}}
 }
 
 func (h *Handler) GetConnection() (*gorm.DB, error) {
