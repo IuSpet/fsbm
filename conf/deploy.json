@@ -1,0 +1,14 @@
+{
+  "mysql": {
+    "ip": "127.0.0.1",
+    "port": "3306",
+    "db_name": "fsbm_test",
+    "user": "root",
+    "password": "123456"
+  },
+  "redis": {
+    "addr": "127.0.0.1:6379",
+    "password": "",
+    "DB": 0
+  }
+}

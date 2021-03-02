@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"fsbm/conf"
 	"github.com/go-redis/redis/v8"
 	"time"
 )
@@ -9,10 +10,11 @@ import (
 var redisClient *redis.Client
 
 func init() {
+	redisCfg := conf.GlobalConfig.Redis
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:     "127.0.0.1:6379",
-		Password: "",
-		DB:       0,
+		Addr:     redisCfg.Addr,
+		Password: redisCfg.Password,
+		DB:       redisCfg.DB,
 	})
 }
 

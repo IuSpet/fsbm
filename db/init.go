@@ -1,16 +1,19 @@
 package db
 
+import "fsbm/conf"
+
 var fsbmSession *Handler
 
-func init() {
-	Init()
-}
+//func init() {
+//	Init()
+//}
 
 func Init() {
 	fsbmSession = NewHandler()
-	fsbmSession.user = "root"
-	fsbmSession.password = "123456"
-	fsbmSession.ip = "127.0.0.1"
-	fsbmSession.port = "3306"
-	fsbmSession.dbName = "fsbm_test"
+	mysqlCfg := conf.GlobalConfig.Mysql
+	fsbmSession.user = mysqlCfg.User
+	fsbmSession.password = mysqlCfg.Password
+	fsbmSession.ip = mysqlCfg.Ip
+	fsbmSession.port = mysqlCfg.Port
+	fsbmSession.dbName = mysqlCfg.DbName
 }

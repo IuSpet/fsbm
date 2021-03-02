@@ -1,10 +1,13 @@
 package main
 
 import (
+	"fsbm/conf"
+	"fsbm/db"
 	"fsbm/server"
 )
 
 func main() {
-	//db.Init()
+	conf.Init()
+	db.Init()
 	server.Run()
 }
