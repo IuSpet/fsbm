@@ -3,9 +3,11 @@ package conf
 import (
 	"encoding/json"
 	"io/ioutil"
+	"os"
+	"strings"
 )
 
-const Path = "./conf/deploy.json"
+const SuffixPath = "/conf/deploy.json"
 
 type config struct {
 	Mysql mysqlConfig
@@ -29,7 +31,10 @@ type redisConfig struct {
 var GlobalConfig config
 
 func Init() {
-	data, err := ioutil.ReadFile(Path)
+	currentPath, _ := os.Getwd()
+	index := strings.Index(currentPath,"fsbm") + 4
+	path := currentPath[:index] + SuffixPath
+	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		panic(err)
 	}
