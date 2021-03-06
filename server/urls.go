@@ -16,7 +16,7 @@ import (
 
 func Register(router *gin.Engine) {
 	router.GET("/ping", pong)
-	router.Use(GenerateReqId)
+	router.Use(GenerateReqId, AllowOrigin)
 	// 管理员api
 	adminModule := router.Group("/admin", CheckLoginStatus, Authentication)
 	adminModule.POST("/user_list", admin.UserListServer)
@@ -73,4 +73,9 @@ func Authentication(ctx *gin.Context) {
 		ctx.Abort()
 		return
 	}
+}
+
+func AllowOrigin(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.Next()
 }

@@ -27,6 +27,9 @@ func UserPasswordLoginServer(ctx *gin.Context) {
 		return
 	}
 	logs.CtxInfo(ctx, "req: %+v", req)
+	if req.Name == "" || req.Email == "" || req.Password == "" {
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+	}
 	res, err := db.GetUserByEmail(req.Email)
 	if err != nil {
 		logs.CtxError(ctx, "get user by email error. err: %+v", err)
