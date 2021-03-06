@@ -108,6 +108,7 @@ func UserVerifyLoginServer(ctx *gin.Context) {
 func UserRegisterServer(ctx *gin.Context) {
 	var req userCommonRequest
 	err := ctx.Bind(&req)
+	logs.CtxInfo(ctx, "raw request: %+v", ctx.Request)
 	if err != nil {
 		logs.CtxError(ctx, "bind req error. err: %+v", err)
 		util.ErrorJson(ctx, util.ParamError, "参数错误")
@@ -135,6 +136,7 @@ func UserRegisterServer(ctx *gin.Context) {
 	newUser := &db.UserAccountInfo{
 		Name:     req.Name,
 		Email:    req.Email,
+		Phone:    req.Phone,
 		Status:   0,
 		Password: encryptPassword(req.Password),
 	}

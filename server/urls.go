@@ -10,6 +10,7 @@ import (
 	"fsbm/util/logs"
 	"fsbm/util/redis"
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"strconv"
 	"time"
 )
@@ -69,13 +70,20 @@ func Authentication(ctx *gin.Context) {
 	hasPermission := userRoleSubject.HasPermission(ctx, AllPathPermission[path])
 	if !hasPermission {
 		logs.CtxInfo(ctx, "%s has no permission. permission: %+v", email, AllPathPermission[path])
-		util.ErrorJson(ctx, util.AuthenticationFail, "没有权限")
-		ctx.Abort()
+		ctx.AbortWithStatus(http.StatusForbidden)
 		return
 	}
 }
 
 func AllowOrigin(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, UPDATE")
+	ctx.Header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
+	ctx.Header("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Cache-Control, Content-Language, Content-Type")
+	ctx.Header("Access-Control-Allow-Credentials", "true")
+	method := ctx.Request.Method
+	if method == "OPTIONS" {
+		ctx.AbortWithStatus(http.StatusNoContent)
+	}
 	ctx.Next()
 }
