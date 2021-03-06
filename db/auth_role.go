@@ -3,7 +3,7 @@ package db
 import "time"
 
 type AuthRole struct {
-	ID        int64     `gorm:"type:bigint; primaryKey"`
+	ID        int64     `gorm:"AUTO_INCREMENT; primaryKey"`
 	Role      string    `gorm:"type:varchar(128); not null; index; uniqueIndex:uk_type_role,priority:2"`
 	Type      string    `gorm:"type:varchar(128); not null; uniqueIndex:uk_type_role,priority:1"`
 	Status    int8      `gorm:"type:tinyint; not null; comment:0:正常"`

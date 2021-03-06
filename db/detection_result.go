@@ -3,7 +3,7 @@ package db
 import "time"
 
 type DetectionResult struct {
-	ID           int64     `gorm:"type:bigint; primaryKey"`
+	ID           int64     `gorm:"AUTO_INCREMENT; primaryKey"`
 	SrcVideoID   int64     `gorm:"type:bigint; not null; comment:图片来源视频id"`
 	SrcDeviceID  int64     `gorm:"type:bigint; not null; comment:图片来源设别id"`
 	At           int64     `gorm:"type:bigint; not null; comment:图片时间戳"`

@@ -6,7 +6,7 @@ import (
 )
 
 type UserAccountInfo struct {
-	ID        int64     `gorm:"type:bigint; primaryKey"`
+	ID        int64     `gorm:"AUTO_INCREMENT; primaryKey"`
 	Name      string    `gorm:"type:varchar(128); not null "`
 	Email     string    `gorm:"type:varchar(128); not null; uniqueIndex"`
 	Status    int8      `gorm:"type:tinyint; not null; comment:0:正常,1:已删除"`

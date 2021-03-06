@@ -3,7 +3,7 @@ package db
 import "time"
 
 type AuthRolePermission struct {
-	ID           int64     `gorm:"type:bigint; primaryKey"`
+	ID           int64     `gorm:"AUTO_INCREMENT; primaryKey"`
 	RoleID       int64     `gorm:"type:bigint; not null; uniqueIndex:uk_role_permission,priority:1"`
 	PermissionID int64     `gorm:"type:bigint; not null; index; uniqueIndex:uk_role_permission,priority:2"`
 	Status       int8      `gorm:"type:tinyint; not null; comment:0:正常"`

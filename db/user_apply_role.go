@@ -3,7 +3,7 @@ package db
 import "time"
 
 type UserApplyRole struct {
-	ID        int64     `gorm:"type:bigint; primaryKey"`
+	ID        int64     `gorm:"AUTO_INCREMENT; primaryKey"`
 	UserID    int64     `gorm:"type:bigint; not null; uniqueIndex:uk_user_role,priority:1"`
 	RoleID    int64     `gorm:"type:bigint; not null; index; uniqueIndex:uk_user_role,priority:2"`
 	Status    int8      `gorm:"type:tinyint; not null; comment:1:申请中,2:已通过,3:未通过"`
