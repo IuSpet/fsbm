@@ -2,6 +2,7 @@ package tool
 
 import (
 	"fmt"
+	"fsbm/db"
 	"fsbm/util"
 	"fsbm/util/logs"
 	"fsbm/util/mail"
@@ -22,6 +23,18 @@ func GenerateVerificationCode(ctx *gin.Context) {
 		return
 	}
 	logs.CtxInfo(ctx, "req: %+v", req)
+	user, err := db.GetUserByEmail(req.Email)
+	if err != nil {
+		logs.CtxError(ctx, "get user by email error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "内部错误")
+		return
+	}
+	// 邮箱注册过
+	if user == nil {
+		logs.CtxInfo(ctx, "email not register")
+		util.ErrorJson(ctx, util.UserNotExist, "邮箱未注册")
+		return
+	}
 	code := util.GenerateRandCode(6)
 	key := fmt.Sprintf(util.UserLoginVerificationCodeTemplate, req.Email)
 	err = redis.SetWithRetry(ctx, key, code, verificationExpiration)
@@ -36,6 +49,7 @@ func GenerateVerificationCode(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.EmailSendError, "邮件发送失败")
 		return
 	}
+	util.EndJson(ctx, nil)
 }
 
 func newVerificationMail(dest, code string) *mail.DefaultMail {

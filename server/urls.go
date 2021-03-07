@@ -38,12 +38,14 @@ func Register(router *gin.Engine) {
 
 }
 
+// 生成唯一请求ID
 func GenerateReqId(ctx *gin.Context) {
 	// 用请求到达的时间戳当req_id
 	now := time.Now()
 	ctx.Set("req_id", strconv.FormatInt(now.UnixNano(), 10))
 }
 
+// 检查登录状态
 func CheckLoginStatus(ctx *gin.Context) {
 	email := ctx.GetHeader("email")
 	ctx.Set("email", email)
@@ -56,6 +58,7 @@ func CheckLoginStatus(ctx *gin.Context) {
 	}
 }
 
+// 检查接口权限
 func Authentication(ctx *gin.Context) {
 	email := ctx.GetString("email")
 	userRoleSubject, err := auth.NewUserRoleSubject(email)
@@ -75,6 +78,7 @@ func Authentication(ctx *gin.Context) {
 	}
 }
 
+// 允许跨域调用
 func AllowOrigin(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, UPDATE")

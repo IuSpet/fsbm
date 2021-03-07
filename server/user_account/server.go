@@ -27,8 +27,9 @@ func UserPasswordLoginServer(ctx *gin.Context) {
 		return
 	}
 	logs.CtxInfo(ctx, "req: %+v", req)
-	if req.Name == "" || req.Email == "" || req.Password == "" {
+	if req.Email == "" || req.Password == "" {
 		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
 	}
 	res, err := db.GetUserByEmail(req.Email)
 	if err != nil {
@@ -44,6 +45,7 @@ func UserPasswordLoginServer(ctx *gin.Context) {
 	if res.Status == 1 {
 		logs.CtxInfo(ctx, "user has been deleted")
 		util.ErrorJson(ctx, util.UserDeleted, "用户已被删除 ")
+		return
 	}
 	if res.Password != encryptPassword(req.Password) {
 		logs.CtxInfo(ctx, "wrong password")
@@ -147,6 +149,10 @@ func UserRegisterServer(ctx *gin.Context) {
 		return
 	}
 	logs.CtxInfo(ctx, "new user: %+v", newUser)
+	err = setLoginStatus(ctx, req.Email)
+	if err != nil {
+		logs.CtxError(ctx, "set login status error")
+	}
 	util.EndJson(ctx, nil)
 }
 
@@ -284,6 +290,7 @@ func encryptPassword(password string) string {
 // 写入登陆状态
 func setLoginStatus(ctx context.Context, email string) error {
 	key := fmt.Sprintf(util.UserLoginTemplate, email)
+	logs.CtxInfo(ctx, key)
 	err := redis.SetWithRetry(ctx, key, "ok", loginExpiration)
 	return err
 }

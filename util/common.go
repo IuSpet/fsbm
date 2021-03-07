@@ -26,7 +26,7 @@ func Sha256(raw string) string {
 
 func ErrorJson(ctx *gin.Context, status int, msg string) {
 	ctx.JSON(http.StatusOK, gin.H{
-		"Status":  status,
+		"status":  status,
 		"message": msg,
 	})
 }
@@ -53,6 +53,7 @@ func MinInt64(a, b int64) int64 {
 	return a
 }
 
+// 产生n位，最多32位随机字符
 func GenerateRandCode(n int) string {
 	rand.Seed(time.Now().Unix())
 	r := rand.Int63()
