@@ -29,7 +29,7 @@ func init() {
 		if err != nil {
 			panic(err)
 		}
-		err = conn.Debug().Set("gorm:table_options", "ENGINE=INNODB CHARSET=utf8").AutoMigrate(&table)
+		err = conn.Set("gorm:table_options", "ENGINE=INNODB CHARSET=utf8").AutoMigrate(&table)
 		if err != nil {
 			panic(err)
 		}

@@ -2,13 +2,16 @@ package db
 
 import (
 	"fmt"
+	"fsbm/conf"
 	"testing"
 )
 
 func TestSaveUserInfo(t *testing.T) {
+	conf.Init()
+	Init()
 	info := &UserAccountInfo{
 		Name:     "admin",
-		Email:    "admin@admin.com",
+		Email:    "123@321",
 		Status:   0,
 		Password: "123456",
 	}
@@ -27,6 +30,8 @@ func TestGetUserByEmail(t *testing.T) {
 }
 
 func TestGetAllUser(t *testing.T) {
+	conf.Init()
+	Init()
 	res, err := GetAllUser()
 	if err != nil {
 		panic(err)
@@ -43,4 +48,14 @@ func TestFuzzySearchUser(t *testing.T) {
 		panic(err)
 	}
 	fmt.Printf("%+v\n", res)
+}
+
+func TestSetAvatar(t *testing.T) {
+	conf.Init()
+	Init()
+	avatar := []byte("123")
+	err := SetAvatar("123@321", avatar)
+	if err != nil {
+		panic(err)
+	}
 }

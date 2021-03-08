@@ -17,6 +17,7 @@ import (
 
 func Register(router *gin.Engine) {
 	router.GET("/ping", pong)
+	router.POST("/avatar", userAccount.SetAvatarServer)
 	router.Use(GenerateReqId, AllowOrigin)
 	// 管理员api
 	adminModule := router.Group("/admin", CheckLoginStatus, Authentication)
