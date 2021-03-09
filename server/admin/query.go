@@ -26,9 +26,11 @@ func getUserList(name, email, phone string, gender, age int8, begin, end time.Ti
 	if age != -1 {
 		conn = conn.Where("age = ?", age)
 	}
-	limit := int(pageSize)
-	offset := int(pageSize * (page - 1))
-	conn = conn.Limit(limit).Offset(offset)
+	if page != -1 {
+		limit := int(pageSize)
+		offset := int(pageSize * (page - 1))
+		conn = conn.Limit(limit).Offset(offset)
+	}
 	err = conn.Debug().Find(&res).Error
 	return
 }

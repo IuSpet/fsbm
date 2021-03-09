@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -59,4 +60,17 @@ func GenerateRandCode(n int) string {
 	r := rand.Int63()
 	hash := Sha256(strconv.FormatInt(r, 10))
 	return hash[:MinInt(32, n)]
+}
+
+func SetFileTransportHeader(ctx *gin.Context, fileName string) {
+	ctx.Header("Content-Disposition", "attachment; filename="+url.QueryEscape(fileName))
+	ctx.Header("Content-Description", "File Transfer")
+	ctx.Header("Content-Type", "application/octet-stream")
+	ctx.Header("Content-Transfer-Encoding", "binary")
+	ctx.Header("Expires", "0")
+	ctx.Header("Cache-Control", "must-revalidate")
+	ctx.Header("Pragma", "public")
+	ctx.Header("Access-Control-Expose-Headers", "*")
+	ctx.Header("FileName", fileName)
+	ctx.File(fileName)
 }

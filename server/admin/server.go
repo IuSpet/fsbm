@@ -1,15 +1,29 @@
 package admin
 
 import (
+	"encoding/csv"
+	"encoding/json"
 	"fsbm/db"
 	"fsbm/util"
 	"fsbm/util/logs"
 	"github.com/gin-gonic/gin"
+	"os"
 	"reflect"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
+
+var userInfoCsvColumns = []struct{ Field, Key string }{
+	{"用户名", "name"},
+	{"邮箱", "email"},
+	{"手机号", "phone"},
+	{"性别", "gender"},
+	{"年龄", "age"},
+	{"注册时间", "created_at"},
+	{"状态", "status"},
+}
 
 // 获取所有用户列表接口
 func UserListServer(ctx *gin.Context) {
@@ -22,43 +36,11 @@ func UserListServer(ctx *gin.Context) {
 		return
 	}
 	logs.CtxInfo(ctx, "req: %+v", req)
-	begin, _ := time.Parse(util.YMDHMS, req.CreateBegin)
-	end, _ := time.Parse(util.YMDHMS, req.CreateEnd)
-	userList, err := getUserList(req.Name, req.Email, req.Phone, req.Gender, req.Age, begin, end, req.Page, req.PageSize)
-	if len(req.SortFields) > 0 {
-		sort.SliceStable(userList, func(i, j int) bool {
-			a, b := reflect.ValueOf(userList[i]), reflect.ValueOf(userList[j])
-			for _, item := range req.SortFields {
-				x, y := a.FieldByName(item.Field).Interface(), b.FieldByName(item.Field).Interface()
-				if reflect.DeepEqual(x, y) {
-					continue
-				}
-				asc := strings.ToLower(item.Order) == "asc"
-				switch x.(type) {
-				case string:
-					if asc {
-						return x.(string) > y.(string)
-					}
-					return x.(string) < y.(string)
-				case int64:
-					if asc {
-						return x.(int64) > y.(int64)
-					}
-					return x.(int64) < y.(int64)
-				case int8:
-					if asc {
-						return x.(int8) > y.(int8)
-					}
-					return x.(int8) < y.(int8)
-				case time.Time:
-					if asc {
-						return x.(time.Time).After(y.(time.Time))
-					}
-					return x.(time.Time).Before(y.(time.Time))
-				}
-			}
-			return true
-		})
+	userList, err := getSortedUserList(&req)
+	if err != nil {
+		logs.CtxError(ctx, "get user list error.err: %+v")
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
 	}
 	for idx := range userList {
 		rsp.UserInfoList = append(rsp.UserInfoList, userInfo{
@@ -73,9 +55,62 @@ func UserListServer(ctx *gin.Context) {
 	}
 	rsp.TotalCount, err = db.GetUserAccountInfoTotalCnt()
 	if err != nil {
-		logs.CtxError(ctx, "%+v", err)
+		logs.CtxError(ctx, "get user_account_info total cnt error. err: %+v", err)
 	}
 	util.EndJson(ctx, rsp)
+}
+
+// 查询用户信息导出csv接口
+func UserListCsvServer(ctx *gin.Context) {
+	req := newGetUserListRequest()
+	err := ctx.Bind(&req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	req.Page = -1
+	logs.CtxInfo(ctx, "req: %+v", req)
+	userList, err := getSortedUserList(&req)
+	if err != nil {
+		logs.CtxError(ctx, "get user list error.err: %+v")
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	csvRows := make([]userInfoCsvRow, 0, len(userList))
+	for idx := range userList {
+		csvRows = append(csvRows, userInfoCsvRow{
+			Email:     userList[idx].Email,
+			Name:      userList[idx].Name,
+			Phone:     userList[idx].Phone,
+			Status:    db.UserStatusMapping[userList[idx].Status],
+			Age:       strconv.FormatInt(int64(userList[idx].Age), 10),
+			CreatedAt: userList[idx].CreatedAt.Format(util.YMDHMS),
+			Gender:    db.UserGenderMapping[userList[idx].Gender],
+		})
+	}
+	fileName := "用户列表导出.csv"
+	file, _ := os.Create(fileName)
+	defer file.Close()
+	w := csv.NewWriter(file)
+	var title []string
+	for idx := range userInfoCsvColumns {
+		title = append(title, userInfoCsvColumns[idx].Field)
+	}
+	_ = w.Write(title)
+	for idx := range csvRows {
+		var row []string
+		var m = make(map[string]string)
+		s, _ := json.Marshal(csvRows[idx])
+		_ = json.Unmarshal(s, &m)
+		for _, k := range userInfoCsvColumns {
+			row = append(row, m[k.Key])
+		}
+		_ = w.Write(row)
+	}
+	w.Flush()
+	util.SetFileTransportHeader(ctx, fileName)
+	_ = os.Remove(fileName)
 }
 
 // 获取用户详细信息接口
@@ -184,4 +219,49 @@ func newGetUserListRequest() getUserListRequest {
 		Page:        1,
 		PageSize:    20,
 	}
+}
+
+func getSortedUserList(req *getUserListRequest) ([]db.UserAccountInfo, error) {
+	begin, _ := time.Parse(util.YMDHMS, req.CreateBegin)
+	end, _ := time.Parse(util.YMDHMS, req.CreateEnd)
+	userList, err := getUserList(req.Name, req.Email, req.Phone, req.Gender, req.Age, begin, end, req.Page, req.PageSize)
+	if err != nil {
+		return nil, err
+	}
+	if len(req.SortFields) > 0 {
+		sort.SliceStable(userList, func(i, j int) bool {
+			a, b := reflect.ValueOf(userList[i]), reflect.ValueOf(userList[j])
+			for _, item := range req.SortFields {
+				x, y := a.FieldByName(item.Field).Interface(), b.FieldByName(item.Field).Interface()
+				if reflect.DeepEqual(x, y) {
+					continue
+				}
+				asc := strings.ToLower(item.Order) == "asc"
+				switch x.(type) {
+				case string:
+					if asc {
+						return x.(string) > y.(string)
+					}
+					return x.(string) < y.(string)
+				case int64:
+					if asc {
+						return x.(int64) > y.(int64)
+					}
+					return x.(int64) < y.(int64)
+				case int8:
+					if asc {
+						return x.(int8) > y.(int8)
+					}
+					return x.(int8) < y.(int8)
+				case time.Time:
+					if asc {
+						return x.(time.Time).After(y.(time.Time))
+					}
+					return x.(time.Time).Before(y.(time.Time))
+				}
+			}
+			return true
+		})
+	}
+	return userList, nil
 }

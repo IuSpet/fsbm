@@ -56,3 +56,13 @@ type sortField struct {
 	Field string `json:"field"` // 必须和字段名一致
 	Order string `json:"order"`
 }
+
+type userInfoCsvRow struct {
+	Email     string `json:"email"`
+	Name      string `json:"name"`
+	Phone     string `json:"phone"`
+	Status    string `json:"status"`
+	Age       string `json:"age"`
+	Gender    string `json:"gender"`
+	CreatedAt string `json:"created_at"`
+}
