@@ -19,9 +19,13 @@ type getUserListResponse struct {
 }
 
 type userInfo struct {
-	Name   string `json:"name"`
-	Email  string `json:"email"`
-	Status string `json:"status"`
+	Name      string `json:"name"`
+	Email     string `json:"email"`
+	Gender    string `json:"gender"`
+	Age       int8   `json:"age"`
+	Phone     string `json:"phone"`
+	CreatedAt string `json:"created_at"`
+	Status    string `json:"status"`
 }
 
 type getUserDetailRequest struct {

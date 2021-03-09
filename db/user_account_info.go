@@ -23,6 +23,17 @@ func (UserAccountInfo) TableName() string {
 	return "user_account_info"
 }
 
+var UserStatusMapping = map[int8]string{
+	0: "正常",
+	1: "已删除",
+}
+
+var UserGenderMapping = map[int8]string{
+	0: "未设置",
+	1: "男",
+	2: "女",
+}
+
 func init() {
 	table := UserAccountInfo{}
 	RegisterMigration(table.TableName(), func() {
@@ -86,5 +97,14 @@ func SetAvatar(email string, avatar []byte) (err error) {
 		return
 	}
 	err = conn.Model(&UserAccountInfo{}).Where("email = ?", email).Update("avatar", avatar).Error
+	return
+}
+
+func GetUserAccountInfoTotalCnt() (res int64, err error) {
+	conn, err := FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	err = conn.Count(&res).Error
 	return
 }

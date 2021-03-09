@@ -11,11 +11,6 @@ import (
 	"time"
 )
 
-var userStatusMapping = map[int8]string{
-	0: "正常",
-	1: "已删除",
-}
-
 // 获取所有用户列表接口
 func UserListServer(ctx *gin.Context) {
 	req := newGetUserListRequest()
@@ -65,6 +60,21 @@ func UserListServer(ctx *gin.Context) {
 			return true
 		})
 	}
+	for idx := range userList {
+		rsp.UserInfoList = append(rsp.UserInfoList, userInfo{
+			Name:      userList[idx].Name,
+			Email:     userList[idx].Email,
+			Gender:    db.UserGenderMapping[userList[idx].Gender],
+			Age:       userList[idx].Age,
+			Phone:     userList[idx].Phone,
+			CreatedAt: userList[idx].CreatedAt.Format(util.YMDHMS),
+			Status:    db.UserGenderMapping[userList[idx].Status],
+		})
+	}
+	rsp.TotalCount, err = db.GetUserAccountInfoTotalCnt()
+	if err != nil {
+		logs.CtxError(ctx, "%+v", err)
+	}
 	util.EndJson(ctx, rsp)
 }
 
@@ -86,7 +96,7 @@ func UserDetailServer(ctx *gin.Context) {
 		return
 	}
 	rsp.Email = user.Email
-	rsp.Status = userStatusMapping[user.Status]
+	rsp.Status = db.UserStatusMapping[user.Status]
 	rsp.Name = user.Name
 	roleList, err := db.GetRoleById(user.ID)
 	if err != nil {
