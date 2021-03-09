@@ -18,7 +18,7 @@ func (AuthPermission) TableName() string {
 func init() {
 	table := AuthPermission{}
 	RegisterMigration(table.TableName(), func() {
-		conn, err := fsbmSession.GetConnection()
+		conn, err := FsbmSession.GetConnection()
 		if err != nil {
 			panic(err)
 		}
@@ -33,7 +33,7 @@ func GetPermissionByRoleID(roleID []int64) (res []AuthPermission, err error) {
 	sqlFmt := `
 	select * from auth_permission a join auth_role_permission b on a.id = b.permission_id where b.role_id in (?)
 `
-	conn, err := fsbmSession.GetConnection()
+	conn, err := FsbmSession.GetConnection()
 	if err != nil {
 		return nil, err
 	}

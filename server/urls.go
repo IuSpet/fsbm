@@ -17,7 +17,6 @@ import (
 
 func Register(router *gin.Engine) {
 	router.GET("/ping", pong)
-	router.POST("/avatar", userAccount.SetAvatarServer)
 	router.Use(GenerateReqId, AllowOrigin)
 	// 管理员api
 	adminModule := router.Group("/admin", CheckLoginStatus, Authentication)
@@ -33,6 +32,8 @@ func Register(router *gin.Engine) {
 	userModule.POST("/modify", CheckLoginStatus, userAccount.ModifyServer)
 	userModule.POST("/delete", CheckLoginStatus, userAccount.DeleteServer)
 	userModule.POST("/apply_role", CheckLoginStatus, userAccount.ApplyRoleServer)
+	userModule.POST("/set_avatar", CheckLoginStatus, userAccount.SetAvatarServer)
+	userModule.POST("/get_user_list",CheckLoginStatus,)
 	// 工具模块
 	toolModule := router.Group("/tool")
 	toolModule.POST("/no_auth/generate_verification_code", tool.GenerateVerificationCode)
@@ -44,6 +45,7 @@ func GenerateReqId(ctx *gin.Context) {
 	// 用请求到达的时间戳当req_id
 	now := time.Now()
 	ctx.Set("req_id", strconv.FormatInt(now.UnixNano(), 10))
+	ctx.Next()
 }
 
 // 检查登录状态
@@ -57,6 +59,7 @@ func CheckLoginStatus(ctx *gin.Context) {
 		ctx.Abort()
 		return
 	}
+	ctx.Next()
 }
 
 // 检查接口权限
@@ -77,6 +80,7 @@ func Authentication(ctx *gin.Context) {
 		ctx.AbortWithStatus(http.StatusForbidden)
 		return
 	}
+	ctx.Next()
 }
 
 // 允许跨域调用

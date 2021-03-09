@@ -25,7 +25,7 @@ func (DetectionResult) TableName() string {
 func init() {
 	table := DetectionResult{}
 	RegisterMigration(table.TableName(), func() {
-		conn, err := fsbmSession.GetConnection()
+		conn, err := FsbmSession.GetConnection()
 		if err != nil {
 			panic(err)
 		}
@@ -37,7 +37,7 @@ func init() {
 }
 
 func SaveDetectionResultRows(rows []DetectionResult) (err error) {
-	conn, err := fsbmSession.GetConnection()
+	conn, err := FsbmSession.GetConnection()
 	if err != nil {
 		return err
 	}
@@ -46,7 +46,7 @@ func SaveDetectionResultRows(rows []DetectionResult) (err error) {
 }
 
 func GetDetectionResultsByVideoId(id []int64) (res []DetectionResult, err error) {
-	conn, err := fsbmSession.GetConnection()
+	conn, err := FsbmSession.GetConnection()
 	if err != nil {
 		return nil, err
 	}

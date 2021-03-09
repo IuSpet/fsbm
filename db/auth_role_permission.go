@@ -18,7 +18,7 @@ func (AuthRolePermission) TableName() string {
 func init() {
 	table := AuthRolePermission{}
 	RegisterMigration(table.TableName(), func() {
-		conn, err := fsbmSession.GetConnection()
+		conn, err := FsbmSession.GetConnection()
 		if err != nil {
 			panic(err)
 		}

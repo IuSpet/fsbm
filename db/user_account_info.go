@@ -26,7 +26,7 @@ func (UserAccountInfo) TableName() string {
 func init() {
 	table := UserAccountInfo{}
 	RegisterMigration(table.TableName(), func() {
-		conn, err := fsbmSession.GetConnection()
+		conn, err := FsbmSession.GetConnection()
 		if err != nil {
 			panic(err)
 		}
@@ -38,7 +38,7 @@ func init() {
 }
 
 func SaveUserInfo(info *UserAccountInfo) (err error) {
-	conn, err := fsbmSession.GetConnection()
+	conn, err := FsbmSession.GetConnection()
 	if err != nil {
 		return err
 	}
@@ -47,7 +47,7 @@ func SaveUserInfo(info *UserAccountInfo) (err error) {
 }
 
 func GetUserByEmail(email string) (res *UserAccountInfo, err error) {
-	conn, err := fsbmSession.GetConnection()
+	conn, err := FsbmSession.GetConnection()
 	if err != nil {
 		return
 	}
@@ -60,7 +60,7 @@ func GetUserByEmail(email string) (res *UserAccountInfo, err error) {
 }
 
 func GetAllUser() (res []UserAccountInfo, err error) {
-	conn, err := fsbmSession.GetConnection()
+	conn, err := FsbmSession.GetConnection()
 	if err != nil {
 		return
 	}
@@ -69,7 +69,7 @@ func GetAllUser() (res []UserAccountInfo, err error) {
 }
 
 func FuzzySearchUser(conditions []string) (res []UserAccountInfo, err error) {
-	conn, err := fsbmSession.GetConnection()
+	conn, err := FsbmSession.GetConnection()
 	if err != nil {
 		return
 	}
@@ -81,7 +81,7 @@ func FuzzySearchUser(conditions []string) (res []UserAccountInfo, err error) {
 }
 
 func SetAvatar(email string, avatar []byte) (err error) {
-	conn, err := fsbmSession.GetConnection()
+	conn, err := FsbmSession.GetConnection()
 	if err != nil {
 		return
 	}

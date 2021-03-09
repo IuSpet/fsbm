@@ -5,6 +5,10 @@ import (
 	"fsbm/util"
 	"fsbm/util/logs"
 	"github.com/gin-gonic/gin"
+	"reflect"
+	"sort"
+	"strings"
+	"time"
 )
 
 var userStatusMapping = map[int8]string{
@@ -14,7 +18,7 @@ var userStatusMapping = map[int8]string{
 
 // 获取所有用户列表接口
 func UserListServer(ctx *gin.Context) {
-	var req getUserListRequest
+	req := newGetUserListRequest()
 	var rsp getUserListResponse
 	err := ctx.Bind(&req)
 	if err != nil {
@@ -23,23 +27,43 @@ func UserListServer(ctx *gin.Context) {
 		return
 	}
 	logs.CtxInfo(ctx, "req: %+v", req)
-	userList, err := db.GetAllUser()
-	if err != nil {
-		logs.CtxError(ctx, "get all user error. err: %+v", err)
-		util.ErrorJson(ctx, util.DbError, "内部错误")
-		return
-	}
-	offset := (req.Page - 1) * req.PageSize
-	rsp.TotalCount = int64(len(userList))
-	if offset < rsp.TotalCount {
-		userList = userList[offset:util.MinInt64(rsp.TotalCount, offset+req.PageSize)]
-		for _, user := range userList {
-			rsp.UserInfoList = append(rsp.UserInfoList, userInfo{
-				Name:   user.Name,
-				Email:  user.Email,
-				Status: userStatusMapping[user.Status],
-			})
-		}
+	begin, _ := time.Parse(util.YMDHMS, req.CreateBegin)
+	end, _ := time.Parse(util.YMDHMS, req.CreateEnd)
+	userList, err := getUserList(req.Name, req.Email, req.Phone, req.Gender, req.Age, begin, end, req.Page, req.PageSize)
+	if len(req.SortFields) > 0 {
+		sort.SliceStable(userList, func(i, j int) bool {
+			a, b := reflect.ValueOf(userList[i]), reflect.ValueOf(userList[j])
+			for _, item := range req.SortFields {
+				x, y := a.FieldByName(item.Field).Interface(), b.FieldByName(item.Field).Interface()
+				if reflect.DeepEqual(x, y) {
+					continue
+				}
+				asc := strings.ToLower(item.Order) == "asc"
+				switch x.(type) {
+				case string:
+					if asc {
+						return x.(string) > y.(string)
+					}
+					return x.(string) < y.(string)
+				case int64:
+					if asc {
+						return x.(int64) > y.(int64)
+					}
+					return x.(int64) < y.(int64)
+				case int8:
+					if asc {
+						return x.(int8) > y.(int8)
+					}
+					return x.(int8) < y.(int8)
+				case time.Time:
+					if asc {
+						return x.(time.Time).After(y.(time.Time))
+					}
+					return x.(time.Time).Before(y.(time.Time))
+				}
+			}
+			return true
+		})
 	}
 	util.EndJson(ctx, rsp)
 }
@@ -138,4 +162,16 @@ func generateAuthUserRoleRows(userID int64, roleIDList []int64) []db.AuthUserRol
 		})
 	}
 	return userRoleList
+}
+
+// 默认值
+func newGetUserListRequest() getUserListRequest {
+	return getUserListRequest{
+		Gender:      -1,
+		Age:         -1,
+		CreateBegin: "0000-00-00 00:00:00",
+		CreateEnd:   time.Now().Format(util.YMDHMS),
+		Page:        1,
+		PageSize:    20,
+	}
 }

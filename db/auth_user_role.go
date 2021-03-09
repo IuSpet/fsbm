@@ -18,7 +18,7 @@ func (AuthUserRole) TableName() string {
 func init() {
 	table := AuthUserRole{}
 	RegisterMigration(table.TableName(), func() {
-		conn, err := fsbmSession.GetConnection()
+		conn, err := FsbmSession.GetConnection()
 		if err != nil {
 			panic(err)
 		}
@@ -30,7 +30,7 @@ func init() {
 }
 
 func SaveAuthUserRoleRows(rows []AuthUserRole) (err error) {
-	conn, err := fsbmSession.GetConnection()
+	conn, err := FsbmSession.GetConnection()
 	if err != nil {
 		return
 	}
@@ -39,7 +39,7 @@ func SaveAuthUserRoleRows(rows []AuthUserRole) (err error) {
 }
 
 func RemoveUserRole(userID int64, roleIDList []int64) (err error) {
-	conn, err := fsbmSession.GetConnection()
+	conn, err := FsbmSession.GetConnection()
 	if err != nil {
 		return
 	}

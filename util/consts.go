@@ -18,4 +18,7 @@ const (
 	UserLoginVerificationCodeTemplate = "%s:login_verification_code"
 	// 密码加盐
 	Salt = "fsbmpwd"
+	// time format
+	YMD    = "2006-01-02"
+	YMDHMS = "2006-01-02 15:04:05"
 )

@@ -1,6 +1,7 @@
 package userAccount
 
 import (
+	"fsbm/db"
 	"fsbm/util"
 	"fsbm/util/logs"
 	"github.com/gin-gonic/gin"
@@ -21,5 +22,11 @@ func SetAvatarServer(ctx *gin.Context) {
 		return
 	}
 	email := ctx.GetHeader("email")
-
+	err = db.SetAvatar(email, data)
+	if err != nil {
+		logs.CtxError(ctx, "db error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	util.EndJson(ctx, nil)
 }

@@ -18,7 +18,7 @@ func (AuthRole) TableName() string {
 func init() {
 	table := AuthRole{}
 	RegisterMigration(table.TableName(), func() {
-		conn, err := fsbmSession.GetConnection()
+		conn, err := FsbmSession.GetConnection()
 		if err != nil {
 			panic(err)
 		}
@@ -33,7 +33,7 @@ func GetRoleById(id int64) (res []AuthRole, err error) {
 	sqlFmt := `
 	select * from auth_role a join auth_user_role b on a.id = b.role_id where b.id = ?
 `
-	conn, err := fsbmSession.GetConnection()
+	conn, err := FsbmSession.GetConnection()
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func GetRoleById(id int64) (res []AuthRole, err error) {
 }
 
 func SaveRole(role *AuthRole) (err error) {
-	conn, err := fsbmSession.GetConnection()
+	conn, err := FsbmSession.GetConnection()
 	if err != nil {
 		return
 	}
@@ -51,7 +51,7 @@ func SaveRole(role *AuthRole) (err error) {
 }
 
 func GetRoleByName(t string, name string) (res *AuthRole, err error) {
-	conn, err := fsbmSession.GetConnection()
+	conn, err := FsbmSession.GetConnection()
 	if err != nil {
 		return
 	}
