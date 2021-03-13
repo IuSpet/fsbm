@@ -3,6 +3,7 @@ package admin
 import (
 	"encoding/csv"
 	"encoding/json"
+	"fmt"
 	"fsbm/db"
 	"fsbm/util"
 	"fsbm/util/logs"
@@ -36,9 +37,9 @@ func UserListServer(ctx *gin.Context) {
 		return
 	}
 	logs.CtxInfo(ctx, "req: %+v", req)
-	userList, err := getSortedUserList(&req)
+	userList, cnt, err := getSortedUserList(&req)
 	if err != nil {
-		logs.CtxError(ctx, "get user list error.err: %+v")
+		logs.CtxError(ctx, "get user list error.err: %+v", err)
 		util.ErrorJson(ctx, util.DbError, "数据库错误")
 		return
 	}
@@ -53,10 +54,7 @@ func UserListServer(ctx *gin.Context) {
 			Status:    db.UserGenderMapping[userList[idx].Status],
 		})
 	}
-	rsp.TotalCount, err = db.GetUserAccountInfoTotalCnt()
-	if err != nil {
-		logs.CtxError(ctx, "get user_account_info total cnt error. err: %+v", err)
-	}
+	rsp.TotalCount = cnt
 	util.EndJson(ctx, rsp)
 }
 
@@ -71,9 +69,9 @@ func UserListCsvServer(ctx *gin.Context) {
 	}
 	req.Page = -1
 	logs.CtxInfo(ctx, "req: %+v", req)
-	userList, err := getSortedUserList(&req)
+	userList, _, err := getSortedUserList(&req)
 	if err != nil {
-		logs.CtxError(ctx, "get user list error.err: %+v")
+		logs.CtxError(ctx, "get user list error.err: %+v", err)
 		util.ErrorJson(ctx, util.DbError, "数据库错误")
 		return
 	}
@@ -214,19 +212,29 @@ func newGetUserListRequest() getUserListRequest {
 	return getUserListRequest{
 		Gender:      -1,
 		Age:         -1,
-		CreateBegin: "0000-00-00 00:00:00",
+		CreateBegin: time.Unix(0, 0).Format(util.YMDHMS),
 		CreateEnd:   time.Now().Format(util.YMDHMS),
 		Page:        1,
 		PageSize:    20,
 	}
 }
 
-func getSortedUserList(req *getUserListRequest) ([]db.UserAccountInfo, error) {
-	begin, _ := time.Parse(util.YMDHMS, req.CreateBegin)
-	end, _ := time.Parse(util.YMDHMS, req.CreateEnd)
-	userList, err := getUserList(req.Name, req.Email, req.Phone, req.Gender, req.Age, begin, end, req.Page, req.PageSize)
+func getSortedUserList(req *getUserListRequest) ([]db.UserAccountInfo, int64, error) {
+	begin, err := time.Parse(util.YMDHMS, req.CreateBegin)
 	if err != nil {
-		return nil, err
+		fmt.Printf("1 %+v\n", err)
+		begin, err = time.Parse(util.H5FMT, req.CreateBegin)
+		fmt.Printf("2 %+v\n", err)
+	}
+	end, err := time.Parse(util.YMDHMS, req.CreateEnd)
+	if err != nil {
+		fmt.Printf("3 %+v\n", err)
+		end, err = time.Parse(util.H5FMT, req.CreateEnd)
+		fmt.Printf("4 %+v\n", err)
+	}
+	userList, totalCnt, err := getUserList(req.Name, req.Email, req.Phone, req.Gender, req.Age, begin, end, req.Page, req.PageSize)
+	if err != nil {
+		return nil, 0, err
 	}
 	if len(req.SortFields) > 0 {
 		sort.SliceStable(userList, func(i, j int) bool {
@@ -263,5 +271,5 @@ func getSortedUserList(req *getUserListRequest) ([]db.UserAccountInfo, error) {
 			return true
 		})
 	}
-	return userList, nil
+	return userList, totalCnt, nil
 }
