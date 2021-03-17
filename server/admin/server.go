@@ -3,7 +3,6 @@ package admin
 import (
 	"encoding/csv"
 	"encoding/json"
-	"fmt"
 	"fsbm/db"
 	"fsbm/util"
 	"fsbm/util/logs"
@@ -91,6 +90,7 @@ func UserListCsvServer(ctx *gin.Context) {
 	file, _ := os.Create(fileName)
 	defer file.Close()
 	w := csv.NewWriter(file)
+	_, _ = file.WriteString("\xEF\xBB\xBF")
 	var title []string
 	for idx := range userInfoCsvColumns {
 		title = append(title, userInfoCsvColumns[idx].Field)
@@ -195,6 +195,42 @@ func ModifyUserDetailServer(ctx *gin.Context) {
 	util.EndJson(ctx, nil)
 }
 
+// 查看用户注册情况接口
+func GetUserRegisterInfoServer(ctx *gin.Context) {
+	req := newGetUserListRequest()
+	var rsp userRegisterInfoResponse
+	err := ctx.Bind(&req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	logs.CtxInfo(ctx, "req: %+v", req)
+	begin, _ := time.Parse(util.H5FMT, req.CreateBegin)
+	end, _ := time.Parse(util.H5FMT, req.CreateEnd)
+	userList, _, err := getUserList(req.Name, req.Email, req.Phone, req.Gender, req.Age, begin, end, -1, -1)
+	if err != nil {
+		logs.CtxError(ctx, "get user list error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	registerStats := make(map[string]int64)
+	for _, row := range userList {
+		registerStats[row.CreatedAt.Format(util.YMD)] += 1
+	}
+	for k, v := range registerStats {
+		rsp.Series = append(rsp.Series, registerInfo{
+			Date: k,
+			Cnt:  v,
+		})
+	}
+	// 按日期降序排列
+	sort.SliceStable(rsp.Series, func(i, j int) bool {
+		return rsp.Series[i].Date < rsp.Series[j].Date
+	})
+	util.EndJson(ctx, rsp)
+}
+
 func generateAuthUserRoleRows(userID int64, roleIDList []int64) []db.AuthUserRole {
 	var userRoleList []db.AuthUserRole
 	for _, roleID := range roleIDList {
@@ -212,26 +248,16 @@ func newGetUserListRequest() getUserListRequest {
 	return getUserListRequest{
 		Gender:      -1,
 		Age:         -1,
-		CreateBegin: time.Unix(0, 0).Format(util.YMDHMS),
-		CreateEnd:   time.Now().Format(util.YMDHMS),
+		CreateBegin: time.Unix(0, 0).Format(util.H5FMT),
+		CreateEnd:   time.Now().Format(util.H5FMT),
 		Page:        1,
 		PageSize:    20,
 	}
 }
 
 func getSortedUserList(req *getUserListRequest) ([]db.UserAccountInfo, int64, error) {
-	begin, err := time.Parse(util.YMDHMS, req.CreateBegin)
-	if err != nil {
-		fmt.Printf("1 %+v\n", err)
-		begin, err = time.Parse(util.H5FMT, req.CreateBegin)
-		fmt.Printf("2 %+v\n", err)
-	}
-	end, err := time.Parse(util.YMDHMS, req.CreateEnd)
-	if err != nil {
-		fmt.Printf("3 %+v\n", err)
-		end, err = time.Parse(util.H5FMT, req.CreateEnd)
-		fmt.Printf("4 %+v\n", err)
-	}
+	begin, _ := time.Parse(util.H5FMT, req.CreateBegin)
+	end, _ := time.Parse(util.H5FMT, req.CreateEnd)
 	userList, totalCnt, err := getUserList(req.Name, req.Email, req.Phone, req.Gender, req.Age, begin, end, req.Page, req.PageSize)
 	if err != nil {
 		return nil, 0, err

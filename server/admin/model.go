@@ -66,3 +66,12 @@ type userInfoCsvRow struct {
 	Gender    string `json:"gender"`
 	CreatedAt string `json:"created_at"`
 }
+
+type userRegisterInfoResponse struct {
+	Series []registerInfo `json:"series"`
+}
+
+type registerInfo struct {
+	Date string `json:"date"`
+	Cnt  int64  `json:"cnt"`
+}

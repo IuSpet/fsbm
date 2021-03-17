@@ -5,6 +5,8 @@ type userCommonRequest struct {
 	Email      string `json:"email"`
 	Phone      string `json:"phone"`
 	Password   string `json:"password"`
+	Gender     int8   `json:"gender"`
+	Age        int8   `json:"age"`
 	VerifyCode string `json:"verify_code"`
 }
 

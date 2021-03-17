@@ -74,3 +74,7 @@ func SetFileTransportHeader(ctx *gin.Context, fileName string) {
 	ctx.Header("FileName", fileName)
 	ctx.File(fileName)
 }
+
+func SetImageTransportHeader(ctx *gin.Context) {
+	ctx.Header("Content-Type","image/gif")
+}

@@ -10,8 +10,8 @@ func TestSaveUserInfo(t *testing.T) {
 	conf.Init()
 	Init()
 	info := &UserAccountInfo{
-		Name:     "admin",
-		Email:    "123@321",
+		Name:     "cce",
+		Email:    "abc@104",
 		Status:   0,
 		Password: "123456",
 	}

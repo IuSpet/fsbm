@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"fmt"
 	"fsbm/db"
 	"time"
 )
@@ -33,7 +32,6 @@ func getUserList(name, email, phone string, gender, age int8, begin, end time.Ti
 		conn = conn.Limit(limit).Offset(offset)
 	}
 	err = conn.Debug().Find(&res).Error
-	fmt.Printf("%+v\n", res)
 	if err != nil {
 		return
 	}
