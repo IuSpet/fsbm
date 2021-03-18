@@ -14,3 +14,15 @@ type applyRoleRequest struct {
 	Email      string  `json:"email"`
 	RoleIDList []int64 `json:"role_id_list"`
 }
+
+type getUserProfileRequest struct {
+	Email string `json:"email"`
+}
+
+type getUserProfileResponse struct {
+	Name      string `json:"name"`
+	Phone     string `json:"phone"`
+	Gender    string `json:"gender"`
+	Age       int8   `json:"age"`
+	CreatedAt string `json:"created_at"`
+}

@@ -22,11 +22,11 @@ func Register(router *gin.Engine) {
 	router.Use(GenerateReqId, AllowOrigin)
 	// 管理员api
 	adminModule := router.Group("/admin", CheckLoginStatus, Authentication)
-	adminModule.POST("/user_list", admin.UserListServer)
-	adminModule.POST("/user_list/csv", admin.UserListCsvServer)
-	adminModule.POST("/authority/modify")
-	adminModule.POST("/user_detail", admin.UserDetailServer)
-	adminModule.POST("/user_register/line_chart", admin.GetUserRegisterInfoServer)
+	adminModule.POST("/user_list", admin.UserListServer)                           // 获取用户列表
+	adminModule.POST("/user_list/csv", admin.UserListCsvServer)                    // 用户列表导出csv
+	adminModule.POST("/authority/modify")                                          // 管理员修改用户信息
+	adminModule.POST("/user_detail", admin.UserDetailServer)                       // 获取用户详细信息（包括权限等）
+	adminModule.POST("/user_register/line_chart", admin.GetUserRegisterInfoServer) // 注册人数统计
 	// 用户模块
 	userModule := router.Group("/user")
 	userModule.POST("/register", userAccount.UserRegisterServer)                  // 注册
@@ -37,10 +37,11 @@ func Register(router *gin.Engine) {
 	userModule.POST("/delete", CheckLoginStatus, userAccount.DeleteServer)        // 删除
 	userModule.POST("/apply_role", CheckLoginStatus, userAccount.ApplyRoleServer) // 申请权限
 	userModule.POST("/set_avatar", CheckLoginStatus, userAccount.SetAvatarServer) // 设置用户头像
+	userModule.POST("/get_profile", CheckLoginStatus, userAccount.GetUserProfile) // 获取用户信息
 	//userModule.POST("/get_user_list", CheckLoginStatus)
 	// 工具模块
 	toolModule := router.Group("/tool")
-	toolModule.POST("/no_auth/generate_verification_code", tool.GenerateVerificationCode)
+	toolModule.POST("/no_auth/generate_verification_code", tool.GenerateVerificationCode) // 发送验证码
 
 }
 

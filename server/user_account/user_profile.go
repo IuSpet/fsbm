@@ -106,6 +106,32 @@ func DeleteServer(ctx *gin.Context) {
 	util.EndJson(ctx, nil)
 }
 
+// 获取用户信息
+func GetUserProfile(ctx *gin.Context) {
+	var req getUserProfileRequest
+	err := ctx.Bind(&req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	logs.CtxInfo(ctx, "req: %+v", req)
+	user, err := db.GetUserByEmail(req.Email)
+	if err != nil {
+		logs.CtxError(ctx, "get user by email error. err: %+v")
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	rsp := getUserProfileResponse{
+		Name:      user.Name,
+		Phone:     user.Phone,
+		Gender:    db.UserGenderMapping[user.Gender],
+		Age:       user.Age,
+		CreatedAt: user.CreatedAt.Format(util.YMD),
+	}
+	util.EndJson(ctx, rsp)
+}
+
 // 获取用户头像
 func GetAvatarServer(ctx *gin.Context) {
 
