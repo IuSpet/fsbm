@@ -14,8 +14,8 @@ const (
 	UserDeleted             = 10
 	EmailSendError          = 11
 	// redis key template
-	UserLoginTemplate                 = "%s:login_in"
-	UserLoginVerificationCodeTemplate = "%s:login_verification_code"
+	UserLoginTemplate            = "%s:login_in"
+	UserVerificationCodeTemplate = "%s:verification_code"
 	// 密码加盐
 	Salt = "fsbmpwd"
 	// time format

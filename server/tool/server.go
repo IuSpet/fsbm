@@ -1,17 +1,12 @@
 package tool
 
 import (
-	"fmt"
 	"fsbm/db"
 	"fsbm/util"
 	"fsbm/util/logs"
 	"fsbm/util/mail"
-	"fsbm/util/redis"
 	"github.com/gin-gonic/gin"
-	"time"
 )
-
-const verificationExpiration = 3 * time.Minute
 
 // 产生邮箱验证码
 func GenerateVerificationCode(ctx *gin.Context) {
@@ -35,9 +30,7 @@ func GenerateVerificationCode(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.UserNotExist, "邮箱未注册")
 		return
 	}
-	code := util.GenerateRandCode(6)
-	key := fmt.Sprintf(util.UserLoginVerificationCodeTemplate, req.Email)
-	err = redis.SetWithRetry(ctx, key, code, verificationExpiration)
+	code, err := util.SetVerificationCode(ctx, req.Email)
 	if err != nil {
 		logs.CtxError(ctx, "redis set error. err: %+v", err)
 		util.ErrorJson(ctx, util.DbError, "内部错误")

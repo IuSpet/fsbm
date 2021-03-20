@@ -1,9 +1,11 @@
 package util
 
 import (
+	"context"
 	"crypto/md5"
 	"crypto/sha256"
 	"fmt"
+	"fsbm/util/redis"
 	"math/rand"
 	"net/http"
 	"net/url"
@@ -12,6 +14,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+const verificationExpiration = 3 * time.Minute
 
 func Md5(raw string) string {
 	h := md5.New()
@@ -76,5 +80,24 @@ func SetFileTransportHeader(ctx *gin.Context, fileName string) {
 }
 
 func SetImageTransportHeader(ctx *gin.Context) {
-	ctx.Header("Content-Type","image/gif")
+	ctx.Header("Content-Type", "image/gif")
+}
+
+func SetVerificationCode(ctx context.Context, email string) (string, error) {
+	code := GenerateRandCode(6)
+	key := fmt.Sprintf(UserVerificationCodeTemplate, email)
+	err := redis.SetWithRetry(ctx, key, code, verificationExpiration)
+	if err != nil {
+		return code, err
+	}
+	return code, nil
+}
+
+func GetVerificationCode(ctx context.Context, email string) (string, error) {
+	key := fmt.Sprintf(UserVerificationCodeTemplate, email)
+	res, err := redis.GetWithRetry(ctx, key)
+	if err != nil {
+		return "", err
+	}
+	return res, nil
 }

@@ -26,3 +26,8 @@ type getUserProfileResponse struct {
 	Age       int8   `json:"age"`
 	CreatedAt string `json:"created_at"`
 }
+
+type deleteUserRequest struct {
+	Email      string `json:"email"`
+	VerifyCode string `json:"verify_code"`
+}

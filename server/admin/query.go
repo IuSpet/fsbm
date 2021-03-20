@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func getUserList(name, email, phone string, gender, age int8, begin, end time.Time, page, pageSize int64) (res []db.UserAccountInfo, cnt int64, err error) {
+func getUserList(name, email, phone string, gender, age int8, begin, end time.Time) (res []db.UserAccountInfo, err error) {
 	conn, err := db.FsbmSession.GetConnection()
 	if err != nil {
 		return
@@ -26,15 +26,6 @@ func getUserList(name, email, phone string, gender, age int8, begin, end time.Ti
 	if age != -1 {
 		conn = conn.Where("age = ?", age)
 	}
-	if page != -1 {
-		limit := int(pageSize)
-		offset := int(pageSize * (page - 1))
-		conn = conn.Limit(limit).Offset(offset)
-	}
 	err = conn.Debug().Find(&res).Error
-	if err != nil {
-		return
-	}
-	err = conn.Model(&db.UserAccountInfo{}).Count(&cnt).Error
 	return
 }

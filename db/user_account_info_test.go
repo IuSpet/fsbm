@@ -10,10 +10,13 @@ func TestSaveUserInfo(t *testing.T) {
 	conf.Init()
 	Init()
 	info := &UserAccountInfo{
-		Name:     "cce",
-		Email:    "abc@104",
+		Name:     "luSpet",
+		Email:    "1037821259@qq.com",
 		Status:   0,
 		Password: "123456",
+		Phone:    "12345678",
+		Gender:   1,
+		Age:      22,
 	}
 	err := SaveUserInfo(info)
 	if err != nil {

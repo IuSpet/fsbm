@@ -1,11 +1,9 @@
 package userAccount
 
 import (
-	"fmt"
 	"fsbm/db"
 	"fsbm/util"
 	"fsbm/util/logs"
-	"fsbm/util/redis"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"strings"
@@ -44,15 +42,14 @@ func ModifyServer(ctx *gin.Context) {
 		return
 	}
 	logs.CtxInfo(ctx, "req: %+v", req)
-	key := fmt.Sprintf(util.UserLoginVerificationCodeTemplate, req.Email)
-	res, err := redis.GetWithRetry(ctx, key)
+	code, err := util.GetVerificationCode(ctx, req.Email)
 	if err != nil {
-		logs.CtxWarn(ctx, "redis get error. key: %+v, err: %+v", key, err)
+		logs.CtxWarn(ctx, "redis get error. err: %+v", err)
 		util.ErrorJson(ctx, util.DbError, "获取验证码失败")
 		return
 	}
-	if strings.ToLower(res) != strings.ToLower(req.VerifyCode) {
-		logs.CtxInfo(ctx, "verification error, %+v, %+v", res, req.VerifyCode)
+	if strings.ToLower(code) != strings.ToLower(req.VerifyCode) {
+		logs.CtxInfo(ctx, "verification error, %+v, %+v", code, req.VerifyCode)
 		util.ErrorJson(ctx, util.InvalidVerificationCode, "验证码错误")
 		return
 	}
@@ -82,7 +79,7 @@ func ModifyServer(ctx *gin.Context) {
 
 // 删除接口
 func DeleteServer(ctx *gin.Context) {
-	var req userCommonRequest
+	var req deleteUserRequest
 	err := ctx.Bind(&req)
 	if err != nil {
 		logs.CtxError(ctx, "bind req error. err: %+v", err)
@@ -90,6 +87,17 @@ func DeleteServer(ctx *gin.Context) {
 		return
 	}
 	logs.CtxInfo(ctx, "req: %+v", req)
+	code, err := util.GetVerificationCode(ctx, req.Email)
+	if err != nil {
+		logs.CtxWarn(ctx, "redis get error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "获取验证码失败")
+		return
+	}
+	if strings.ToLower(code) != strings.ToLower(req.VerifyCode) {
+		logs.CtxInfo(ctx, "verification error, %+v, %+v", code, req.VerifyCode)
+		util.ErrorJson(ctx, util.InvalidVerificationCode, "验证码错误")
+		return
+	}
 	user, err := db.GetUserByEmail(req.Email)
 	if err != nil {
 		logs.CtxError(ctx, "get user by email error. err: %+v", err)
@@ -109,6 +117,7 @@ func DeleteServer(ctx *gin.Context) {
 // 获取用户信息
 func GetUserProfile(ctx *gin.Context) {
 	var req getUserProfileRequest
+	logs.CtxInfo(ctx, "header: %+v", ctx.Request.Header)
 	err := ctx.Bind(&req)
 	if err != nil {
 		logs.CtxError(ctx, "bind req error. err: %+v", err)
@@ -120,6 +129,11 @@ func GetUserProfile(ctx *gin.Context) {
 	if err != nil {
 		logs.CtxError(ctx, "get user by email error. err: %+v")
 		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	if user == nil {
+		logs.CtxInfo(ctx, "user not exist.")
+		util.ErrorJson(ctx, util.UserNotExist, "用户不存在")
 		return
 	}
 	rsp := getUserProfileResponse{

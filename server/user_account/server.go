@@ -86,7 +86,7 @@ func UserVerifyLoginServer(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.UserDeleted, "用户已被删除 ")
 	}
 	// 查询验证码
-	key := fmt.Sprintf(util.UserLoginVerificationCodeTemplate, req.Email)
+	key := fmt.Sprintf(util.UserVerificationCodeTemplate, req.Email)
 	res, err := redis.GetWithRetry(ctx, key)
 	if err != nil {
 		logs.CtxWarn(ctx, "redis get error. key: %+v, err: %+v", key, err)

@@ -36,7 +36,7 @@ func UserListServer(ctx *gin.Context) {
 		return
 	}
 	logs.CtxInfo(ctx, "req: %+v", req)
-	userList, cnt, err := getSortedUserList(&req)
+	userList, cnt, err := getSortedUserList(&req, false)
 	if err != nil {
 		logs.CtxError(ctx, "get user list error.err: %+v", err)
 		util.ErrorJson(ctx, util.DbError, "数据库错误")
@@ -68,7 +68,7 @@ func UserListCsvServer(ctx *gin.Context) {
 	}
 	req.Page = -1
 	logs.CtxInfo(ctx, "req: %+v", req)
-	userList, _, err := getSortedUserList(&req)
+	userList, _, err := getSortedUserList(&req, true)
 	if err != nil {
 		logs.CtxError(ctx, "get user list error.err: %+v", err)
 		util.ErrorJson(ctx, util.DbError, "数据库错误")
@@ -208,7 +208,7 @@ func GetUserRegisterInfoServer(ctx *gin.Context) {
 	logs.CtxInfo(ctx, "req: %+v", req)
 	begin, _ := time.Parse(util.H5FMT, req.CreateBegin)
 	end, _ := time.Parse(util.H5FMT, req.CreateEnd)
-	userList, _, err := getUserList(req.Name, req.Email, req.Phone, req.Gender, req.Age, begin, end, -1, -1)
+	userList, err := getUserList(req.Name, req.Email, req.Phone, req.Gender, req.Age, begin, end)
 	if err != nil {
 		logs.CtxError(ctx, "get user list error. err: %+v", err)
 		util.ErrorJson(ctx, util.DbError, "数据库错误")
@@ -255,10 +255,10 @@ func newGetUserListRequest() getUserListRequest {
 	}
 }
 
-func getSortedUserList(req *getUserListRequest) ([]db.UserAccountInfo, int64, error) {
+func getSortedUserList(req *getUserListRequest, all bool) ([]db.UserAccountInfo, int64, error) {
 	begin, _ := time.Parse(util.H5FMT, req.CreateBegin)
 	end, _ := time.Parse(util.H5FMT, req.CreateEnd)
-	userList, totalCnt, err := getUserList(req.Name, req.Email, req.Phone, req.Gender, req.Age, begin, end, req.Page, req.PageSize)
+	userList, err := getUserList(req.Name, req.Email, req.Phone, req.Gender, req.Age, begin, end)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -274,28 +274,39 @@ func getSortedUserList(req *getUserListRequest) ([]db.UserAccountInfo, int64, er
 				switch x.(type) {
 				case string:
 					if asc {
-						return x.(string) > y.(string)
+						return x.(string) < y.(string)
 					}
-					return x.(string) < y.(string)
+					return x.(string) > y.(string)
 				case int64:
 					if asc {
-						return x.(int64) > y.(int64)
+						return x.(int64) < y.(int64)
 					}
-					return x.(int64) < y.(int64)
+					return x.(int64) > y.(int64)
 				case int8:
 					if asc {
-						return x.(int8) > y.(int8)
+						return x.(int8) < y.(int8)
 					}
-					return x.(int8) < y.(int8)
+					return x.(int8) > y.(int8)
 				case time.Time:
 					if asc {
-						return x.(time.Time).After(y.(time.Time))
+						return x.(time.Time).Before(y.(time.Time))
 					}
-					return x.(time.Time).Before(y.(time.Time))
+					return x.(time.Time).After(y.(time.Time))
 				}
 			}
 			return true
 		})
 	}
-	return userList, totalCnt, nil
+	totalCnt := int64(len(userList))
+	if all {
+		return userList, totalCnt, nil
+	}
+	offset := (req.Page - 1) * req.PageSize
+	if totalCnt > offset+req.PageSize {
+		return userList[offset : offset+req.PageSize], totalCnt, nil
+	} else if totalCnt > offset {
+		return userList[offset:], totalCnt, nil
+	} else {
+		return nil, totalCnt, nil
+	}
 }
