@@ -9,7 +9,12 @@ import (
 
 const SuffixPath = "/conf/deploy.json"
 
-type config struct {
+type AllConfig struct {
+	Product EnvConfig `json:"product"`
+	Test    EnvConfig `json:"test"`
+}
+
+type EnvConfig struct {
 	Mysql mysqlConfig
 	Redis redisConfig
 }
@@ -28,18 +33,25 @@ type redisConfig struct {
 	DB       int    `json:"db"`
 }
 
-var GlobalConfig config
+var allCfg AllConfig
+var GlobalConfig EnvConfig
 
 func Init() {
 	currentPath, _ := os.Getwd()
-	index := strings.Index(currentPath,"fsbm") + 4
+	index := strings.Index(currentPath, "fsbm") + 4
 	path := currentPath[:index] + SuffixPath
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		panic(err)
 	}
-	err = json.Unmarshal(data, &GlobalConfig)
+	err = json.Unmarshal(data, &allCfg)
 	if err != nil {
 		panic(err)
+	}
+	product := os.Getenv("FSBM_PRODUCT")
+	if product != "" {
+		GlobalConfig = allCfg.Product
+	} else {
+		GlobalConfig = allCfg.Test
 	}
 }

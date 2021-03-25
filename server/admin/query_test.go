@@ -11,7 +11,7 @@ import (
 func TestGetUserList(t *testing.T) {
 	conf.Init()
 	db.Init()
-	rows, _, err := getUserList("", "", "", -1, -1, time.Unix(0,0), time.Now().AddDate(0, 0, 1), 1, 20)
+	rows, err := getUserList("", "", "", -1, -1, time.Unix(0, 0), time.Now().AddDate(0, 0, 1))
 	if err != nil {
 		panic(err)
 	}
