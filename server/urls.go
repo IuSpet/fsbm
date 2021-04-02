@@ -24,6 +24,7 @@ func Register(router *gin.Engine) {
 	adminModule := router.Group("/admin", CheckLoginStatus, Authentication)
 	adminModule.POST("/user_list", admin.UserListServer)                           // 获取用户列表
 	adminModule.POST("/user_list/csv", admin.UserListCsvServer)                    // 用户列表导出csv
+	adminModule.POST("/user_list/print", admin.UserListPrintServer)                // 全部用户列表
 	adminModule.POST("/authority/modify")                                          // 管理员修改用户信息
 	adminModule.POST("/user_detail", admin.UserDetailServer)                       // 获取用户详细信息（包括权限等）
 	adminModule.POST("/user_register/line_chart", admin.GetUserRegisterInfoServer) // 注册人数统计
@@ -38,6 +39,7 @@ func Register(router *gin.Engine) {
 	userModule.POST("/apply_role", CheckLoginStatus, userAccount.ApplyRoleServer) // 申请权限
 	userModule.POST("/set_avatar", CheckLoginStatus, userAccount.SetAvatarServer) // 设置用户头像
 	userModule.POST("/get_profile", CheckLoginStatus, userAccount.GetUserProfile) // 获取用户信息
+	userModule.POST("/get_avatar", CheckLoginStatus, userAccount.GetAvatarServer)  // 获取用户头像
 	//userModule.POST("/get_user_list", CheckLoginStatus)
 	// 工具模块
 	toolModule := router.Group("/tool")

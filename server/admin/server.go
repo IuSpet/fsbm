@@ -50,7 +50,7 @@ func UserListServer(ctx *gin.Context) {
 			Age:       userList[idx].Age,
 			Phone:     userList[idx].Phone,
 			CreatedAt: userList[idx].CreatedAt.Format(util.YMDHMS),
-			Status:    db.UserGenderMapping[userList[idx].Status],
+			Status:    db.UserStatusMapping[userList[idx].Status],
 		})
 	}
 	rsp.TotalCount = cnt
@@ -109,6 +109,38 @@ func UserListCsvServer(ctx *gin.Context) {
 	w.Flush()
 	util.SetFileTransportHeader(ctx, fileName)
 	_ = os.Remove(fileName)
+}
+
+// 查询用户信息，制作打印界面
+func UserListPrintServer(ctx *gin.Context) {
+	req := newGetUserListRequest()
+	err := ctx.Bind(&req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	req.Page = -1
+	logs.CtxInfo(ctx, "req: %+v", req)
+	userList, _, err := getSortedUserList(&req, true)
+	if err != nil {
+		logs.CtxError(ctx, "get user list error.err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	var rsp getUserListResponse
+	for _, item := range userList {
+		rsp.UserInfoList = append(rsp.UserInfoList, userInfo{
+			Name:      item.Name,
+			Email:     item.Email,
+			Gender:    db.UserGenderMapping[item.Gender],
+			Age:       item.Age,
+			Phone:     item.Phone,
+			CreatedAt: item.CreatedAt.Format(util.YMDHMS),
+			Status:    db.UserStatusMapping[item.Status],
+		})
+	}
+	util.EndJson(ctx, rsp)
 }
 
 // 获取用户详细信息接口

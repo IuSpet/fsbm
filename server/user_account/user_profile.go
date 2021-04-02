@@ -1,15 +1,22 @@
 package userAccount
 
 import (
+	"bytes"
+	"fmt"
 	"fsbm/db"
 	"fsbm/util"
 	"fsbm/util/logs"
 	"github.com/gin-gonic/gin"
+	"image"
+	"image/png"
 	"io/ioutil"
+	"net/http"
+	"os"
 	"strings"
 )
 
 func SetAvatarServer(ctx *gin.Context) {
+	logs.CtxInfo(ctx, "header: %+v", ctx.Request.Header)
 	bodyReader := ctx.Request.Body
 	data, err := ioutil.ReadAll(bodyReader)
 	if err != nil {
@@ -17,7 +24,7 @@ func SetAvatarServer(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.ParamError, "请求内容读取失败")
 		return
 	}
-	if len(data) > 64*64 {
+	if len(data) > 64*64*4 {
 		logs.CtxError(ctx, "body too large. len: %d", len(data))
 		util.ErrorJson(ctx, util.ParamError, "内容太大")
 		return
@@ -148,5 +155,43 @@ func GetUserProfile(ctx *gin.Context) {
 
 // 获取用户头像
 func GetAvatarServer(ctx *gin.Context) {
+	var req getUserProfileRequest
+	logs.CtxInfo(ctx, "body: %+v", ctx.Request.Body)
+	err := ctx.Bind(&req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	logs.CtxInfo(ctx, "req: %+v", req)
+	user, err := db.GetUserByEmail(req.Email)
+	if err != nil {
+		logs.CtxError(ctx, "get user by email error. err: %+v")
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	if user == nil {
+		logs.CtxInfo(ctx, "user not exist.")
+		util.ErrorJson(ctx, util.UserNotExist, "用户不存在")
+		return
+	}
+	avatar := util.NewAvatarHandler(user.Avatar)
+	if avatar.ContentLength == 0 {
+		util.ErrorJson(ctx, util.AvatarNotExist, "未设置头像")
+		return
+	}
+	//avatar.SetHeaders("Content-Disposition", `attachment;filename="avatar.png"`)
+	ctx.DataFromReader(http.StatusOK, avatar.ContentLength, avatar.ContentType, avatar.Avatar, avatar.ExtraHeaders)
+}
 
+func saveImg(b []byte) {
+	img, _, err := image.Decode(bytes.NewReader(b))
+	if err != nil {
+		fmt.Println(err)
+	}
+	out, _ := os.Create("./img.png")
+	err = png.Encode(out, img)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
