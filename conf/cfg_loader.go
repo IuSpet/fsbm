@@ -55,3 +55,7 @@ func Init() {
 		GlobalConfig = allCfg.Test
 	}
 }
+
+func GetEnv(){
+
+}
