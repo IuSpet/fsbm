@@ -14,6 +14,7 @@ const (
 	UserDeleted             = 10 // 用户已被删除
 	EmailSendError          = 11 // 邮件发送失败
 	AvatarNotExist          = 12 // 没有设置头像
+	SaveImgError            = 13 // 保存图片到本地失败
 	// redis key template
 	UserLoginTemplate            = "%s:login_in"
 	UserVerificationCodeTemplate = "%s:verification_code"

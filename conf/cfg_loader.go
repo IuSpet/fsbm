@@ -9,6 +9,15 @@ import (
 
 const SuffixPath = "/conf/deploy.json"
 
+type Env_ int
+
+const (
+	TEST Env_ = iota
+	PRODUCT
+)
+
+var env Env_
+
 type AllConfig struct {
 	Product EnvConfig `json:"product"`
 	Test    EnvConfig `json:"test"`
@@ -36,6 +45,15 @@ type redisConfig struct {
 var allCfg AllConfig
 var GlobalConfig EnvConfig
 
+func init() {
+	product := os.Getenv("FSBM_PRODUCT")
+	if product != "" {
+		env = PRODUCT
+	} else {
+		env = TEST
+	}
+}
+
 func Init() {
 	currentPath, _ := os.Getwd()
 	index := strings.Index(currentPath, "fsbm") + 4
@@ -48,14 +66,15 @@ func Init() {
 	if err != nil {
 		panic(err)
 	}
-	product := os.Getenv("FSBM_PRODUCT")
-	if product != "" {
+	if env == PRODUCT {
 		GlobalConfig = allCfg.Product
-	} else {
+	} else if env == TEST {
 		GlobalConfig = allCfg.Test
+	} else {
+		panic("invalid environment")
 	}
 }
 
-func GetEnv(){
-
+func GetEnv() Env_ {
+	return env
 }

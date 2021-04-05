@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// 上传检测结果
 func UploadDetectionResultServer(ctx *gin.Context) {
 	var req uploadResultRequest
 	err := ctx.Bind(&req)

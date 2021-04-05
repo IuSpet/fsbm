@@ -16,7 +16,7 @@ import (
 )
 
 func SetAvatarServer(ctx *gin.Context) {
-	logs.CtxInfo(ctx, "header: %+v", ctx.Request.Header)
+	//logs.CtxInfo(ctx, "header: %+v", ctx.Request.Header)
 	bodyReader := ctx.Request.Body
 	data, err := ioutil.ReadAll(bodyReader)
 	if err != nil {
