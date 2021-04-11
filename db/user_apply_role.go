@@ -3,7 +3,7 @@ package db
 import "time"
 
 type UserApplyRole struct {
-	ID        int64     `gorm:"type:bigint; primaryKey"`
+	ID        int64     `gorm:"AUTO_INCREMENT; primaryKey"`
 	UserID    int64     `gorm:"type:bigint; not null; uniqueIndex:uk_user_role,priority:1"`
 	RoleID    int64     `gorm:"type:bigint; not null; index; uniqueIndex:uk_user_role,priority:2"`
 	Status    int8      `gorm:"type:tinyint; not null; comment:1:申请中,2:已通过,3:未通过"`
@@ -18,11 +18,11 @@ func (UserApplyRole) TableName() string {
 func init(){
 	table := UserApplyRole{}
 	RegisterMigration(table.TableName(), func() {
-		conn, err := fsbmSession.GetConnection()
+		conn, err := FsbmSession.GetConnection()
 		if err != nil {
 			panic(err)
 		}
-		err = conn.Debug().Set("gorm:table_options", "ENGINE=INNODB CHARSET=utf8").AutoMigrate(&table)
+		err = conn.Set("gorm:table_options", "ENGINE=INNODB CHARSET=utf8").AutoMigrate(&table)
 		if err != nil {
 			panic(err)
 		}
@@ -30,7 +30,7 @@ func init(){
 }
 
 func SaveUserApplyRoleRows(rows []UserApplyRole) (err error) {
-	conn, err := fsbmSession.GetConnection()
+	conn, err := FsbmSession.GetConnection()
 	if err != nil {
 		return
 	}
@@ -39,7 +39,7 @@ func SaveUserApplyRoleRows(rows []UserApplyRole) (err error) {
 }
 
 func GetUserApplyRows(userID int64) (res []UserApplyRole, err error) {
-	conn, err := fsbmSession.GetConnection()
+	conn, err := FsbmSession.GetConnection()
 	if err != nil {
 		return
 	}

@@ -9,7 +9,6 @@ import (
 	"fsbm/util/redis"
 	"github.com/gin-gonic/gin"
 	"regexp"
-	"strings"
 	"time"
 )
 
@@ -27,6 +26,10 @@ func UserPasswordLoginServer(ctx *gin.Context) {
 		return
 	}
 	logs.CtxInfo(ctx, "req: %+v", req)
+	if req.Email == "" || req.Password == "" {
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
 	res, err := db.GetUserByEmail(req.Email)
 	if err != nil {
 		logs.CtxError(ctx, "get user by email error. err: %+v", err)
@@ -41,6 +44,7 @@ func UserPasswordLoginServer(ctx *gin.Context) {
 	if res.Status == 1 {
 		logs.CtxInfo(ctx, "user has been deleted")
 		util.ErrorJson(ctx, util.UserDeleted, "用户已被删除 ")
+		return
 	}
 	if res.Password != encryptPassword(req.Password) {
 		logs.CtxInfo(ctx, "wrong password")
@@ -48,11 +52,15 @@ func UserPasswordLoginServer(ctx *gin.Context) {
 		return
 	}
 	// 登陆成功
-	err = setLoginStatus(ctx, req.Email)
+	token := util.Md5(time.Now().Format(util.YMDHMS) + req.Email)
+	err = setLoginStatus(ctx, req.Email, token)
 	if err != nil {
 		logs.CtxError(ctx, "set login status error")
 	}
-	util.EndJson(ctx, nil)
+	util.EndJson(ctx, loginResponse{
+		Email: req.Email,
+		Token: token,
+	})
 }
 
 // 验证登陆接口
@@ -82,7 +90,7 @@ func UserVerifyLoginServer(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.UserDeleted, "用户已被删除 ")
 	}
 	// 查询验证码
-	key := fmt.Sprintf(util.UserLoginVerificationCodeTemplate, req.Email)
+	key := fmt.Sprintf(util.UserVerificationCodeTemplate, req.Email)
 	res, err := redis.GetWithRetry(ctx, key)
 	if err != nil {
 		logs.CtxWarn(ctx, "redis get error. key: %+v, err: %+v", key, err)
@@ -94,17 +102,22 @@ func UserVerifyLoginServer(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.InvalidVerificationCode, "验证码错误")
 		return
 	}
-	err = setLoginStatus(ctx, req.Email)
+	token := util.Md5(time.Now().Format(util.YMDHMS) + req.Email)
+	err = setLoginStatus(ctx, req.Email, token)
 	if err != nil {
 		logs.CtxError(ctx, "set login status error")
 	}
-	util.EndJson(ctx, nil)
+	util.EndJson(ctx, loginResponse{
+		Email: req.Email,
+		Token: token,
+	})
 }
 
 // 注册接口
 func UserRegisterServer(ctx *gin.Context) {
 	var req userCommonRequest
 	err := ctx.Bind(&req)
+	logs.CtxInfo(ctx, "raw request: %+v", ctx.Request)
 	if err != nil {
 		logs.CtxError(ctx, "bind req error. err: %+v", err)
 		util.ErrorJson(ctx, util.ParamError, "参数错误")
@@ -132,6 +145,7 @@ func UserRegisterServer(ctx *gin.Context) {
 	newUser := &db.UserAccountInfo{
 		Name:     req.Name,
 		Email:    req.Email,
+		Phone:    req.Phone,
 		Status:   0,
 		Password: encryptPassword(req.Password),
 	}
@@ -142,7 +156,15 @@ func UserRegisterServer(ctx *gin.Context) {
 		return
 	}
 	logs.CtxInfo(ctx, "new user: %+v", newUser)
-	util.EndJson(ctx, nil)
+	token := util.Md5(time.Now().Format(util.YMDHMS) + req.Email)
+	err = setLoginStatus(ctx, req.Email, token)
+	if err != nil {
+		logs.CtxError(ctx, "set login status error")
+	}
+	util.EndJson(ctx, loginResponse{
+		Email: req.Email,
+		Token: token,
+	})
 }
 
 // 注销接口
@@ -156,76 +178,6 @@ func LogoutServer(ctx *gin.Context) {
 	}
 	logs.CtxInfo(ctx, "req: %+v", req)
 	delLoginStatus(ctx, req.Email)
-	util.EndJson(ctx, nil)
-}
-
-// 修改接口
-func ModifyServer(ctx *gin.Context) {
-	var req userCommonRequest
-	err := ctx.Bind(&req)
-	if err != nil {
-		logs.CtxError(ctx, "bind req error. err: %+v", err)
-		util.ErrorJson(ctx, util.ParamError, "参数错误")
-		return
-	}
-	logs.CtxInfo(ctx, "req: %+v", req)
-	key := fmt.Sprintf(util.UserLoginVerificationCodeTemplate, req.Email)
-	res, err := redis.GetWithRetry(ctx, key)
-	if err != nil {
-		logs.CtxWarn(ctx, "redis get error. key: %+v, err: %+v", key, err)
-		util.ErrorJson(ctx, util.DbError, "获取验证码失败")
-		return
-	}
-	if strings.ToLower(res) != strings.ToLower(req.VerifyCode) {
-		logs.CtxInfo(ctx, "verification error, %+v, %+v", res, req.VerifyCode)
-		util.ErrorJson(ctx, util.InvalidVerificationCode, "验证码错误")
-		return
-	}
-	existInfo, err := db.GetUserByEmail(req.Email)
-	if err != nil {
-		logs.CtxError(ctx, "get user by email error. err: %+v", err)
-		util.ErrorJson(ctx, util.DbError, "内部错误")
-		return
-	}
-	modifyInfo := &db.UserAccountInfo{
-		ID:       existInfo.ID,
-		Name:     req.Name,
-		Email:    existInfo.Email,
-		Status:   0,
-		Password: encryptPassword(req.Password),
-	}
-	err = db.SaveUserInfo(modifyInfo)
-	if err != nil {
-		logs.CtxError(ctx, "save user info error, err: %+v", err)
-		util.ErrorJson(ctx, util.DbError, "内部错误")
-		return
-	}
-	util.EndJson(ctx, nil)
-}
-
-// 删除接口
-func DeleteServer(ctx *gin.Context) {
-	var req userCommonRequest
-	err := ctx.Bind(&req)
-	if err != nil {
-		logs.CtxError(ctx, "bind req error. err: %+v", err)
-		util.ErrorJson(ctx, util.ParamError, "参数错误")
-		return
-	}
-	logs.CtxInfo(ctx, "req: %+v", req)
-	user, err := db.GetUserByEmail(req.Email)
-	if err != nil {
-		logs.CtxError(ctx, "get user by email error. err: %+v", err)
-		util.ErrorJson(ctx, util.DbError, "内部错误")
-		return
-	}
-	user.Status = 1
-	err = db.SaveUserInfo(user)
-	if err != nil {
-		logs.CtxError(ctx, "save user info error. err: %+v", err)
-		util.ErrorJson(ctx, util.DbError, "内部错误")
-		return
-	}
 	util.EndJson(ctx, nil)
 }
 
@@ -277,9 +229,10 @@ func encryptPassword(password string) string {
 }
 
 // 写入登陆状态
-func setLoginStatus(ctx context.Context, email string) error {
+func setLoginStatus(ctx context.Context, email, token string, ) error {
 	key := fmt.Sprintf(util.UserLoginTemplate, email)
-	err := redis.SetWithRetry(ctx, key, "ok", loginExpiration)
+	logs.CtxInfo(ctx, key)
+	err := redis.SetWithRetry(ctx, key, token, loginExpiration)
 	return err
 }
 

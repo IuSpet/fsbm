@@ -5,18 +5,18 @@ import (
 )
 
 var (
-	fsbmSession *Handler
+	FsbmSession *Handler
 	migrations  map[string]func()
 )
 
 func Init() {
-	fsbmSession = NewHandler()
+	FsbmSession = NewHandler()
 	mysqlCfg := conf.GlobalConfig.Mysql
-	fsbmSession.user = mysqlCfg.User
-	fsbmSession.password = mysqlCfg.Password
-	fsbmSession.ip = mysqlCfg.Ip
-	fsbmSession.port = mysqlCfg.Port
-	fsbmSession.dbName = mysqlCfg.DbName
+	FsbmSession.user = mysqlCfg.User
+	FsbmSession.password = mysqlCfg.Password
+	FsbmSession.ip = mysqlCfg.Ip
+	FsbmSession.port = mysqlCfg.Port
+	FsbmSession.dbName = mysqlCfg.DbName
 	RunMigrations()
 }
 

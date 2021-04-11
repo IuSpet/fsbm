@@ -3,7 +3,7 @@ package db
 import "time"
 
 type AuthRole struct {
-	ID        int64     `gorm:"type:bigint; primaryKey"`
+	ID        int64     `gorm:"AUTO_INCREMENT; primaryKey"`
 	Role      string    `gorm:"type:varchar(128); not null; index; uniqueIndex:uk_type_role,priority:2"`
 	Type      string    `gorm:"type:varchar(128); not null; uniqueIndex:uk_type_role,priority:1"`
 	Status    int8      `gorm:"type:tinyint; not null; comment:0:正常"`
@@ -18,11 +18,11 @@ func (AuthRole) TableName() string {
 func init() {
 	table := AuthRole{}
 	RegisterMigration(table.TableName(), func() {
-		conn, err := fsbmSession.GetConnection()
+		conn, err := FsbmSession.GetConnection()
 		if err != nil {
 			panic(err)
 		}
-		err = conn.Debug().Set("gorm:table_options", "ENGINE=INNODB CHARSET=utf8").AutoMigrate(&table)
+		err = conn.Set("gorm:table_options", "ENGINE=INNODB CHARSET=utf8").AutoMigrate(&table)
 		if err != nil {
 			panic(err)
 		}
@@ -33,7 +33,7 @@ func GetRoleById(id int64) (res []AuthRole, err error) {
 	sqlFmt := `
 	select * from auth_role a join auth_user_role b on a.id = b.role_id where b.id = ?
 `
-	conn, err := fsbmSession.GetConnection()
+	conn, err := FsbmSession.GetConnection()
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func GetRoleById(id int64) (res []AuthRole, err error) {
 }
 
 func SaveRole(role *AuthRole) (err error) {
-	conn, err := fsbmSession.GetConnection()
+	conn, err := FsbmSession.GetConnection()
 	if err != nil {
 		return
 	}
@@ -51,7 +51,7 @@ func SaveRole(role *AuthRole) (err error) {
 }
 
 func GetRoleByName(t string, name string) (res *AuthRole, err error) {
-	conn, err := fsbmSession.GetConnection()
+	conn, err := FsbmSession.GetConnection()
 	if err != nil {
 		return
 	}

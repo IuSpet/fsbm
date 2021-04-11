@@ -1,20 +1,33 @@
 package admin
 
 import (
+	"encoding/csv"
+	"encoding/json"
 	"fsbm/db"
 	"fsbm/util"
 	"fsbm/util/logs"
 	"github.com/gin-gonic/gin"
+	"os"
+	"reflect"
+	"sort"
+	"strconv"
+	"strings"
+	"time"
 )
 
-var userStatusMapping = map[int8]string{
-	0: "正常",
-	1: "已删除",
+var userInfoCsvColumns = []struct{ Field, Key string }{
+	{"用户名", "name"},
+	{"邮箱", "email"},
+	{"手机号", "phone"},
+	{"性别", "gender"},
+	{"年龄", "age"},
+	{"注册时间", "created_at"},
+	{"状态", "status"},
 }
 
 // 获取所有用户列表接口
 func UserListServer(ctx *gin.Context) {
-	var req getUserListRequest
+	req := newGetUserListRequest()
 	var rsp getUserListResponse
 	err := ctx.Bind(&req)
 	if err != nil {
@@ -23,23 +36,109 @@ func UserListServer(ctx *gin.Context) {
 		return
 	}
 	logs.CtxInfo(ctx, "req: %+v", req)
-	userList, err := db.GetAllUser()
+	userList, cnt, err := getSortedUserList(&req, false)
 	if err != nil {
-		logs.CtxError(ctx, "get all user error. err: %+v", err)
-		util.ErrorJson(ctx, util.DbError, "内部错误")
+		logs.CtxError(ctx, "get user list error.err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
 		return
 	}
-	offset := (req.Page - 1) * req.PageSize
-	rsp.TotalCount = int64(len(userList))
-	if offset < rsp.TotalCount {
-		userList = userList[offset:util.MinInt64(rsp.TotalCount, offset+req.PageSize)]
-		for _, user := range userList {
-			rsp.UserInfoList = append(rsp.UserInfoList, userInfo{
-				Name:   user.Name,
-				Email:  user.Email,
-				Status: userStatusMapping[user.Status],
-			})
+	for idx := range userList {
+		rsp.UserInfoList = append(rsp.UserInfoList, userInfo{
+			Name:      userList[idx].Name,
+			Email:     userList[idx].Email,
+			Gender:    db.UserGenderMapping[userList[idx].Gender],
+			Age:       userList[idx].Age,
+			Phone:     userList[idx].Phone,
+			CreatedAt: userList[idx].CreatedAt.Format(util.YMDHMS),
+			Status:    db.UserStatusMapping[userList[idx].Status],
+		})
+	}
+	rsp.TotalCount = cnt
+	util.EndJson(ctx, rsp)
+}
+
+// 查询用户信息导出csv接口
+func UserListCsvServer(ctx *gin.Context) {
+	req := newGetUserListRequest()
+	err := ctx.Bind(&req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	req.Page = -1
+	logs.CtxInfo(ctx, "req: %+v", req)
+	userList, _, err := getSortedUserList(&req, true)
+	if err != nil {
+		logs.CtxError(ctx, "get user list error.err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	csvRows := make([]userInfoCsvRow, 0, len(userList))
+	for idx := range userList {
+		csvRows = append(csvRows, userInfoCsvRow{
+			Email:     userList[idx].Email,
+			Name:      userList[idx].Name,
+			Phone:     userList[idx].Phone,
+			Status:    db.UserStatusMapping[userList[idx].Status],
+			Age:       strconv.FormatInt(int64(userList[idx].Age), 10),
+			CreatedAt: userList[idx].CreatedAt.Format(util.YMDHMS),
+			Gender:    db.UserGenderMapping[userList[idx].Gender],
+		})
+	}
+	fileName := "用户列表导出.csv"
+	file, _ := os.Create(fileName)
+	defer file.Close()
+	w := csv.NewWriter(file)
+	_, _ = file.WriteString("\xEF\xBB\xBF")
+	var title []string
+	for idx := range userInfoCsvColumns {
+		title = append(title, userInfoCsvColumns[idx].Field)
+	}
+	_ = w.Write(title)
+	for idx := range csvRows {
+		var row []string
+		var m = make(map[string]string)
+		s, _ := json.Marshal(csvRows[idx])
+		_ = json.Unmarshal(s, &m)
+		for _, k := range userInfoCsvColumns {
+			row = append(row, m[k.Key])
 		}
+		_ = w.Write(row)
+	}
+	w.Flush()
+	util.SetFileTransportHeader(ctx, fileName)
+	_ = os.Remove(fileName)
+}
+
+// 查询用户信息，制作打印界面
+func UserListPrintServer(ctx *gin.Context) {
+	req := newGetUserListRequest()
+	err := ctx.Bind(&req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	req.Page = -1
+	logs.CtxInfo(ctx, "req: %+v", req)
+	userList, _, err := getSortedUserList(&req, true)
+	if err != nil {
+		logs.CtxError(ctx, "get user list error.err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	var rsp getUserListResponse
+	for _, item := range userList {
+		rsp.UserInfoList = append(rsp.UserInfoList, userInfo{
+			Name:      item.Name,
+			Email:     item.Email,
+			Gender:    db.UserGenderMapping[item.Gender],
+			Age:       item.Age,
+			Phone:     item.Phone,
+			CreatedAt: item.CreatedAt.Format(util.YMDHMS),
+			Status:    db.UserStatusMapping[item.Status],
+		})
 	}
 	util.EndJson(ctx, rsp)
 }
@@ -62,7 +161,7 @@ func UserDetailServer(ctx *gin.Context) {
 		return
 	}
 	rsp.Email = user.Email
-	rsp.Status = userStatusMapping[user.Status]
+	rsp.Status = db.UserStatusMapping[user.Status]
 	rsp.Name = user.Name
 	roleList, err := db.GetRoleById(user.ID)
 	if err != nil {
@@ -128,6 +227,42 @@ func ModifyUserDetailServer(ctx *gin.Context) {
 	util.EndJson(ctx, nil)
 }
 
+// 查看用户注册情况接口
+func GetUserRegisterInfoServer(ctx *gin.Context) {
+	req := newGetUserListRequest()
+	var rsp userRegisterInfoResponse
+	err := ctx.Bind(&req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	logs.CtxInfo(ctx, "req: %+v", req)
+	begin, _ := time.Parse(util.H5FMT, req.CreateBegin)
+	end, _ := time.Parse(util.H5FMT, req.CreateEnd)
+	userList, err := getUserList(req.Name, req.Email, req.Phone, req.Gender, req.Age, begin, end)
+	if err != nil {
+		logs.CtxError(ctx, "get user list error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	registerStats := make(map[string]int64)
+	for _, row := range userList {
+		registerStats[row.CreatedAt.Format(util.YMD)] += 1
+	}
+	for k, v := range registerStats {
+		rsp.Series = append(rsp.Series, registerInfo{
+			Date: k,
+			Cnt:  v,
+		})
+	}
+	// 按日期降序排列
+	sort.SliceStable(rsp.Series, func(i, j int) bool {
+		return rsp.Series[i].Date < rsp.Series[j].Date
+	})
+	util.EndJson(ctx, rsp)
+}
+
 func generateAuthUserRoleRows(userID int64, roleIDList []int64) []db.AuthUserRole {
 	var userRoleList []db.AuthUserRole
 	for _, roleID := range roleIDList {
@@ -138,4 +273,72 @@ func generateAuthUserRoleRows(userID int64, roleIDList []int64) []db.AuthUserRol
 		})
 	}
 	return userRoleList
+}
+
+// 默认值
+func newGetUserListRequest() getUserListRequest {
+	return getUserListRequest{
+		Gender:      -1,
+		Age:         -1,
+		CreateBegin: time.Unix(0, 0).Format(util.H5FMT),
+		CreateEnd:   time.Now().Format(util.H5FMT),
+		Page:        1,
+		PageSize:    20,
+	}
+}
+
+func getSortedUserList(req *getUserListRequest, all bool) ([]db.UserAccountInfo, int64, error) {
+	begin, _ := time.Parse(util.H5FMT, req.CreateBegin)
+	end, _ := time.Parse(util.H5FMT, req.CreateEnd)
+	userList, err := getUserList(req.Name, req.Email, req.Phone, req.Gender, req.Age, begin, end)
+	if err != nil {
+		return nil, 0, err
+	}
+	if len(req.SortFields) > 0 {
+		sort.SliceStable(userList, func(i, j int) bool {
+			a, b := reflect.ValueOf(userList[i]), reflect.ValueOf(userList[j])
+			for _, item := range req.SortFields {
+				x, y := a.FieldByName(item.Field).Interface(), b.FieldByName(item.Field).Interface()
+				if reflect.DeepEqual(x, y) {
+					continue
+				}
+				asc := strings.ToLower(item.Order) == "asc"
+				switch x.(type) {
+				case string:
+					if asc {
+						return x.(string) < y.(string)
+					}
+					return x.(string) > y.(string)
+				case int64:
+					if asc {
+						return x.(int64) < y.(int64)
+					}
+					return x.(int64) > y.(int64)
+				case int8:
+					if asc {
+						return x.(int8) < y.(int8)
+					}
+					return x.(int8) > y.(int8)
+				case time.Time:
+					if asc {
+						return x.(time.Time).Before(y.(time.Time))
+					}
+					return x.(time.Time).After(y.(time.Time))
+				}
+			}
+			return true
+		})
+	}
+	totalCnt := int64(len(userList))
+	if all {
+		return userList, totalCnt, nil
+	}
+	offset := (req.Page - 1) * req.PageSize
+	if totalCnt > offset+req.PageSize {
+		return userList[offset : offset+req.PageSize], totalCnt, nil
+	} else if totalCnt > offset {
+		return userList[offset:], totalCnt, nil
+	} else {
+		return nil, totalCnt, nil
+	}
 }
