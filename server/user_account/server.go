@@ -52,11 +52,15 @@ func UserPasswordLoginServer(ctx *gin.Context) {
 		return
 	}
 	// 登陆成功
-	err = setLoginStatus(ctx, req.Email)
+	token := util.Md5(time.Now().Format(util.YMDHMS) + req.Email)
+	err = setLoginStatus(ctx, req.Email, token)
 	if err != nil {
 		logs.CtxError(ctx, "set login status error")
 	}
-	util.EndJson(ctx, nil)
+	util.EndJson(ctx, loginResponse{
+		Email: req.Email,
+		Token: token,
+	})
 }
 
 // 验证登陆接口
@@ -98,11 +102,15 @@ func UserVerifyLoginServer(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.InvalidVerificationCode, "验证码错误")
 		return
 	}
-	err = setLoginStatus(ctx, req.Email)
+	token := util.Md5(time.Now().Format(util.YMDHMS) + req.Email)
+	err = setLoginStatus(ctx, req.Email, token)
 	if err != nil {
 		logs.CtxError(ctx, "set login status error")
 	}
-	util.EndJson(ctx, nil)
+	util.EndJson(ctx, loginResponse{
+		Email: req.Email,
+		Token: token,
+	})
 }
 
 // 注册接口
@@ -148,11 +156,15 @@ func UserRegisterServer(ctx *gin.Context) {
 		return
 	}
 	logs.CtxInfo(ctx, "new user: %+v", newUser)
-	err = setLoginStatus(ctx, req.Email)
+	token := util.Md5(time.Now().Format(util.YMDHMS) + req.Email)
+	err = setLoginStatus(ctx, req.Email, token)
 	if err != nil {
 		logs.CtxError(ctx, "set login status error")
 	}
-	util.EndJson(ctx, nil)
+	util.EndJson(ctx, loginResponse{
+		Email: req.Email,
+		Token: token,
+	})
 }
 
 // 注销接口
@@ -217,10 +229,10 @@ func encryptPassword(password string) string {
 }
 
 // 写入登陆状态
-func setLoginStatus(ctx context.Context, email string) error {
+func setLoginStatus(ctx context.Context, email, token string, ) error {
 	key := fmt.Sprintf(util.UserLoginTemplate, email)
 	logs.CtxInfo(ctx, key)
-	err := redis.SetWithRetry(ctx, key, "ok", loginExpiration)
+	err := redis.SetWithRetry(ctx, key, token, loginExpiration)
 	return err
 }
 

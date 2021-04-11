@@ -10,6 +10,11 @@ type userCommonRequest struct {
 	VerifyCode string `json:"verify_code"`
 }
 
+type loginResponse struct {
+	Email string `json:"email"`
+	Token string `json:"token"`
+}
+
 type applyRoleRequest struct {
 	Email      string  `json:"email"`
 	RoleIDList []int64 `json:"role_id_list"`

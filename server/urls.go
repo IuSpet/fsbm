@@ -39,7 +39,7 @@ func Register(router *gin.Engine) {
 	userModule.POST("/apply_role", CheckLoginStatus, userAccount.ApplyRoleServer) // 申请权限
 	userModule.POST("/set_avatar", CheckLoginStatus, userAccount.SetAvatarServer) // 设置用户头像
 	userModule.POST("/get_profile", CheckLoginStatus, userAccount.GetUserProfile) // 获取用户信息
-	userModule.POST("/get_avatar", CheckLoginStatus, userAccount.GetAvatarServer)  // 获取用户头像
+	userModule.POST("/get_avatar", CheckLoginStatus, userAccount.GetAvatarServer) // 获取用户头像
 	//userModule.POST("/get_user_list", CheckLoginStatus)
 	// 工具模块
 	toolModule := router.Group("/tool")
@@ -61,13 +61,14 @@ func CheckLoginStatus(ctx *gin.Context) {
 		ctx.Next()
 		return
 	}
-	email := ctx.GetHeader("email")
+	email := ctx.GetHeader("Access-email")
+	token := ctx.GetHeader("Access-token")
 	ctx.Set("email", email)
 	key := fmt.Sprintf(util.UserLoginTemplate, email)
 	res, err := redis.GetWithRetry(ctx, key)
-	if err != nil || res == "" {
-		util.ErrorJson(ctx, util.UserNotLogin, "用户未登陆")
-		ctx.Abort()
+	if err != nil || res != token {
+		util.ErrorJson(ctx, util.UserNotLogin, "用户登录验证失败")
+		ctx.AbortWithStatus(http.StatusForbidden)
 		return
 	}
 	ctx.Next()
