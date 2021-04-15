@@ -227,7 +227,7 @@ func ModifyUserDetailServer(ctx *gin.Context) {
 	util.EndJson(ctx, nil)
 }
 
-// 查看用户注册情况接口
+// 用户注册统计接口
 func GetUserRegisterInfoServer(ctx *gin.Context) {
 	req := newGetUserListRequest()
 	var rsp userRegisterInfoResponse
@@ -238,8 +238,8 @@ func GetUserRegisterInfoServer(ctx *gin.Context) {
 		return
 	}
 	logs.CtxInfo(ctx, "req: %+v", req)
-	begin, _ := time.Parse(util.H5FMT, req.CreateBegin)
-	end, _ := time.Parse(util.H5FMT, req.CreateEnd)
+	begin, _ := time.Parse(util.YMD, req.CreateBegin)
+	end, _ := time.Parse(util.YMD, req.CreateEnd)
 	userList, err := getUserList(req.Name, req.Email, req.Phone, req.Gender, req.Age, begin, end)
 	if err != nil {
 		logs.CtxError(ctx, "get user list error. err: %+v", err)
@@ -250,16 +250,15 @@ func GetUserRegisterInfoServer(ctx *gin.Context) {
 	for _, row := range userList {
 		registerStats[row.CreatedAt.Format(util.YMD)] += 1
 	}
-	for k, v := range registerStats {
+	end = end.AddDate(0, 0, 1)
+	for begin.Before(end) {
+		cur := begin.Format(util.YMD)
 		rsp.Series = append(rsp.Series, registerInfo{
-			Date: k,
-			Cnt:  v,
+			Date: cur,
+			Cnt:  registerStats[cur],
 		})
+		begin = begin.AddDate(0, 0, 1)
 	}
-	// 按日期降序排列
-	sort.SliceStable(rsp.Series, func(i, j int) bool {
-		return rsp.Series[i].Date < rsp.Series[j].Date
-	})
 	util.EndJson(ctx, rsp)
 }
 
@@ -280,16 +279,16 @@ func newGetUserListRequest() getUserListRequest {
 	return getUserListRequest{
 		Gender:      -1,
 		Age:         -1,
-		CreateBegin: time.Unix(0, 0).Format(util.H5FMT),
-		CreateEnd:   time.Now().Format(util.H5FMT),
+		CreateBegin: time.Unix(0, 0).Format(util.YMD),
+		CreateEnd:   time.Now().Format(util.YMD),
 		Page:        1,
 		PageSize:    20,
 	}
 }
 
 func getSortedUserList(req *getUserListRequest, all bool) ([]db.UserAccountInfo, int64, error) {
-	begin, _ := time.Parse(util.H5FMT, req.CreateBegin)
-	end, _ := time.Parse(util.H5FMT, req.CreateEnd)
+	begin, _ := time.Parse(util.YMD, req.CreateBegin)
+	end, _ := time.Parse(util.YMD, req.CreateEnd)
 	userList, err := getUserList(req.Name, req.Email, req.Phone, req.Gender, req.Age, begin, end)
 	if err != nil {
 		return nil, 0, err

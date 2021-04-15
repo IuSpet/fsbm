@@ -40,6 +40,7 @@ func Register(router *gin.Engine) {
 	userModule.POST("/set_avatar", CheckLoginStatus, userAccount.SetAvatarServer) // 设置用户头像
 	userModule.POST("/get_profile", CheckLoginStatus, userAccount.GetUserProfile) // 获取用户信息
 	userModule.POST("/get_avatar", CheckLoginStatus, userAccount.GetAvatarServer) // 获取用户头像
+	//userModule.POST("/get_info",CheckLoginStatus,userAccount.GetInfoServer)
 	//userModule.POST("/get_user_list", CheckLoginStatus)
 	// 工具模块
 	toolModule := router.Group("/tool")
@@ -61,8 +62,8 @@ func CheckLoginStatus(ctx *gin.Context) {
 		ctx.Next()
 		return
 	}
-	email := ctx.GetHeader("Access-email")
-	token := ctx.GetHeader("Access-token")
+	email := ctx.GetHeader("Access-Email")
+	token := ctx.GetHeader("Access-Token")
 	ctx.Set("email", email)
 	key := fmt.Sprintf(util.UserLoginTemplate, email)
 	res, err := redis.GetWithRetry(ctx, key)
@@ -103,7 +104,7 @@ func Authentication(ctx *gin.Context) {
 func AllowOrigin(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, UPDATE")
-	ctx.Header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, Email")
+	ctx.Header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, Access-Token, Access-Email")
 	ctx.Header("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Cache-Control, Content-Language, Content-Type")
 	ctx.Header("Access-Control-Allow-Credentials", "true")
 	method := ctx.Request.Method
