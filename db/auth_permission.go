@@ -4,8 +4,8 @@ import "time"
 
 type AuthPermission struct {
 	ID         int64     `gorm:"AUTO_INCREMENT; primaryKey"`
-	Permission string    `gorm:"type:varchar(128); not null"`
-	Type       string    `gorm:"type:varchar(128); not null"`
+	Permission string    `gorm:"type:varchar(127); not null"`
+	Type       string    `gorm:"type:varchar(127); not null"`
 	Status     int8      `gorm:"type:tinyint; not null; comment:0:正常"`
 	CreatedAt  time.Time `gorm:"autoCreateTime; not null"`
 	UpdatedAt  time.Time `gorm:"autoUpdateTime; not null"`

@@ -3,13 +3,20 @@ package db
 import "time"
 
 type ShopList struct {
-	ID         int64     `gorm:"AUTO_INCREMENT; primaryKey"`
-	Admin      string    `gorm:"type:varchar(127);not null; comment:店铺负责人"`
-	AdminEmail string    `gorm:"type:varchar(127);not null; comment:店铺负责人邮箱"`
-	AdminPhone string    `gorm:"type:varchar(127);not null; comment:店铺负责人手机"`
-	Addr       string    `gorm:"type:varchar(255);not null; comment:店铺地址"`
-	CreatedAt  time.Time `gorm:"autoCreateTime; not null"`
-	UpdatedAt  time.Time `gorm:"autoUpdateTime; not null"`
+	ID           int64     `gorm:"AUTO_INCREMENT; primaryKey"`
+	Name         string    `gorm:"varchar(127);not null; comment:店铺名称"`
+	UserID       int64     `gorm:"type:bigint;not null; comment:店铺负责人id"`
+	Addr         string    `gorm:"type:varchar(255);not null; comment:店铺地址"`
+	NoticeConfig string    `gorm:"type:varchar(255);not null; comment:店铺报警配置"`
+	Status       int8      `gorm:"type:tinyint;not null; comment:状态，0：正常，1：已删除"`
+	Remark       string    `gorm:"type:text;;comment:店铺备注"`
+	CreatedAt    time.Time `gorm:"autoCreateTime; not null"`
+	UpdatedAt    time.Time `gorm:"autoUpdateTime; not null"`
+}
+
+type ShopNoticeConfigBase struct {
+	Threshold    int64   `json:"threshold"`
+	NoticeDevice []int64 `json:"notice_device"`
 }
 
 func (ShopList) TableName() string {
@@ -28,4 +35,13 @@ func init() {
 			panic(err)
 		}
 	})
+}
+
+func SaveShopListRow(row *ShopList) (err error) {
+	conn, err := FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	err = conn.Save(row).Error
+	return
 }

@@ -301,29 +301,12 @@ func getSortedUserList(req *getUserListRequest, all bool) ([]db.UserAccountInfo,
 				if reflect.DeepEqual(x, y) {
 					continue
 				}
-				asc := strings.ToLower(item.Order) == "asc"
-				switch x.(type) {
-				case string:
-					if asc {
-						return x.(string) < y.(string)
-					}
-					return x.(string) > y.(string)
-				case int64:
-					if asc {
-						return x.(int64) < y.(int64)
-					}
-					return x.(int64) > y.(int64)
-				case int8:
-					if asc {
-						return x.(int8) < y.(int8)
-					}
-					return x.(int8) > y.(int8)
-				case time.Time:
-					if asc {
-						return x.(time.Time).Before(y.(time.Time))
-					}
-					return x.(time.Time).After(y.(time.Time))
+				desc := strings.ToLower(item.Order) == "desc"
+				less := util.CmpInterface(x, y)
+				if desc {
+					return !less
 				}
+				return less
 			}
 			return true
 		})

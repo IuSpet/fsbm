@@ -101,3 +101,27 @@ func GetVerificationCode(ctx context.Context, email string) (string, error) {
 	}
 	return res, nil
 }
+
+func LikeCondition(field string) string {
+	return "%" + field + "%"
+}
+
+func CmpInterface(x, y interface{}) bool {
+	switch x.(type) {
+	case string:
+		return x.(string) < y.(string)
+	case int:
+		return x.(int) < y.(int)
+	case int64:
+		return x.(int64) < y.(int64)
+	case int32:
+		return x.(int32) < y.(int32)
+	case int16:
+		return x.(int16) < y.(int16)
+	case int8:
+		return x.(int8) < y.(int8)
+	case time.Time:
+		return x.(time.Time).Before(y.(time.Time))
+	}
+	return true
+}

@@ -4,8 +4,8 @@ import "time"
 
 type AuthRole struct {
 	ID        int64     `gorm:"AUTO_INCREMENT; primaryKey"`
-	Role      string    `gorm:"type:varchar(128); not null; index; uniqueIndex:uk_type_role,priority:2"`
-	Type      string    `gorm:"type:varchar(128); not null; uniqueIndex:uk_type_role,priority:1"`
+	Role      string    `gorm:"type:varchar(127); not null; index; uniqueIndex:uk_type_role,priority:2"`
+	Type      string    `gorm:"type:varchar(127); not null; uniqueIndex:uk_type_role,priority:1"`
 	Status    int8      `gorm:"type:tinyint; not null; comment:0:正常"`
 	CreatedAt time.Time `gorm:"autoCreateTime; not null"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime; not null"`

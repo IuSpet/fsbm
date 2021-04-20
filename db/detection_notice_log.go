@@ -7,6 +7,7 @@ import "time"
 type DetectionNoticeLog struct {
 	ID        int64     `gorm:"AUTO_INCREMENT; primaryKey"`
 	ResultID  int64     `gorm:"type:bigint;comment:识别结果id"`
+	ShopID    int64     `gorm:"type:bigint;comment:店铺id"`
 	UserID    int64     `gorm:"type:bigint;comment:用户Id"`
 	Message   string    `gorm:"type:varchar(255);not null;comment:报警内容"`
 	NotifyTs  int64     `gorm:"type:bigint;not null; comment: 通知时间"`

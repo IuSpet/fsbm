@@ -6,6 +6,7 @@ type DetectionResult struct {
 	ID           int64     `gorm:"AUTO_INCREMENT; primaryKey"`
 	SrcVideoID   int64     `gorm:"type:bigint; not null; comment:图片来源视频id"`
 	SrcDeviceID  int64     `gorm:"type:bigint; not null; comment:图片来源设别id"`
+	srcShopID    int64     `gorm:"type:bigint not null; comment:来源店铺id;"`
 	At           int64     `gorm:"type:bigint; not null; comment:图片时间戳"`
 	FrameCnt     int64     `gorm:"type:bigint; not null; comment:图片在原视频多少帧"`
 	Path         string    `gorm:"type:varchar(255); not null; comment:图片存储路径"`

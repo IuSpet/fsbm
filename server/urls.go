@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"fsbm/server/admin"
+	"fsbm/server/shop"
 	"fsbm/server/tool"
 	userAccount "fsbm/server/user_account"
 	"fsbm/util"
@@ -42,6 +43,9 @@ func Register(router *gin.Engine) {
 	userModule.POST("/get_avatar", CheckLoginStatus, userAccount.GetAvatarServer) // 获取用户头像
 	//userModule.POST("/get_info",CheckLoginStatus,userAccount.GetInfoServer)
 	//userModule.POST("/get_user_list", CheckLoginStatus)
+	// 店铺与设备模块
+	shopModule := router.Group("/shop", CheckLoginStatus, Authentication)
+	shopModule.POST("/add_shop", shop.AddShopServer) // 增加店铺
 	// 工具模块
 	toolModule := router.Group("/tool")
 	toolModule.POST("/no_auth/generate_verification_code", tool.GenerateVerificationCode) // 发送验证码
