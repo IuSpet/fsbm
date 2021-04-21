@@ -17,6 +17,11 @@ import (
 
 const verificationExpiration = 3 * time.Minute
 
+type SortField struct {
+	Field string `json:"field"`
+	Order  string `json:"order"`
+}
+
 func Md5(raw string) string {
 	h := md5.New()
 	_, _ = h.Write([]byte(raw))

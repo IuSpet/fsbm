@@ -2,11 +2,18 @@ package db
 
 import "time"
 
+var ShopStatusMapping = map[int8]string{
+	0: "正常",
+	1: "已关闭",
+}
+
 type ShopList struct {
 	ID           int64     `gorm:"AUTO_INCREMENT; primaryKey"`
 	Name         string    `gorm:"varchar(127);not null; comment:店铺名称"`
 	UserID       int64     `gorm:"type:bigint;not null; comment:店铺负责人id"`
 	Addr         string    `gorm:"type:varchar(255);not null; comment:店铺地址"`
+	Latitude     int       `gorm:"not null; comment:纬度"`
+	Longitude    int       `gorm:"not null; comment:经度"`
 	NoticeConfig string    `gorm:"type:varchar(255);not null; comment:店铺报警配置"`
 	Status       int8      `gorm:"type:tinyint;not null; comment:状态，0：正常，1：已删除"`
 	Remark       string    `gorm:"type:text;;comment:店铺备注"`

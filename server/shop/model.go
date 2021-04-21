@@ -2,15 +2,19 @@ package shop
 
 import (
 	"fsbm/db"
+	"fsbm/util"
 	"time"
 )
 
 type getShopListRequest struct {
-	Name        string `json:"name"`
-	Admin       string `json:"admin"`
-	Addr        string `json:"addr"`
-	CreateBegin string `json:"create_begin"`
-	CreateEnd   string `json:"create_end"`
+	Name        string           `json:"name"`
+	Admin       string           `json:"admin"`
+	Addr        string           `json:"addr"`
+	CreateBegin string           `json:"create_begin"`
+	CreateEnd   string           `json:"create_end"`
+	SortFields  []util.SortField `json:"sort_fields"`
+	Page        int64            `json:"page"`
+	PageSize    int64            `json:"page_size"`
 }
 
 type shopInfo struct {
@@ -24,7 +28,8 @@ type shopInfo struct {
 }
 
 type getShopListResponse struct {
-	List []shopInfo `json:"list"`
+	List     []shopInfo `json:"list"`
+	TotalCnt int64      `json:"total_cnt"`
 }
 
 type shopInfoRow struct {

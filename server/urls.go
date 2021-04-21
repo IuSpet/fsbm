@@ -45,7 +45,8 @@ func Register(router *gin.Engine) {
 	//userModule.POST("/get_user_list", CheckLoginStatus)
 	// 店铺与设备模块
 	shopModule := router.Group("/shop", CheckLoginStatus, Authentication)
-	shopModule.POST("/add_shop", shop.AddShopServer) // 增加店铺
+	shopModule.POST("/add_shop", shop.AddShopServer)      // 增加店铺
+	shopModule.POST("/shop_list", shop.GetShopListServer) // 店铺列表
 	// 工具模块
 	toolModule := router.Group("/tool")
 	toolModule.POST("/no_auth/generate_verification_code", tool.GenerateVerificationCode) // 发送验证码
