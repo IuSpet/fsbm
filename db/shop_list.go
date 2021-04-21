@@ -15,6 +15,7 @@ type ShopList struct {
 }
 
 type ShopNoticeConfigBase struct {
+	IsOn         bool    `json:"is_on"`
 	Threshold    int64   `json:"threshold"`
 	NoticeDevice []int64 `json:"notice_device"`
 }

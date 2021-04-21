@@ -62,13 +62,13 @@ func GenerateReqId(ctx *gin.Context) {
 
 // 检查登录状态
 func CheckLoginStatus(ctx *gin.Context) {
+	email := ctx.GetHeader("Access-Email")
+	token := ctx.GetHeader("Access-Token")
+	ctx.Set("email", email)
 	if Test {
 		ctx.Next()
 		return
 	}
-	email := ctx.GetHeader("Access-Email")
-	token := ctx.GetHeader("Access-Token")
-	ctx.Set("email", email)
 	key := fmt.Sprintf(util.UserLoginTemplate, email)
 	res, err := redis.GetWithRetry(ctx, key)
 	if err != nil || res != token {

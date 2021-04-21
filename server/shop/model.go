@@ -40,6 +40,8 @@ type shopInfoRow struct {
 type addShopRequest struct {
 	Name      string                             `json:"name"`
 	Addr      string                             `json:"addr"`
+	Latitude  int                                `json:"latitude"`
+	Longitude int                                `json:"longtitude"`
 	NoticeCfg map[string]db.ShopNoticeConfigBase `json:"notice_cfg"`
 	Remark    string                             `json:"remark"`
 }

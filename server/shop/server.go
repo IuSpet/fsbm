@@ -24,7 +24,7 @@ func GetShopListServer(ctx *gin.Context) {
 
 // 注册新店铺
 func AddShopServer(ctx *gin.Context) {
-	req := addShopRequest{}
+	req := newAddShopRequest()
 	err := ctx.Bind(req)
 	if err != nil {
 		logs.CtxError(ctx, "bind req error. err: %+v", err)
@@ -32,6 +32,11 @@ func AddShopServer(ctx *gin.Context) {
 		return
 	}
 	logs.CtxInfo(ctx, "req: %+v", req)
+	if !isValidShopInfo(req) {
+		logs.CtxInfo(ctx, "shop info invalid")
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
 	email := ctx.GetString("email")
 	user, err := db.GetUserByEmail(email)
 	if err != nil {
@@ -45,6 +50,7 @@ func AddShopServer(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.ParamError, "参数错误")
 		return
 	}
+
 	row := &db.ShopList{
 		Name:         req.Name,
 		UserID:       user.ID,
@@ -84,4 +90,25 @@ func newGetShopListRequest() *getShopListRequest {
 		CreateBegin: time.Now().Format(util.YMD),
 		CreateEnd:   time.Now().AddDate(0, 0, -7).Format(util.YMD),
 	}
+}
+
+func newAddShopRequest() *addShopRequest {
+	return &addShopRequest{
+		Name:      "",
+		Addr:      "",
+		Latitude:  0,
+		Longitude: 0,
+		NoticeCfg: make(map[string]db.ShopNoticeConfigBase),
+		Remark:    "",
+	}
+}
+
+func isValidShopInfo(req *addShopRequest) bool {
+	if req.Name == "" {
+		return false
+	}
+	if req.Addr == "" {
+		return false
+	}
+	return true
 }
