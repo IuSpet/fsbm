@@ -1,5 +1,9 @@
 package util
 
+import "time"
+
+type NoticeLevel string
+
 const (
 	// 所有返回status含义
 	ParamError              = 1  // 请求参数错误
@@ -17,7 +21,7 @@ const (
 	SaveImgError            = 13 // 保存图片到本地失败
 	AbnormalError           = 14 // 异常错误（预料外错误统一用这个）
 	// redis key template
-	UserLoginTemplate            = "%s:login_in"
+	UserLoginTemplate            = "%s:login"
 	UserVerificationCodeTemplate = "%s:verification_code"
 	// 密码加盐
 	Salt = "fsbmpwd"
@@ -25,4 +29,12 @@ const (
 	YMD    = "2006-01-02"
 	YMDHMS = "2006-01-02 15:04:05"
 	H5FMT  = "2006-01-02T15:04"
+	// 报警时间配置
+	InfoNoticeInterval  = time.Hour
+	WarnNoticeInterval  = 15 * time.Minute
+	ErrorNoticeInterval = time.Minute
+	// 报警等级枚举
+	InfoNotice  NoticeLevel = "_info_notice"
+	WarnNotice  NoticeLevel = "_warn_notice"
+	ErrorNotice NoticeLevel = "_error_notice"
 )
