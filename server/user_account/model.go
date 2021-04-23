@@ -36,3 +36,7 @@ type deleteUserRequest struct {
 	Email      string `json:"email"`
 	VerifyCode string `json:"verify_code"`
 }
+
+type getUserRolesResponse struct {
+	Roles []string `json:"roles"`
+}

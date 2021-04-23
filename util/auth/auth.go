@@ -17,7 +17,7 @@ func NewUserRoleSubject(email string) (*UserRoleSubject, error) {
 	if err != nil {
 		return nil, err
 	}
-	roleList, err := db.GetRoleById(user.ID)
+	roleList, err := db.GetRoleByUserId(user.ID)
 	if err != nil {
 		return nil, err
 	}

@@ -41,6 +41,7 @@ func Register(router *gin.Engine) {
 	userModule.POST("/set_avatar", CheckLoginStatus, userAccount.SetAvatarServer) // 设置用户头像
 	userModule.POST("/get_profile", CheckLoginStatus, userAccount.GetUserProfile) // 获取用户信息
 	userModule.POST("/get_avatar", CheckLoginStatus, userAccount.GetAvatarServer) // 获取用户头像
+	userModule.POST("/get_roles",CheckLoginStatus,userAccount.GetUserRolesServer)
 	//userModule.POST("/get_info",CheckLoginStatus,userAccount.GetInfoServer)
 	//userModule.POST("/get_user_list", CheckLoginStatus)
 	// 店铺与设备模块

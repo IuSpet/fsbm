@@ -29,9 +29,9 @@ func init() {
 	})
 }
 
-func GetRoleById(id int64) (res []AuthRole, err error) {
+func GetRoleByUserId(id int64) (res []AuthRole, err error) {
 	sqlFmt := `
-	select * from auth_role a join auth_user_role b on a.id = b.role_id where b.id = ?
+	select * from auth_role a join auth_user_role b on a.id = b.role_id where b.user_id = ?
 `
 	conn, err := FsbmSession.GetConnection()
 	if err != nil {

@@ -184,6 +184,36 @@ func GetAvatarServer(ctx *gin.Context) {
 	ctx.DataFromReader(http.StatusOK, avatar.ContentLength, avatar.ContentType, avatar.Avatar, avatar.ExtraHeaders)
 }
 
+// 获取用户角色
+func GetUserRolesServer(ctx *gin.Context) {
+	var req getUserProfileRequest
+	logs.CtxInfo(ctx, "body: %+v", ctx.Request.Body)
+	err := ctx.Bind(&req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	logs.CtxInfo(ctx, "req: %+v", req)
+	user, err := db.GetUserByEmail(req.Email)
+	if err != nil {
+		logs.CtxError(ctx, "get user by email error. err: %+v")
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	if user == nil {
+		logs.CtxInfo(ctx, "user not exist.")
+		util.ErrorJson(ctx, util.UserNotExist, "用户不存在")
+		return
+	}
+	roles, err := db.GetRoleByUserId(user.ID)
+	var rsp getUserRolesResponse
+	for _, role := range roles {
+		rsp.Roles = append(rsp.Roles, role.Role)
+	}
+	util.EndJson(ctx, rsp)
+}
+
 func saveImg(b []byte) {
 	img, _, err := image.Decode(bytes.NewReader(b))
 	if err != nil {
