@@ -19,3 +19,13 @@ func TestGetShopListServer(t *testing.T) {
 	}
 	fmt.Println(rows)
 }
+
+func TestGetDeviceListServer(t *testing.T) {
+	conf.Init()
+	db.Init()
+	rows, err := getMonitorListRows("abc", "123", "root", "beijing", "hls")
+	if err != nil {
+		t.Error(err)
+	}
+	fmt.Println(rows)
+}

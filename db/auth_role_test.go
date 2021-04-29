@@ -2,10 +2,13 @@ package db
 
 import (
 	"fmt"
+	"fsbm/conf"
 	"testing"
 )
 
 func TestAddRole(t *testing.T) {
+	conf.Init()
+	Init()
 	role := &AuthRole{
 		Role:   "role_2",
 		Type:   "test",
@@ -18,7 +21,7 @@ func TestAddRole(t *testing.T) {
 }
 
 func TestGetRoleById(t *testing.T) {
-	res, err := GetRoleById(5)
+	res, err := GetRoleByUserId(5)
 	if err != nil {
 		panic(err)
 	}

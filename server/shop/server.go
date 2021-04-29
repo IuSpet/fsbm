@@ -153,8 +153,8 @@ func newAddShopRequest() *addShopRequest {
 	return &addShopRequest{
 		Name:      "",
 		Addr:      "",
-		Latitude:  0,
-		Longitude: 0,
+		Latitude:  0.0,
+		Longitude: 0.0,
 		NoticeCfg: make(map[string]db.ShopNoticeConfigBase),
 		Remark:    "",
 	}

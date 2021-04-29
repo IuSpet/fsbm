@@ -163,7 +163,7 @@ func UserDetailServer(ctx *gin.Context) {
 	rsp.Email = user.Email
 	rsp.Status = db.UserStatusMapping[user.Status]
 	rsp.Name = user.Name
-	roleList, err := db.GetRoleById(user.ID)
+	roleList, err := db.GetRoleByUserId(user.ID)
 	if err != nil {
 		logs.CtxError(ctx, "get role by id error. err: %+v", err)
 		util.ErrorJson(ctx, util.DbError, "内部错误")

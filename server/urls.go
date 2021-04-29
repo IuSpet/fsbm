@@ -41,13 +41,16 @@ func Register(router *gin.Engine) {
 	userModule.POST("/set_avatar", CheckLoginStatus, userAccount.SetAvatarServer) // 设置用户头像
 	userModule.POST("/get_profile", CheckLoginStatus, userAccount.GetUserProfile) // 获取用户信息
 	userModule.POST("/get_avatar", CheckLoginStatus, userAccount.GetAvatarServer) // 获取用户头像
-	userModule.POST("/get_roles",CheckLoginStatus,userAccount.GetUserRolesServer)
+	userModule.POST("/get_roles", CheckLoginStatus, userAccount.GetUserRolesServer)
 	//userModule.POST("/get_info",CheckLoginStatus,userAccount.GetInfoServer)
 	//userModule.POST("/get_user_list", CheckLoginStatus)
 	// 店铺与设备模块
 	shopModule := router.Group("/shop", CheckLoginStatus, Authentication)
-	shopModule.POST("/add_shop", shop.AddShopServer)      // 增加店铺
-	shopModule.POST("/shop_list", shop.GetShopListServer) // 店铺列表
+	shopModule.POST("/add_shop", shop.AddShopServer)                    // 增加店铺
+	shopModule.POST("/shop_list", shop.GetShopListServer)               // 店铺列表
+	shopModule.POST("/device/add_monitor", shop.AddMonitorServer)       // 增加监控
+	shopModule.POST("/device/monitor_list", shop.GetMonitorListServer)  // 监控列表
+	shopModule.POST("/device/live_wall_src", shop.GetLiveWallSrcServer) // 直播墙源
 	// 工具模块
 	toolModule := router.Group("/tool")
 	toolModule.POST("/no_auth/generate_verification_code", tool.GenerateVerificationCode) // 发送验证码

@@ -32,3 +32,37 @@ func getShopListRows(name, addr, admin string, begin, end time.Time) (rows []sho
 	err = conn.Debug().Find(&rows).Error
 	return
 }
+
+func getMonitorListRows(name, shop, admin, addr, videoType string) (rows []monitorInfo, err error) {
+	conn, err := db.FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	conn = conn.Select("a.name as monitor_name," +
+		"a.video_type as video_type," +
+		"a.video_src as video_src," +
+		"b.name as shop_name," +
+		"b.addr as addr," +
+		"c.name as user_name," +
+		"c.phone as user_phone")
+	conn = conn.Table("monitor_list a " +
+		"LEFT JOIN shop_list b ON a.shop_id = b.id " +
+		"LEFT JOIN user_account_info c ON b.user_id = c.id")
+	if name != "" {
+		conn = conn.Where("a.name like ?", util.LikeCondition(name))
+	}
+	if shop != "" {
+		conn = conn.Where("b.name like ?", util.LikeCondition(shop))
+	}
+	if admin != "" {
+		conn = conn.Where("c.name like ?", util.LikeCondition(admin))
+	}
+	if addr != "" {
+		conn = conn.Where("b.addr like ?", util.LikeCondition(addr))
+	}
+	if videoType != "" {
+		conn = conn.Where("a.video_type = ?", videoType)
+	}
+	err = conn.Debug().Find(&rows).Error
+	return
+}

@@ -12,8 +12,8 @@ type ShopList struct {
 	Name         string    `gorm:"varchar(127);not null; comment:店铺名称"`
 	UserID       int64     `gorm:"type:bigint;not null; comment:店铺负责人id"`
 	Addr         string    `gorm:"type:varchar(255);not null; comment:店铺地址"`
-	Latitude     int       `gorm:"not null; comment:纬度"`
-	Longitude    int       `gorm:"not null; comment:经度"`
+	Latitude     float64   `gorm:"not null; comment:纬度"`
+	Longitude    float64   `gorm:"not null; comment:经度"`
 	NoticeConfig string    `gorm:"type:varchar(255);not null; comment:店铺报警配置"`
 	Status       int8      `gorm:"type:tinyint;not null; comment:状态，0：正常，1：已删除"`
 	Remark       string    `gorm:"type:text;;comment:店铺备注"`
@@ -51,5 +51,14 @@ func SaveShopListRow(row *ShopList) (err error) {
 		return
 	}
 	err = conn.Save(row).Error
+	return
+}
+
+func GetShopListById(shopIdList []int64) (res []ShopList, err error) {
+	conn, err := FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	err = conn.Where("id in ?", shopIdList).Find(&res).Error
 	return
 }
