@@ -92,6 +92,44 @@ func AddShopServer(ctx *gin.Context) {
 	util.EndJson(ctx, nil)
 }
 
+// 查询某一用户拥有店铺列表
+func GetShopListByEmailServer(ctx *gin.Context) {
+	req := &getShopByEmailRequest{}
+	err := ctx.Bind(req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	logs.CtxInfo(ctx, "req: %+v", req)
+	user, err := db.GetUserByEmail(req.UserEmail)
+	if err != nil {
+		logs.CtxError(ctx, "get user info error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "数据库错误")
+		return
+	}
+	if user == nil {
+		logs.CtxInfo(ctx, "user not exist")
+		util.ErrorJson(ctx, util.UserNotExist, "用户不存在")
+		return
+	}
+	rows, err := db.GetShopListByUserId(user.ID)
+	if err != nil {
+		logs.CtxError(ctx, "get shop list by user id error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	rsp := getShopByEmailResponse{}
+	for _, row := range rows {
+		rsp.List = append(rsp.List, userShopInfo{
+			ShopId:   row.ID,
+			ShopName: row.Name,
+			Addr:     row.Addr,
+		})
+	}
+	util.EndJson(ctx, rsp)
+}
+
 func getShopListData(req *getShopListRequest) ([]shopInfoRow, error) {
 	begin, err1 := time.Parse(util.YMDHMS, req.CreateBegin)
 	end, err2 := time.Parse(util.YMDHMS, req.CreateEnd)

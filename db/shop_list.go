@@ -62,3 +62,12 @@ func GetShopListById(shopIdList []int64) (res []ShopList, err error) {
 	err = conn.Where("id in ?", shopIdList).Find(&res).Error
 	return
 }
+
+func GetShopListByUserId(id int64) (res []ShopList, err error) {
+	conn, err := FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	err = conn.Where("user_id = ?", id).Find(&res).Error
+	return
+}

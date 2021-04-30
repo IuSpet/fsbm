@@ -92,3 +92,17 @@ type addMonitorRequest struct {
 	VideoType string `json:"video_type"`
 	VideoSrc  string `json:"video_src"`
 }
+
+type getShopByEmailRequest struct {
+	UserEmail string `json:"user_email"`
+}
+
+type getShopByEmailResponse struct {
+	List []userShopInfo `json:"list"`
+}
+
+type userShopInfo struct {
+	ShopId   int64  `json:"shop_id"`
+	ShopName string `json:"shop_name"`
+	Addr     string `json:"addr"`
+}
