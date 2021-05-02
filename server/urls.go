@@ -31,27 +31,29 @@ func Register(router *gin.Engine) {
 	adminModule.POST("/user_register/line_chart", admin.GetUserRegisterInfoServer) // 注册人数统计
 	// 用户模块
 	userModule := router.Group("/user")
-	userModule.POST("/register", userAccount.UserRegisterServer)                  // 注册
-	userModule.POST("/login/password", userAccount.UserPasswordLoginServer)       // 密码登录
-	userModule.POST("/login/verify", userAccount.UserVerifyLoginServer)           // 验证码登录
-	userModule.POST("/logout", userAccount.LogoutServer)                          // 注销
-	userModule.POST("/modify", CheckLoginStatus, userAccount.ModifyServer)        // 修改用户信息
-	userModule.POST("/delete", CheckLoginStatus, userAccount.DeleteServer)        // 删除
-	userModule.POST("/apply_role", CheckLoginStatus, userAccount.ApplyRoleServer) // 申请权限
-	userModule.POST("/set_avatar", CheckLoginStatus, userAccount.SetAvatarServer) // 设置用户头像
-	userModule.POST("/get_profile", CheckLoginStatus, userAccount.GetUserProfile) // 获取用户信息
-	userModule.POST("/get_avatar", CheckLoginStatus, userAccount.GetAvatarServer) // 获取用户头像
-	userModule.POST("/get_roles", CheckLoginStatus, userAccount.GetUserRolesServer)
+	userModule.POST("/register", userAccount.UserRegisterServer)                    // 注册
+	userModule.POST("/login/password", userAccount.UserPasswordLoginServer)         // 密码登录
+	userModule.POST("/login/verify", userAccount.UserVerifyLoginServer)             // 验证码登录
+	userModule.POST("/logout", userAccount.LogoutServer)                            // 注销
+	userModule.POST("/modify", CheckLoginStatus, userAccount.ModifyServer)          // 修改用户信息
+	userModule.POST("/delete", CheckLoginStatus, userAccount.DeleteServer)          // 删除
+	userModule.POST("/apply_role", CheckLoginStatus, userAccount.ApplyRoleServer)   // 申请权限
+	userModule.POST("/set_avatar", CheckLoginStatus, userAccount.SetAvatarServer)   // 设置用户头像
+	userModule.POST("/get_profile", CheckLoginStatus, userAccount.GetUserProfile)   // 获取用户信息
+	userModule.POST("/get_avatar", CheckLoginStatus, userAccount.GetAvatarServer)   // 获取用户头像
+	userModule.POST("/get_roles", CheckLoginStatus, userAccount.GetUserRolesServer) // 获取用户角色
 	//userModule.POST("/get_info",CheckLoginStatus,userAccount.GetInfoServer)
 	//userModule.POST("/get_user_list", CheckLoginStatus)
 	// 店铺与设备模块
 	shopModule := router.Group("/shop", CheckLoginStatus, Authentication)
-	shopModule.POST("/add_shop", shop.AddShopServer)                     // 增加店铺
-	shopModule.POST("/shop_list", shop.GetShopListServer)                // 店铺列表
-	shopModule.POST("/device/add_monitor", shop.AddMonitorServer)        // 增加监控
-	shopModule.POST("/device/monitor_list", shop.GetMonitorListServer)   // 监控列表
-	shopModule.POST("/device/live_wall_src", shop.GetLiveWallSrcServer)  // 直播墙源
-	shopModule.POST("shop_list_by_email", shop.GetShopListByEmailServer) // 某用户负责店铺
+	shopModule.POST("/add_shop", shop.AddShopServer)                          // 增加店铺
+	shopModule.POST("/shop_list", shop.GetShopListServer)                     // 店铺列表
+	shopModule.POST("/shop_list/cdv", shop.GetShopListCsvServer)              // 店铺列表csv
+	shopModule.POST("/device/add_monitor", shop.AddMonitorServer)             // 增加监控
+	shopModule.POST("/device/monitor_list", shop.GetMonitorListServer)        // 监控列表
+	shopModule.POST("/device/monitor_list/csv", shop.GetMonitorLIstCsvServer) // 监控列表csv
+	shopModule.POST("/device/live_wall_src", shop.GetLiveWallSrcServer)       // 直播墙源
+	shopModule.POST("shop_list_by_email", shop.GetShopListByEmailServer)      // 某用户负责店铺
 	// 工具模块
 	toolModule := router.Group("/tool")
 	toolModule.POST("/no_auth/generate_verification_code", tool.GenerateVerificationCode) // 发送验证码

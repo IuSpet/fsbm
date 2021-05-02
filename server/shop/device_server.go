@@ -1,16 +1,30 @@
 package shop
 
 import (
+	"encoding/csv"
+	"encoding/json"
 	"fsbm/db"
 	"fsbm/util"
 	"fsbm/util/logs"
 	"github.com/gin-gonic/gin"
 	"math/rand"
+	"os"
 	"reflect"
 	"sort"
 	"strings"
 )
 
+var monitorCsvColumns = []struct{ Field, Key string }{
+	{"监控名称", "monitor_name"},
+	{"店铺名称", "shop_name"},
+	{"负责人", "admin_name"},
+	{"负责人电话", "admin_phone"},
+	{"地址", "addr"},
+	{"视频类型", "video_type"},
+	{"视频源", "video_src"},
+}
+
+// 注册新监控
 func AddMonitorServer(ctx *gin.Context) {
 	var req addMonitorRequest
 	err := ctx.Bind(req)
@@ -56,6 +70,47 @@ func GetMonitorListServer(ctx *gin.Context) {
 		TotalCnt: totalCnt,
 	}
 	util.EndJson(ctx, rsp)
+}
+
+// 获取设备列表csv
+func GetMonitorLIstCsvServer(ctx *gin.Context) {
+	req := newGetMonitorListRequest()
+	err := ctx.Bind(req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	logs.CtxInfo(ctx, "req: %+v", req)
+	monitorList, _, err := getSortedMonitorListData(req, true)
+	if err != nil {
+		logs.CtxError(ctx, "get device list error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	fileName := "用户列表导出.csv"
+	file, _ := os.Create(fileName)
+	defer file.Close()
+	w := csv.NewWriter(file)
+	_, _ = file.WriteString("\xEF\xBB\xBF")
+	title := make([]string, len(shopInfoColumns))
+	for _, item := range monitorCsvColumns {
+		title = append(title, item.Field)
+	}
+	_ = w.Write(title)
+	for idx := range monitorList {
+		var row []string
+		var m = make(map[string]string)
+		s, _ := json.Marshal(monitorList[idx])
+		_ = json.Unmarshal(s, &m)
+		for _, k := range monitorCsvColumns {
+			row = append(row, m[k.Key])
+		}
+		_ = w.Write(row)
+	}
+	w.Flush()
+	util.SetFileTransportHeader(ctx, fileName)
+	_ = os.Remove(fileName)
 }
 
 // 获取直播墙随机直播源

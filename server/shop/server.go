@@ -1,17 +1,29 @@
 package shop
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"errors"
 	"fsbm/db"
 	"fsbm/util"
 	"fsbm/util/logs"
 	"github.com/gin-gonic/gin"
+	"os"
 	"reflect"
 	"sort"
 	"strings"
 	"time"
 )
+
+var shopInfoColumns = []struct{ Field, Key string }{
+	{"店铺名称", "name"},
+	{"负责人", "admin_name"},
+	{"负责人电话", "admin_phone"},
+	{"负责人邮箱", "admin_email"},
+	{"店铺地址", "addr"},
+	{"注册时间", "created_at"},
+	{"状态", "status"},
+}
 
 // 获取店铺列表
 func GetShopListServer(ctx *gin.Context) {
@@ -42,6 +54,58 @@ func GetShopListServer(ctx *gin.Context) {
 		})
 	}
 	util.EndJson(ctx, rsp)
+}
+
+func GetShopListCsvServer(ctx *gin.Context) {
+	req := newGetShopListRequest()
+	err := ctx.Bind(req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	logs.CtxInfo(ctx, "req: %+v", req)
+	shopInfoList, _, err := getSortedShopListData(req, true)
+	if err != nil {
+		logs.CtxError(ctx, "err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	csvRows := make([]shopInfo, 0, len(shopInfoList))
+	for _, row := range shopInfoList {
+		csvRows = append(csvRows, shopInfo{
+			Name:       row.Name,
+			AdminName:  row.AdminName,
+			AdminPhone: row.AdminPhone,
+			AdminEmail: row.AdminEmail,
+			Addr:       row.Addr,
+			CreatedAt:  row.CreatedAt.Format(util.YMDHMS),
+			Status:     db.ShopStatusMapping[row.Status],
+		})
+	}
+	fileName := "用户列表导出.csv"
+	file, _ := os.Create(fileName)
+	defer file.Close()
+	w := csv.NewWriter(file)
+	_, _ = file.WriteString("\xEF\xBB\xBF")
+	title := make([]string, len(shopInfoColumns))
+	for _, item := range shopInfoColumns {
+		title = append(title, item.Field)
+	}
+	_ = w.Write(title)
+	for idx := range csvRows {
+		var row []string
+		var m = make(map[string]string)
+		s, _ := json.Marshal(csvRows[idx])
+		_ = json.Unmarshal(s, &m)
+		for _, k := range shopInfoColumns {
+			row = append(row, m[k.Key])
+		}
+		_ = w.Write(row)
+	}
+	w.Flush()
+	util.SetFileTransportHeader(ctx, fileName)
+	_ = os.Remove(fileName)
 }
 
 // 注册新店铺
