@@ -68,3 +68,14 @@ func GetUserRoleListServer(ctx *gin.Context) {
 	}
 	util.EndJson(ctx, rsp)
 }
+
+func ApplyRoleServer(ctx *gin.Context) {
+	var req applyRoleRequest
+	err := ctx.Bind(&req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+
+}

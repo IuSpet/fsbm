@@ -23,3 +23,9 @@ type userRoleStatusInfo struct {
 	RoleId int64
 	Status int8
 }
+
+type applyRoleRequest struct {
+	RoleId int64  `json:"role_id"`
+	Email  string `json:"email"`
+	Reason string `json:"reason"`
+}
