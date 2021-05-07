@@ -1,0 +1,1 @@
+rsync main fsbm:~/

@@ -2,10 +2,14 @@ package db
 
 import "time"
 
+var authRoleStatusMapping = map[int8]string{
+	0: "正常",
+}
+
 type AuthRole struct {
 	ID        int64     `gorm:"AUTO_INCREMENT; primaryKey"`
 	Role      string    `gorm:"type:varchar(127); not null; index; uniqueIndex:uk_type_role,priority:2"`
-	Type      string    `gorm:"type:varchar(127); not null; uniqueIndex:uk_type_role,priority:1"`
+	Type      string    `gorm:"type:varchar(127); not null; uniqueIndex:uk_type_role,priority:1; comment: normal"`
 	Status    int8      `gorm:"type:tinyint; not null; comment:0:正常"`
 	CreatedAt time.Time `gorm:"autoCreateTime; not null"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime; not null"`
@@ -57,5 +61,14 @@ func GetRoleByName(t string, name string) (res *AuthRole, err error) {
 	}
 	res = &AuthRole{}
 	err = conn.Debug().Where("type = ? and role = ?", t, name).Find(res).Error
+	return
+}
+
+func GetRoleList() (res []AuthRole, err error) {
+	conn, err := FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	err = conn.Where("status = 0").Find(&res).Error
 	return
 }
