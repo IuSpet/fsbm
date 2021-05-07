@@ -45,3 +45,12 @@ func init() {
 		}
 	})
 }
+
+func SaveAthApplyRoleRow(row *AuthApplyRole) (err error) {
+	conn, err := FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	err = conn.Save(row).Error
+	return
+}

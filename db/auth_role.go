@@ -72,3 +72,12 @@ func GetRoleList() (res []AuthRole, err error) {
 	err = conn.Where("status = 0").Find(&res).Error
 	return
 }
+
+func GetRoleById(id int64) (res AuthRole, err error) {
+	conn, err := FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	err = conn.Where("id = ?", id).Find(&res).Error
+	return
+}

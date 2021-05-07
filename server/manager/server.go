@@ -77,5 +77,35 @@ func ApplyRoleServer(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.ParamError, "参数错误")
 		return
 	}
-
+	user, err := db.GetUserByEmail(req.Email)
+	if err != nil {
+		logs.CtxError(ctx, "get user info error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	if user == nil {
+		logs.CtxWarn(ctx, "user not exist.")
+		util.ErrorJson(ctx, util.UserNotExist, "用户不存在")
+		return
+	}
+	role, err := db.GetRoleById(req.RoleId)
+	if err != nil {
+		logs.CtxError(ctx, "get role info error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	row := &db.AuthApplyRole{
+		UserId: user.ID,
+		Email:  user.Email,
+		RoleId: role.ID,
+		Role:   role.Role,
+		Status: 0,
+	}
+	err = db.SaveAthApplyRoleRow(row)
+	if err != nil {
+		logs.CtxError(ctx, "save auth apply role row error. err:%+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	util.EndJson(ctx, nil)
 }
