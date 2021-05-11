@@ -15,7 +15,7 @@ func getUserRoleList(userId int64) ([]userRoleStatusInfo, error) {
 	return res, err
 }
 
-func getApplyRoleOrderList(user, role, reviewer string, status []int8, begin, end int64) ([]applyRoleRow, error) {
+func getApplyRoleOrderList(user, role, reviewer string, status []int8, applyBegin, applyEnd, reviewBegin, reviewEnd int64) ([]applyRoleRow, error) {
 	conn, err := db.FsbmSession.GetConnection()
 	if err != nil {
 		return nil, err
@@ -27,11 +27,13 @@ func getApplyRoleOrderList(user, role, reviewer string, status []int8, begin, en
 		"a.status," +
 		"c.name AS reviewer," +
 		"a.review_reason," +
-		"a.review_at")
+		"a.review_at," +
+		"a.created_at")
 	conn = conn.Table("auth_apply_role a " +
 		"LEFT JOIN user_account_info b ON a.user_id = b.id " +
 		"LEFT JOIN user_account_info c ON a.review_user_id = c.id ")
-	conn = conn.Where("review_at >= ? and review_at <= ?", begin, end)
+	conn = conn.Where("created_at between ? and ?", applyBegin, applyEnd)
+	conn = conn.Where("review_at >= ? and review_at <= ?", reviewBegin, reviewEnd)
 	if user != "" {
 		conn = conn.Where("b.name = ?", user)
 	}

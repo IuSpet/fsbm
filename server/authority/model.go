@@ -1,6 +1,9 @@
 package authority
 
-import "fsbm/util"
+import (
+	"fsbm/util"
+	"time"
+)
 
 type getRoleListResponse struct {
 	List []roleInfo `json:"list"`
@@ -33,12 +36,14 @@ type applyRoleRequest struct {
 }
 
 type applyRoleListRequest struct {
-	User      string `json:"user"`
-	Role      string `json:"role"`
-	Reviewer  string `json:"reviewer"`
-	Status    []int8 `json:"status"`
-	BeginDate string `json:"begin_date"`
-	EndDate   string `json:"end_date"`
+	User            string `json:"user"`
+	Role            string `json:"role"`
+	Reviewer        string `json:"reviewer"`
+	Status          []int8 `json:"status"`
+	ApplyBeginTime  string `json:"apply_begin_time"`
+	ApplyEndTime    string `json:"apply_end_time"`
+	ReviewBeginTime string `json:"review_begin_time"`
+	ReviewEndTime   string `json:"review_end_time"`
 	util.ListReqField
 }
 
@@ -56,6 +61,7 @@ type applyRoleRow struct {
 	Reviewer     string
 	ReviewReason string
 	ReviewAt     int64
+	CreatedAt    time.Time
 }
 
 type applyRoleOrder struct {
@@ -67,4 +73,5 @@ type applyRoleOrder struct {
 	Reviewer     string `json:"reviewer"`
 	ReviewReason string `json:"review_reason"`
 	ReviewAt     string `json:"review_at"`
+	CreatedAt    string `json:"created_at"`
 }

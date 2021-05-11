@@ -2,7 +2,6 @@ package authority
 
 import (
 	"errors"
-	"fmt"
 	"fsbm/db"
 	"fsbm/util"
 	"fsbm/util/logs"
@@ -143,6 +142,7 @@ func ApplyRoleListServer(ctx *gin.Context) {
 			Reviewer:     row.Reviewer,
 			ReviewReason: row.ReviewReason,
 			ReviewAt:     time.Unix(row.ReviewAt, 0).Format(util.YMDHMS),
+			CreatedAt:    row.CreatedAt.Format(util.YMDHMS),
 		})
 	}
 	rsp.TotalCnt = totalCnt
@@ -151,12 +151,14 @@ func ApplyRoleListServer(ctx *gin.Context) {
 
 func newApplyRoleListRequest() *applyRoleListRequest {
 	return &applyRoleListRequest{
-		User:      "",
-		Role:      "",
-		Reviewer:  "",
-		Status:    []int8{1},
-		BeginDate: time.Unix(0, 0).Format(util.YMDHMS),
-		EndDate:   time.Now().Format(util.YMDHMS),
+		User:            "",
+		Role:            "",
+		Reviewer:        "",
+		Status:          []int8{1},
+		ApplyBeginTime:  time.Unix(0, 0).Format(util.YMDHMS),
+		ApplyEndTime:    time.Now().Format(util.YMDHMS),
+		ReviewBeginTime: time.Unix(0, 0).Format(util.YMDHMS),
+		ReviewEndTime:   time.Now().Format(util.YMDHMS),
 		ListReqField: util.ListReqField{
 			Page:       1,
 			PageSize:   10,
@@ -166,12 +168,14 @@ func newApplyRoleListRequest() *applyRoleListRequest {
 }
 
 func getSortedApplyOrderList(req *applyRoleListRequest, all bool) ([]applyRoleRow, int64, error) {
-	begin, err1 := time.Parse(util.YMDHMS, req.BeginDate)
-	end, err2 := time.Parse(util.YMDHMS, req.EndDate)
-	if err1 != nil || err2 != nil {
-		return nil, 0, errors.New(fmt.Sprintf("err1: %+v, err2: %+v", err1, err2))
+	applyBegin, err1 := time.Parse(util.YMDHMS, req.ApplyBeginTime)
+	applyEnd, err2 := time.Parse(util.YMDHMS, req.ApplyEndTime)
+	reviewBegin, err3 := time.Parse(util.YMDHMS, req.ReviewBeginTime)
+	reviewEnd, err4 := time.Parse(util.YMDHMS, req.ReviewEndTime)
+	if err1 != nil || err2 != nil || err3 != nil || err4 != nil {
+		return nil, 0, errors.New("time param error")
 	}
-	applyOrderList, err := getApplyRoleOrderList(req.User, req.Role, req.Reviewer, req.Status, begin.Unix(), end.Unix())
+	applyOrderList, err := getApplyRoleOrderList(req.User, req.Role, req.Reviewer, req.Status, applyBegin.Unix(), applyEnd.Unix(), reviewBegin.Unix(), reviewEnd.Unix())
 	if err != nil {
 		return nil, 0, err
 	}
