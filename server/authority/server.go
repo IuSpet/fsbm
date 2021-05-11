@@ -152,9 +152,9 @@ func ApplyRoleListServer(ctx *gin.Context) {
 func newApplyRoleListRequest() *applyRoleListRequest {
 	return &applyRoleListRequest{
 		User:            "",
-		Role:            "",
+		Role:            nil,
 		Reviewer:        "",
-		Status:          []int8{1},
+		Status:          []int8{db.AuthApplyRoleStatus_Unreviewd},
 		ApplyBeginTime:  time.Unix(0, 0).Format(util.YMDHMS),
 		ApplyEndTime:    time.Now().Format(util.YMDHMS),
 		ReviewBeginTime: time.Unix(0, 0).Format(util.YMDHMS),
@@ -175,7 +175,7 @@ func getSortedApplyOrderList(req *applyRoleListRequest, all bool) ([]applyRoleRo
 	if err1 != nil || err2 != nil || err3 != nil || err4 != nil {
 		return nil, 0, errors.New("time param error")
 	}
-	applyOrderList, err := getApplyRoleOrderList(req.User, req.Role, req.Reviewer, req.Status, applyBegin.Unix(), applyEnd.Unix(), reviewBegin.Unix(), reviewEnd.Unix())
+	applyOrderList, err := getApplyRoleOrderList(req.User, req.Reviewer, req.Role, req.Status, applyBegin.Unix(), applyEnd.Unix(), reviewBegin.Unix(), reviewEnd.Unix())
 	if err != nil {
 		return nil, 0, err
 	}

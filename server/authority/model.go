@@ -36,14 +36,14 @@ type applyRoleRequest struct {
 }
 
 type applyRoleListRequest struct {
-	User            string `json:"user"`
-	Role            string `json:"role"`
-	Reviewer        string `json:"reviewer"`
-	Status          []int8 `json:"status"`
-	ApplyBeginTime  string `json:"apply_begin_time"`
-	ApplyEndTime    string `json:"apply_end_time"`
-	ReviewBeginTime string `json:"review_begin_time"`
-	ReviewEndTime   string `json:"review_end_time"`
+	User            string   `json:"user"`
+	Role            []string `json:"role"`
+	Reviewer        string   `json:"reviewer"`
+	Status          []int8   `json:"status"`
+	ApplyBeginTime  string   `json:"apply_begin_time"`
+	ApplyEndTime    string   `json:"apply_end_time"`
+	ReviewBeginTime string   `json:"review_begin_time"`
+	ReviewEndTime   string   `json:"review_end_time"`
 	util.ListReqField
 }
 

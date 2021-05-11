@@ -2,6 +2,7 @@ package authority
 
 import (
 	"fsbm/db"
+	"fsbm/util"
 )
 
 func getUserRoleList(userId int64) ([]userRoleStatusInfo, error) {
@@ -15,7 +16,7 @@ func getUserRoleList(userId int64) ([]userRoleStatusInfo, error) {
 	return res, err
 }
 
-func getApplyRoleOrderList(user, role, reviewer string, status []int8, applyBegin, applyEnd, reviewBegin, reviewEnd int64) ([]applyRoleRow, error) {
+func getApplyRoleOrderList(user, reviewer string, role []string, status []int8, applyBegin, applyEnd, reviewBegin, reviewEnd int64) ([]applyRoleRow, error) {
 	conn, err := db.FsbmSession.GetConnection()
 	if err != nil {
 		return nil, err
@@ -32,16 +33,16 @@ func getApplyRoleOrderList(user, role, reviewer string, status []int8, applyBegi
 	conn = conn.Table("auth_apply_role a " +
 		"LEFT JOIN user_account_info b ON a.user_id = b.id " +
 		"LEFT JOIN user_account_info c ON a.review_user_id = c.id ")
-	conn = conn.Where("created_at between ? and ?", applyBegin, applyEnd)
-	conn = conn.Where("review_at >= ? and review_at <= ?", reviewBegin, reviewEnd)
+	conn = conn.Where("a.created_at between ? and ?", applyBegin, applyEnd)
+	conn = conn.Where("a.review_at >= ? and a.review_at <= ?", reviewBegin, reviewEnd)
 	if user != "" {
-		conn = conn.Where("b.name = ?", user)
+		conn = conn.Where("b.name like ?", util.LikeCondition(user))
 	}
-	if role != "" {
-		conn = conn.Where("a.role = ?", role)
+	if role != nil {
+		conn = conn.Where("a.role in ?", role)
 	}
 	if reviewer != "" {
-		conn = conn.Where("c.name = ?", reviewer)
+		conn = conn.Where("c.name like ?", util.LikeCondition(reviewer))
 	}
 	if status != nil {
 		conn = conn.Where("a.status in ?", status)

@@ -23,7 +23,7 @@ type AuthApplyRole struct {
 	Role         string    `gorm:"type:varchar(127);not null; comment:角色"`
 	Reason       string    `gorm:"type:text;not null; comment:申请理由"`
 	ReviewUserId int64     `gorm:"not null; comment:审核用户id"`
-	ReviewTs     int64     `gorm:"not null; comment:审核时间"`
+	ReviewAt     int64     `gorm:"not null; comment:审核时间"`
 	ReviewReason string    `gorm:"type:text;not null; comment:审核理由"`
 	Status       int8      `gorm:"type:tinyint; not null; comment:0:未审核,1:通过,2:拒绝"`
 	CreatedAt    time.Time `gorm:"autoCreateTime; not null"`
@@ -31,7 +31,7 @@ type AuthApplyRole struct {
 }
 
 func (AuthApplyRole) TableName() string {
-	return "auth_permission"
+	return "auth_apply_role"
 }
 
 func init() {
