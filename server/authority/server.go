@@ -155,8 +155,8 @@ func newApplyRoleListRequest() *applyRoleListRequest {
 		Role:      "",
 		Reviewer:  "",
 		Status:    []int8{1},
-		BeginDate: time.Unix(0, 0).Format(util.YMD),
-		EndDate:   time.Now().Format(util.YMD),
+		BeginDate: time.Unix(0, 0).Format(util.YMDHMS),
+		EndDate:   time.Now().Format(util.YMDHMS),
 		ListReqField: util.ListReqField{
 			Page:       1,
 			PageSize:   10,
@@ -166,8 +166,8 @@ func newApplyRoleListRequest() *applyRoleListRequest {
 }
 
 func getSortedApplyOrderList(req *applyRoleListRequest, all bool) ([]applyRoleRow, int64, error) {
-	begin, err1 := time.Parse(util.YMD, req.BeginDate)
-	end, err2 := time.Parse(util.YMD, req.EndDate)
+	begin, err1 := time.Parse(util.YMDHMS, req.BeginDate)
+	end, err2 := time.Parse(util.YMDHMS, req.EndDate)
 	if err1 != nil || err2 != nil {
 		return nil, 0, errors.New(fmt.Sprintf("err1: %+v, err2: %+v", err1, err2))
 	}
