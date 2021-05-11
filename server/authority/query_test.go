@@ -1,4 +1,4 @@
-package manager
+package authority
 
 import (
 	"fmt"
@@ -15,4 +15,11 @@ func TestGetUserRoleList(t *testing.T) {
 		t.Error(err)
 	}
 	fmt.Println(res)
+}
+
+func TestGetApplyRoleOrderList(t *testing.T) {
+	_, err := getApplyRoleOrderList("user", "role", "reviewer", []int8{0, 1}, 0, 123120388)
+	if err != nil {
+		t.Error(err)
+	}
 }

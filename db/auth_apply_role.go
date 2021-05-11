@@ -18,11 +18,13 @@ const (
 type AuthApplyRole struct {
 	ID           int64     `gorm:"AUTO_INCREMENT; primaryKey"`
 	UserId       int64     `gorm:"not null; comment:用户id"`
-	Email        string    `gorm:"not null; comment:用户邮箱"`
+	Email        string    `gorm:"type:varchar(127);not null; comment:用户邮箱"`
 	RoleId       int64     `gorm:"not null; comment:角色id"`
-	Role         string    `gorm:"not null; comment:角色"`
+	Role         string    `gorm:"type:varchar(127);not null; comment:角色"`
+	Reason       string    `gorm:"type:text;not null; comment:申请理由"`
 	ReviewUserId int64     `gorm:"not null; comment:审核用户id"`
 	ReviewTs     int64     `gorm:"not null; comment:审核时间"`
+	ReviewReason string    `gorm:"type:text;not null; comment:审核理由"`
 	Status       int8      `gorm:"type:tinyint; not null; comment:0:未审核,1:通过,2:拒绝"`
 	CreatedAt    time.Time `gorm:"autoCreateTime; not null"`
 	UpdatedAt    time.Time `gorm:"autoUpdateTime; not null"`
