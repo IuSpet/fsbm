@@ -30,9 +30,10 @@ type userRoleStatusInfo struct {
 }
 
 type applyRoleRequest struct {
-	RoleId int64  `json:"role_id"`
-	Email  string `json:"email"`
-	Reason string `json:"reason"`
+	RoleId     int64  `json:"role_id"`
+	Email      string `json:"email"`
+	Reason     string `json:"reason"`
+	Expiration int64  `json:"expiration"`
 }
 
 type applyRoleListRequest struct {
@@ -74,4 +75,11 @@ type applyRoleOrder struct {
 	ReviewReason string `json:"review_reason"`
 	ReviewAt     string `json:"review_at"`
 	CreatedAt    string `json:"created_at"`
+}
+
+type reviewApplyRoleRequest struct {
+	Id       int64  `json:"id"`
+	Review   int8   `json:"review"`
+	Reason   string `json:"reason"`
+	Reviewer string `json:"reviewer"`
 }

@@ -61,6 +61,7 @@ func Register(router *gin.Engine) {
 	authModule.POST("/user_role_list", authority.GetUserRoleListServer) // 用户角色列表
 	authModule.POST("/apply_role", authority.ApplyRoleServer)           // 申请角色
 	authModule.POST("/apply_order_list", authority.ApplyRoleListServer) // 申请角色工单列表
+	authModule.POST("/review_order", authority.ReviewApplyRoleServer)   // 审批申请工单接口
 	// 工具模块
 	toolModule := router.Group("/tool")
 	toolModule.POST("/no_auth/generate_verification_code", tool.GenerateVerificationCode) // 发送验证码

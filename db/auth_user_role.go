@@ -1,6 +1,9 @@
 package db
 
-import "time"
+import (
+	"gorm.io/gorm"
+	"time"
+)
 
 var authUserRoleStatusMapping = map[int8]string{
 	0: "正常",
@@ -8,7 +11,7 @@ var authUserRoleStatusMapping = map[int8]string{
 }
 
 const (
-	AuthUserRoleStatus_Active   int8 = 0
+	AuthUserRoleStatus_Active  int8 = 0
 	AuthUserRoleStatus_Expired int8 = 1
 )
 
@@ -40,6 +43,15 @@ func init() {
 			panic(err)
 		}
 	})
+}
+
+func SaveAuthUserRoleRow(row *AuthUserRole) (err error) {
+	conn, err := FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	err = conn.Save(row).Error
+	return
 }
 
 func SaveAuthUserRoleRows(rows []AuthUserRole) (err error) {
@@ -81,11 +93,14 @@ func GetUserExpiredRoles(userId int64) (res []AuthUserRole, err error) {
 }
 
 // 获取用户角色关联
-func GetUserRoleRow(userId, RoleId int64) (res AuthUserRole, err error) {
+func GetUserRoleRow(userId, RoleId int64) (res *AuthUserRole, err error) {
 	conn, err := FsbmSession.GetConnection()
 	if err != nil {
 		return
 	}
-	err = conn.Where("user_id = ? and role_id = 1", userId, RoleId).Find(&res).Error
+	err = conn.Where("user_id = ? and role_id = 1", userId, RoleId).First(&res).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
 	return
 }

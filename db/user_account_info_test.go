@@ -25,7 +25,9 @@ func TestSaveUserInfo(t *testing.T) {
 }
 
 func TestGetUserByEmail(t *testing.T) {
-	res, err := GetUserByEmail("admin@admin.com")
+	conf.Init()
+	Init()
+	res, err := GetUserByEmail("admin__1@admin.com")
 	if err != nil {
 		panic(err)
 	}

@@ -156,8 +156,13 @@ func UserDetailServer(ctx *gin.Context) {
 	logs.CtxInfo(ctx, "req: %+v", req)
 	user, err := db.GetUserByEmail(req.Email)
 	if err != nil {
-		logs.CtxError(ctx, "get user by email error. err: %+v", err)
-		util.ErrorJson(ctx, util.DbError, "内部错误")
+		logs.CtxError(ctx, "get user info error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	if user == nil {
+		logs.CtxWarn(ctx, "user not exist.")
+		util.ErrorJson(ctx, util.UserNotExist, "用户不存在")
 		return
 	}
 	rsp.Email = user.Email
@@ -191,8 +196,13 @@ func ModifyUserDetailServer(ctx *gin.Context) {
 	// 修改用户基本信息
 	user, err := db.GetUserByEmail(req.Email)
 	if err != nil {
-		logs.CtxError(ctx, "get user by email error. err: %+v", err)
-		util.ErrorJson(ctx, util.DbError, "内部错误")
+		logs.CtxError(ctx, "get user info error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	if user == nil {
+		logs.CtxWarn(ctx, "user not exist.")
+		util.ErrorJson(ctx, util.UserNotExist, "用户不存在")
 		return
 	}
 	user.Name = req.Name

@@ -32,7 +32,7 @@ func GenerateVerificationCode(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.DbError, "内部错误")
 		return
 	}
-	// 邮箱注册过
+	// 没有该邮箱信息
 	if user == nil {
 		logs.CtxInfo(ctx, "email not register")
 		util.ErrorJson(ctx, util.UserNotExist, "邮箱未注册")
