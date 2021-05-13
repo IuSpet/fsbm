@@ -8,7 +8,7 @@ import (
 
 // 监控任务
 
-func infoNoticeTask(ctx context.Context) error {
+func RecordAlarmCheckTask(ctx context.Context) error {
 	// 查询未扫描过的记录
 	recordList, err := db.GetDetectionResultsByNoticeLevel(util.InfoNotice)
 	if err != nil {
