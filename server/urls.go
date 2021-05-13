@@ -65,8 +65,8 @@ func Register(router *gin.Engine) {
 	authModule.POST("/review_order", authority.ReviewApplyRoleServer)   // 审批申请工单接口
 	// 首页数据看版
 	dashboardModule := router.Group("/dashboard", CheckLoginStatus)
-	dashboardModule.POST("/global_stats", dashboard.GlobalStatsServer)
-	dashboardModule.POST("/shop_list")
+	dashboardModule.POST("/global_stats", dashboard.GlobalStatsServer)  // 首页全局数据指标
+	dashboardModule.POST("/shop_list", dashboard.MapShopInfoListServer) // 首页地图中的店铺信息
 	// 工具模块
 	toolModule := router.Group("/tool")
 	toolModule.POST("/no_auth/generate_verification_code", tool.GenerateVerificationCode) // 发送验证码

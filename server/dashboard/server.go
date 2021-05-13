@@ -41,11 +41,37 @@ func GlobalStatsServer(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.DbError, "数据库错误")
 		return
 	}
-	rsp := dashboardStatsResponse{
+	rsp := globalStatsResponse{
 		RecordCnt:    recordCnt,
 		AlarmCnt:     alarmCnt,
 		LatestRecord: latestRecord,
 		ShopPassRate: passRate,
+	}
+	util.EndJson(ctx, rsp)
+}
+
+// 首页地图中店铺信息
+func MapShopInfoListServer(ctx *gin.Context) {
+	shopInfoList, err := getShopInfoList()
+	if err != nil {
+		logs.CtxError(ctx, "get shop info list error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	shopAlarmInfoList, err := getTodayShopAlarm()
+	if err != nil {
+		logs.CtxError(ctx, "get shop alarm error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	shopAlarmInfo := make(map[int64]int64)
+	for _, item := range shopAlarmInfoList {
+		shopAlarmInfo[item.ShopId] = item.cn
+	}
+	rsp := mapShopInfoListResponse{}
+	for _, row := range shopInfoList {
+		row.AlarmCnt = shopAlarmInfo[row.ShopId]
+		rsp.List = append(rsp.List, row)
 	}
 	util.EndJson(ctx, rsp)
 }
