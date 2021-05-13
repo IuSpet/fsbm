@@ -4,6 +4,7 @@ import (
 	"context"
 	"fsbm/conf"
 	"github.com/go-redis/redis/v8"
+	"strconv"
 	"time"
 )
 
@@ -28,6 +29,21 @@ func GetWithRetry(ctx context.Context, key string) (res string, err error) {
 			return "", nil
 		}
 	}
+	return
+}
+
+func GetInt64WithRetry(ctx context.Context, key string) (res int64, err error) {
+	var val string
+	for i := 0; i < 5; i++ {
+		val, err = redisClient.Get(ctx, key).Result()
+		if err == nil {
+			return
+		}
+		if err == redis.Nil {
+			return 0, nil
+		}
+	}
+	res, err = strconv.ParseInt(val, 10, 64)
 	return
 }
 

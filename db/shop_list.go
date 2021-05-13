@@ -2,9 +2,14 @@ package db
 
 import "time"
 
+const (
+	ShopStatus_Normal int8 = 0
+	ShopStatus_Close  int8 = 1
+)
+
 var ShopStatusMapping = map[int8]string{
-	0: "正常",
-	1: "已关闭",
+	ShopStatus_Normal: "正常",
+	ShopStatus_Close:  "已关闭",
 }
 
 type ShopList struct {
@@ -68,6 +73,15 @@ func GetShopListByUserId(id int64) (res []ShopList, err error) {
 	if err != nil {
 		return
 	}
-	err = conn.Where("user_id = ?", id).Find(&res).Error
+	err = conn.Where("user_id = ? and stats = 0", id).Find(&res).Error
+	return
+}
+
+func GetAvailableShopList() (res []ShopList, err error) {
+	conn, err := FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	err = conn.Where("stats = 0").Find(&res).Error
 	return
 }

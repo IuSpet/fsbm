@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"fsbm/server/admin"
 	"fsbm/server/authority"
+	"fsbm/server/dashboard"
 	"fsbm/server/shop"
 	"fsbm/server/tool"
 	userAccount "fsbm/server/user_account"
@@ -54,7 +55,7 @@ func Register(router *gin.Engine) {
 	shopModule.POST("/device/monitor_list", shop.GetMonitorListServer)        // 监控列表
 	shopModule.POST("/device/monitor_list/csv", shop.GetMonitorLIstCsvServer) // 监控列表csv
 	shopModule.POST("/device/live_wall_src", shop.GetLiveWallSrcServer)       // 直播墙源
-	shopModule.POST("shop_list_by_email", shop.GetShopListByEmailServer)      // 某用户负责店铺
+	shopModule.POST("/shop_list_by_email", shop.GetShopListByEmailServer)     // 某用户负责店铺
 	// 权限管理模块
 	authModule := router.Group("/auth", CheckLoginStatus, Authentication)
 	authModule.POST("/role_list", authority.GetRoleListServer)          // 系统内所有角色列表
@@ -62,6 +63,10 @@ func Register(router *gin.Engine) {
 	authModule.POST("/apply_role", authority.ApplyRoleServer)           // 申请角色
 	authModule.POST("/apply_order_list", authority.ApplyRoleListServer) // 申请角色工单列表
 	authModule.POST("/review_order", authority.ReviewApplyRoleServer)   // 审批申请工单接口
+	// 首页数据看版
+	dashboardModule := router.Group("/dashboard", CheckLoginStatus)
+	dashboardModule.POST("/global_stats", dashboard.GlobalStatsServer)
+	dashboardModule.POST("/shop_list")
 	// 工具模块
 	toolModule := router.Group("/tool")
 	toolModule.POST("/no_auth/generate_verification_code", tool.GenerateVerificationCode) // 发送验证码

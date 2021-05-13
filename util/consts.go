@@ -25,6 +25,9 @@ const (
 	// redis key template
 	UserLoginTemplate            = "%s:login"
 	UserVerificationCodeTemplate = "%s:verification_code"
+	DashboardRecordCnt           = "%s:dashboard_record_cnt"
+	DashboardAlarmCnt            = "%s:dashboard_alarm_cnt"
+	DashboardLatestRecord        = "%s:dashboard_latest_record"
 	// 密码加盐
 	Salt = "fsbmpwd"
 	// time format

@@ -2,7 +2,7 @@ package db
 
 import "time"
 
-// 识别结果报警通知表
+// 识别结果报警通知表(废弃)
 
 type DetectionNoticeLog struct {
 	ID        int64     `gorm:"AUTO_INCREMENT; primaryKey"`
@@ -21,16 +21,16 @@ func (DetectionNoticeLog) TableName() string {
 	return "shop_list"
 }
 
-func init() {
-	table := DetectionNoticeLog{}
-	RegisterMigration(table.TableName(), func() {
-		conn, err := FsbmSession.GetConnection()
-		if err != nil {
-			panic(err)
-		}
-		err = conn.Set("gorm:table_options", "ENGINE=INNODB CHARSET=utf8").AutoMigrate(&table)
-		if err != nil {
-			panic(err)
-		}
-	})
-}
+//func init() {
+//	table := DetectionNoticeLog{}
+//	RegisterMigration(table.TableName(), func() {
+//		conn, err := FsbmSession.GetConnection()
+//		if err != nil {
+//			panic(err)
+//		}
+//		err = conn.Set("gorm:table_options", "ENGINE=INNODB CHARSET=utf8").AutoMigrate(&table)
+//		if err != nil {
+//			panic(err)
+//		}
+//	})
+//}
