@@ -5,15 +5,15 @@ import (
 	"time"
 )
 
-var authUserRoleStatusMapping = map[int8]string{
-	0: "正常",
-	1: "已过期",
-}
-
 const (
 	AuthUserRoleStatus_Active  int8 = 0
 	AuthUserRoleStatus_Expired int8 = 1
 )
+
+var authUserRoleStatusMapping = map[int8]string{
+	AuthUserRoleStatus_Active:  "正常",
+	AuthUserRoleStatus_Expired: "已过期",
+}
 
 // 用户id与角色id表中唯一，已有关系记录只修改生效时间与状态
 type AuthUserRole struct {
@@ -102,5 +102,15 @@ func GetUserRoleRow(userId, RoleId int64) (res *AuthUserRole, err error) {
 	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
+	return
+}
+
+// 获取所有激活关系
+func GetAllActiveRelation() (res []AuthUserRole, err error) {
+	conn, err := FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	err = conn.Where("status = 0").Find(&res).Error
 	return
 }

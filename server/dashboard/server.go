@@ -66,7 +66,7 @@ func MapShopInfoListServer(ctx *gin.Context) {
 	}
 	shopAlarmInfo := make(map[int64]int64)
 	for _, item := range shopAlarmInfoList {
-		shopAlarmInfo[item.ShopId] = item.cn
+		shopAlarmInfo[item.ShopId] = item.Cnt
 	}
 	rsp := mapShopInfoListResponse{}
 	for _, row := range shopInfoList {
