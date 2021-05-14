@@ -1,6 +1,9 @@
 package db
 
-import "time"
+import (
+	"gorm.io/gorm"
+	"time"
+)
 
 const (
 	RecordAlarmAlarmType_Nohat int8 = 1 // 未戴厨师帽
@@ -57,5 +60,18 @@ func SaveRecordAlarmRows(rows []RecordAlarm) (err error) {
 		return
 	}
 	err = conn.Save(rows).Error
+	return
+}
+
+func GetRecordAlarmByRecordId(id int64) (row *RecordAlarm, err error) {
+	conn, err := FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	row = &RecordAlarm{}
+	err = conn.Where("record_id = ?", id).First(row).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
 	return
 }

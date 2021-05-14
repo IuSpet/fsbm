@@ -4,7 +4,7 @@ import "time"
 
 const (
 	DetectionResultRecordStatus_NotScanYet int8 = 0 // 未扫描
-	DetectionResultRecordStatus_Normal     int8 = 1 // 扫描正常
+	DetectionResultRecordStatus_Normal     int8 = 1 // 扫描正常通过
 	DetectionResultRecordStatus_Alarm      int8 = 2 // 扫描触发报警条件
 )
 
@@ -40,4 +40,22 @@ func init() {
 			panic(err)
 		}
 	})
+}
+
+func SaveDetectionResultRecordRows(rows []DetectionResultRecord) (err error){
+	conn, err := FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	err = conn.Save(rows).Error
+	return
+}
+
+func GetUncheckedRecords()(res []DetectionResultRecord,err error){
+	conn, err := FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	err =conn.Where("status = ?",DetectionResultRecordStatus_NotScanYet).Find(&res).Error
+	return
 }
