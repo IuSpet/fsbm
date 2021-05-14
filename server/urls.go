@@ -50,7 +50,7 @@ func Register(router *gin.Engine) {
 	shopModule := router.Group("/shop", CheckLoginStatus, Authentication)
 	shopModule.POST("/add_shop", shop.AddShopServer)                          // 增加店铺
 	shopModule.POST("/shop_list", shop.GetShopListServer)                     // 店铺列表
-	shopModule.POST("/shop_list/cdv", shop.GetShopListCsvServer)              // 店铺列表csv
+	shopModule.POST("/shop_list/csv", shop.GetShopListCsvServer)              // 店铺列表csv
 	shopModule.POST("/device/add_monitor", shop.AddMonitorServer)             // 增加监控
 	shopModule.POST("/device/monitor_list", shop.GetMonitorListServer)        // 监控列表
 	shopModule.POST("/device/monitor_list/csv", shop.GetMonitorLIstCsvServer) // 监控列表csv
@@ -58,11 +58,12 @@ func Register(router *gin.Engine) {
 	shopModule.POST("/shop_list_by_email", shop.GetShopListByEmailServer)     // 某用户负责店铺
 	// 权限管理模块
 	authModule := router.Group("/auth", CheckLoginStatus, Authentication)
-	authModule.POST("/role_list", authority.GetRoleListServer)          // 系统内所有角色列表
-	authModule.POST("/user_role_list", authority.GetUserRoleListServer) // 用户角色列表
-	authModule.POST("/apply_role", authority.ApplyRoleServer)           // 申请角色
-	authModule.POST("/apply_order_list", authority.ApplyRoleListServer) // 申请角色工单列表
-	authModule.POST("/review_order", authority.ReviewApplyRoleServer)   // 审批申请工单接口
+	authModule.POST("/role_list", authority.GetRoleListServer)                 // 系统内所有角色列表
+	authModule.POST("/user_role_list", authority.GetUserRoleListServer)        // 用户角色列表
+	authModule.POST("/apply_role", authority.ApplyRoleServer)                  // 申请角色
+	authModule.POST("/apply_order_list", authority.ApplyRoleListServer)        // 申请角色工单列表
+	authModule.POST("/apply_order_list/csv", authority.ApplyRoleListCsvServer) // 申请角色工单列表csv
+	authModule.POST("/review_order", authority.ReviewApplyRoleServer)          // 审批申请工单接口
 	// 首页数据看版
 	dashboardModule := router.Group("/dashboard", CheckLoginStatus)
 	dashboardModule.POST("/global_stats", dashboard.GlobalStatsServer)  // 首页全局数据指标

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fsbm/conf"
+	"fsbm/cronjob"
 	"fsbm/db"
 	"fsbm/server"
 )
@@ -9,5 +10,6 @@ import (
 func main() {
 	conf.Init()
 	db.Init()
+	cronjob.RunCronJob()
 	server.Run()
 }

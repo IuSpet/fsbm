@@ -1,16 +1,30 @@
 package authority
 
 import (
+	"encoding/csv"
+	"encoding/json"
 	"errors"
 	"fsbm/db"
 	"fsbm/util"
 	"fsbm/util/logs"
 	"github.com/gin-gonic/gin"
+	"os"
 	"reflect"
 	"sort"
 	"strings"
 	"time"
 )
+
+var applyOrderColumns = []struct{ Field, Key string }{
+	{"申请用户", "user"},
+	{"申请角色", "role"},
+	{"申请理由", "reason"},
+	{"工单状态", "status"},
+	{"审批人", "reviewer"},
+	{"审批理由", "review_reason"},
+	{"审批时间", "review_at"},
+	{"工单提交时间", "created_at"},
+}
 
 // 获取所有角色列表
 func GetRoleListServer(ctx *gin.Context) {
@@ -153,6 +167,60 @@ func ApplyRoleListServer(ctx *gin.Context) {
 	}
 	rsp.TotalCnt = totalCnt
 	util.EndJson(ctx, rsp)
+}
+
+// 用户申请工单列表csv
+func ApplyRoleListCsvServer(ctx *gin.Context) {
+	req := newApplyRoleListRequest()
+	err := ctx.Bind(&req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	logs.CtxInfo(ctx, "req: %+v", req)
+	applyOrderList, _, err := getSortedApplyOrderList(req, true)
+	if err != nil {
+		logs.CtxError(ctx, "get apply order list error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	csvRows := make([]applyRoleCsvRow, 0, len(applyOrderList))
+	for _, row := range applyOrderList {
+		csvRows = append(csvRows, applyRoleCsvRow{
+			User:         row.User,
+			Role:         row.Role,
+			Reason:       row.Reason,
+			Status:       db.AuthApplyRoleStatusMapping[row.Status],
+			Reviewer:     row.Reviewer,
+			ReviewReason: row.ReviewReason,
+			ReviewAt:     time.Unix(row.ReviewAt, 0).Format(util.YMDHMS),
+			CreatedAt:    row.CreatedAt.Format(util.YMDHMS),
+		})
+	}
+	fileName := "权限申请工单列表导出.csv"
+	file, _ := os.Create(fileName)
+	defer file.Close()
+	w := csv.NewWriter(file)
+	_, _ = file.WriteString("\xEF\xBB\xBF")
+	title := make([]string, len(applyOrderColumns))
+	for _, item := range applyOrderColumns {
+		title = append(title, item.Field)
+	}
+	_ = w.Write(title)
+	for idx := range csvRows {
+		var row []string
+		var m = make(map[string]string)
+		s, _ := json.Marshal(csvRows[idx])
+		_ = json.Unmarshal(s, &m)
+		for _, k := range applyOrderColumns {
+			row = append(row, m[k.Key])
+		}
+		_ = w.Write(row)
+	}
+	w.Flush()
+	util.SetFileTransportHeader(ctx, fileName)
+	_ = os.Remove(fileName)
 }
 
 // 审批用户申请

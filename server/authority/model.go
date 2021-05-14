@@ -65,6 +65,17 @@ type applyRoleRow struct {
 	CreatedAt    time.Time
 }
 
+type applyRoleCsvRow struct {
+	User         string `json:"user"`
+	Role         string `json:"role"`
+	Reason       string `json:"reason"`
+	Status       string `json:"status"`
+	Reviewer     string `json:"reviewer"`
+	ReviewReason string `json:"review_reason"`
+	ReviewAt     string `json:"review_at"`
+	CreatedAt    string `json:"created_at"`
+}
+
 type applyRoleOrder struct {
 	Id           int64  `json:"id"`
 	User         string `json:"user"`
