@@ -71,3 +71,13 @@ func TestSetAvatar(t *testing.T) {
 		panic(err)
 	}
 }
+
+func TestGetUserAccountInfoById(t *testing.T) {
+	conf.Init()
+	Init()
+	res, err := GetUserAccountInfoById(19)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(res)
+}

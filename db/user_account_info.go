@@ -108,3 +108,16 @@ func GetUserAccountInfoTotalCnt() (res int64, err error) {
 	err = conn.Count(&res).Error
 	return
 }
+
+func GetUserAccountInfoById(id int64) (res *UserAccountInfo, err error) {
+	conn, err := FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	res = &UserAccountInfo{ID: id}
+	err = conn.First(res).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
+	return
+}

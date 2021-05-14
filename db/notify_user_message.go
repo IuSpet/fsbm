@@ -3,16 +3,17 @@ package db
 import "time"
 
 const (
-	NotifyUserMessageStatus_NotSentYet     int8 = 0
-	NotifyUserMessageStatus_HasSent        int8 = 1
-	NotifyUserMessageStatus_SentFail       int8 = 2
-	NotifyUserMessageStatus_AlwaysSentFail int8 = 3
+	NotifyUserMessageSendMailSuccess         int8 = 1
+	NotifyUserMessageSendPhoneMessageSuccess int8 = 2
+	NotifyUserMessageSendWxMessageSuccess    int8 = 4
+	NotifyUserMessageStatus_NotSentYet       int8 = 0
+	NotifyUserMessageStatus_HasSent               = NotifyUserMessageSendMailSuccess | NotifyUserMessageSendPhoneMessageSuccess | NotifyUserMessageSendWxMessageSuccess
+	NotifyUserMessageStatus_AlwaysSentFail   int8 = -1
 )
 
 var NotifyUserMessageStatusMapping = map[int8]string{
 	NotifyUserMessageStatus_NotSentYet:     "未发送",
 	NotifyUserMessageStatus_HasSent:        "发送成功",
-	NotifyUserMessageStatus_SentFail:       "发送失败",
 	NotifyUserMessageStatus_AlwaysSentFail: "发送失败(不再重试)",
 }
 
@@ -44,11 +45,38 @@ func init() {
 	})
 }
 
-func SaveNotifyUserMessage(row *NotifyUserMessage) (err error) {
+func SaveNotifyUserMessageRow(row *NotifyUserMessage) (err error) {
 	conn, err := FsbmSession.GetConnection()
 	if err != nil {
 		return
 	}
 	err = conn.Save(row).Error
+	return
+}
+
+func SaveNotifyUserMessageRows(rows []NotifyUserMessage) (err error) {
+	conn, err := FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	err = conn.Save(rows).Error
+	return
+}
+
+func GetNotSentMessageList() (res []NotifyUserMessage, err error) {
+	conn, err := FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	statusList := []int8{
+		NotifyUserMessageStatus_NotSentYet,
+		NotifyUserMessageSendMailSuccess,
+		NotifyUserMessageSendPhoneMessageSuccess,
+		NotifyUserMessageSendWxMessageSuccess,
+		NotifyUserMessageSendMailSuccess | NotifyUserMessageSendPhoneMessageSuccess,
+		NotifyUserMessageSendMailSuccess | NotifyUserMessageSendWxMessageSuccess,
+		NotifyUserMessageSendPhoneMessageSuccess | NotifyUserMessageSendWxMessageSuccess,
+	}
+	err = conn.Where("status in ?", statusList).Find(res).Error
 	return
 }

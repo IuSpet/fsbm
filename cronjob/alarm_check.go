@@ -10,8 +10,7 @@ import (
 )
 
 // 监控任务
-
-func RecordAlarmCheckTask(ctx context.Context) error {
+func recordAlarmCheckTask(ctx context.Context) error {
 	// 查询未扫描过的记录
 	recordList, err := db.GetUncheckedRecords()
 	if err != nil {
@@ -62,7 +61,7 @@ func recordsScanNoHat(ctx context.Context, records []db.DetectionResultRecord) [
 				Message: fmt.Sprintf(msgTemplate, shopInfo.Name, alarmRecordRow.ID),
 				Status:  db.NotifyUserMessageStatus_NotSentYet,
 			}
-			err = db.SaveNotifyUserMessage(messageRow)
+			err = db.SaveNotifyUserMessageRow(messageRow)
 			if err != nil {
 				logs.CtxError(ctx, "save message error. err: %+v", err)
 				continue
