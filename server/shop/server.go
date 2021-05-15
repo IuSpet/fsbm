@@ -4,7 +4,9 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"fsbm/db"
+	"fsbm/task"
 	"fsbm/util"
 	"fsbm/util/logs"
 	"github.com/gin-gonic/gin"
@@ -183,6 +185,7 @@ func AddShopServer(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.DbError, "数据库错误")
 		return
 	}
+	_ = task.SetUserOperationById(user.ID, fmt.Sprintf(util.UserOperation_AddShop, row.ID, row.Name))
 	util.EndJson(ctx, nil)
 }
 

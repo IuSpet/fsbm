@@ -59,6 +59,15 @@ func SaveShopListRow(row *ShopList) (err error) {
 	return
 }
 
+func SaveShopListRows(rows []ShopList) (err error){
+	conn, err := FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	err = conn.Save(rows).Error
+	return
+}
+
 func GetShopListById(shopIdList []int64) (res []ShopList, err error) {
 	conn, err := FsbmSession.GetConnection()
 	if err != nil {

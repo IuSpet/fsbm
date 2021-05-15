@@ -3,7 +3,9 @@ package shop
 import (
 	"encoding/csv"
 	"encoding/json"
+	"fmt"
 	"fsbm/db"
+	"fsbm/task"
 	"fsbm/util"
 	"fsbm/util/logs"
 	"github.com/gin-gonic/gin"
@@ -46,6 +48,7 @@ func AddMonitorServer(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.DbError, "数据库错误")
 		return
 	}
+	_ = task.SetUserOperationByEmail(ctx.GetString("email"), fmt.Sprintf(util.UserOperation_AddMonitor, row.ShopId, row.ID, row.Name))
 	util.EndJson(ctx, nil)
 }
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"fsbm/db"
+	"fsbm/task"
 	"fsbm/util"
 	"fsbm/util/logs"
 	"fsbm/util/redis"
@@ -161,6 +162,7 @@ func UserRegisterServer(ctx *gin.Context) {
 	if err != nil {
 		logs.CtxError(ctx, "set login status error")
 	}
+	_ = task.SetUserOperationById(newUser.ID, util.UserOPeration_Register)
 	util.EndJson(ctx, loginResponse{
 		Email: req.Email,
 		Token: token,

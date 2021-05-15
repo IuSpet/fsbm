@@ -2,8 +2,10 @@ package userAccount
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"fsbm/db"
+	"fsbm/task"
 	"fsbm/util"
 	"fsbm/util/logs"
 	"github.com/gin-gonic/gin"
@@ -81,6 +83,9 @@ func ModifyServer(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.DbError, "内部错误")
 		return
 	}
+	oldInfo, _ := json.Marshal(existInfo)
+	newInfo, _ := json.Marshal(modifyInfo)
+	_ = task.SetUserOperationById(modifyInfo.ID, fmt.Sprintf(util.UserOperation_ModifyProfile, oldInfo, newInfo))
 	util.EndJson(ctx, nil)
 }
 
@@ -108,7 +113,7 @@ func DeleteServer(ctx *gin.Context) {
 	user, err := db.GetUserByEmail(req.Email)
 	if err != nil {
 		logs.CtxError(ctx, "get user by email error. err: %+v", err)
-		util.ErrorJson(ctx, util.DbError, "内部错误")
+		util.ErrorJson(ctx, util.DbError, "数据库")
 		return
 	}
 	user.Status = 1
@@ -118,6 +123,12 @@ func DeleteServer(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.DbError, "内部错误")
 		return
 	}
+	// 删除属于该用户的所有店铺
+	err = deleteShopByUserId(user.ID)
+	if err != nil {
+		logs.CtxError(ctx, "delete user's shop error. err: %+v", err)
+	}
+	_ = task.SetUserOperationById(user.ID, util.UserOperation_DeleteUser)
 	util.EndJson(ctx, nil)
 }
 
@@ -224,4 +235,16 @@ func saveImg(b []byte) {
 	if err != nil {
 		fmt.Println(err)
 	}
+}
+
+func deleteShopByUserId(id int64) error {
+	shopList, err := db.GetShopListByUserId(id)
+	if err != nil {
+		return err
+	}
+	for idx := range shopList {
+		shopList[idx].Status = db.ShopStatus_Close
+	}
+	err = db.SaveShopListRows(shopList)
+	return err
 }

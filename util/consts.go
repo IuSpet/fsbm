@@ -42,4 +42,10 @@ const (
 	InfoNotice  NoticeLevel = "_info_notice"
 	WarnNotice  NoticeLevel = "_warn_notice"
 	ErrorNotice NoticeLevel = "_error_notice"
+	// 用户操作记录
+	UserOperation_AddShop       = "注册店铺[%d]%s"
+	UserOperation_AddMonitor    = "为店铺[%d]注册监控[%d]%s"
+	UserOperation_ModifyProfile = "修改个人信息,%s -> %s"
+	UserOperation_DeleteUser    = "删除账户"
+	UserOPeration_Register      = "注册账户"
 )
