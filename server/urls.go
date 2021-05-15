@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"fsbm/server/admin"
+	"fsbm/server/alarm"
 	"fsbm/server/authority"
 	"fsbm/server/dashboard"
 	"fsbm/server/shop"
@@ -68,6 +69,13 @@ func Register(router *gin.Engine) {
 	dashboardModule := router.Group("/dashboard", CheckLoginStatus)
 	dashboardModule.POST("/global_stats", dashboard.GlobalStatsServer)  // 首页全局数据指标
 	dashboardModule.POST("/shop_list", dashboard.MapShopInfoListServer) // 首页地图中的店铺信息
+	// 识别记录模块
+	recordModule := router.Group("/record")
+	_ = recordModule
+	// 报警记录模块
+	alarmModule := router.Group("/alarm", CheckLoginStatus, Authentication)
+	alarmModule.POST("/alarm_list", alarm.AlarmListServer)        // 报警记录列表
+	alarmModule.POST("/alarm_list/csv", alarm.AlarmListCsvServer) // 报警记录列表csv
 	// 工具模块
 	toolModule := router.Group("/tool")
 	toolModule.POST("/no_auth/generate_verification_code", tool.GenerateVerificationCode) // 发送验证码
