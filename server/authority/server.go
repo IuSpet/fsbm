@@ -223,6 +223,39 @@ func ApplyRoleListCsvServer(ctx *gin.Context) {
 	_ = os.Remove(fileName)
 }
 
+func ApplyRoleListPrintServer(ctx *gin.Context) {
+	req := newApplyRoleListRequest()
+	err := ctx.Bind(&req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	logs.CtxInfo(ctx, "req: %+v", req)
+	applyOrderList, totalCnt, err := getSortedApplyOrderList(req, true)
+	if err != nil {
+		logs.CtxError(ctx, "get apply order list error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	var rsp applyRoleListResponse
+	for _, row := range applyOrderList {
+		rsp.List = append(rsp.List, applyRoleOrder{
+			Id:           row.Id,
+			User:         row.User,
+			Role:         row.Role,
+			Reason:       row.Reason,
+			Status:       db.AuthApplyRoleStatusMapping[row.Status],
+			Reviewer:     row.Reviewer,
+			ReviewReason: row.ReviewReason,
+			ReviewAt:     time.Unix(row.ReviewAt, 0).Format(util.YMDHMS),
+			CreatedAt:    row.CreatedAt.Format(util.YMDHMS),
+		})
+	}
+	rsp.TotalCnt = totalCnt
+	util.EndJson(ctx, rsp)
+}
+
 // 审批用户申请
 func ReviewApplyRoleServer(ctx *gin.Context) {
 	req := &reviewApplyRoleRequest{}

@@ -113,6 +113,28 @@ func GetMonitorLIstCsvServer(ctx *gin.Context) {
 	_ = os.Remove(fileName)
 }
 
+func GetMonitorListPrintServer(ctx *gin.Context) {
+	req := newGetMonitorListRequest()
+	err := ctx.Bind(req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	logs.CtxInfo(ctx, "req: %+v", req)
+	monitorList, totalCnt, err := getSortedMonitorListData(req, true)
+	if err != nil {
+		logs.CtxError(ctx, "get device list error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	rsp := getMonitorListResponse{
+		List:     monitorList,
+		TotalCnt: totalCnt,
+	}
+	util.EndJson(ctx, rsp)
+}
+
 // 获取直播墙随机直播源
 func GetLiveWallSrcServer(ctx *gin.Context) {
 	logs.CtxInfo(ctx, "req live wall src")

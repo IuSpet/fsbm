@@ -49,22 +49,25 @@ func Register(router *gin.Engine) {
 	//userModule.POST("/get_user_list", CheckLoginStatus)
 	// 店铺与设备模块
 	shopModule := router.Group("/shop", CheckLoginStatus, Authentication)
-	shopModule.POST("/add_shop", shop.AddShopServer)                          // 增加店铺
-	shopModule.POST("/shop_list", shop.GetShopListServer)                     // 店铺列表
-	shopModule.POST("/shop_list/csv", shop.GetShopListCsvServer)              // 店铺列表csv
-	shopModule.POST("/device/add_monitor", shop.AddMonitorServer)             // 增加监控
-	shopModule.POST("/device/monitor_list", shop.GetMonitorListServer)        // 监控列表
-	shopModule.POST("/device/monitor_list/csv", shop.GetMonitorLIstCsvServer) // 监控列表csv
-	shopModule.POST("/device/live_wall_src", shop.GetLiveWallSrcServer)       // 直播墙源
-	shopModule.POST("/shop_list_by_email", shop.GetShopListByEmailServer)     // 某用户负责店铺
+	shopModule.POST("/add_shop", shop.AddShopServer)                              // 增加店铺
+	shopModule.POST("/shop_list", shop.GetShopListServer)                         // 店铺列表
+	shopModule.POST("/shop_list/csv", shop.GetShopListCsvServer)                  // 店铺列表csv
+	shopModule.POST("/shop_list/print", shop.GetShopListPrintServer)              // 店铺列表pdf
+	shopModule.POST("/device/add_monitor", shop.AddMonitorServer)                 // 增加监控
+	shopModule.POST("/device/monitor_list", shop.GetMonitorListServer)            // 监控列表
+	shopModule.POST("/device/monitor_list/csv", shop.GetMonitorLIstCsvServer)     // 监控列表csv
+	shopModule.POST("/device/monitor_list/print", shop.GetMonitorListPrintServer) // 监控列表pdf
+	shopModule.POST("/device/live_wall_src", shop.GetLiveWallSrcServer)           // 直播墙源
+	shopModule.POST("/shop_list_by_email", shop.GetShopListByEmailServer)         // 某用户负责店铺
 	// 权限管理模块
 	authModule := router.Group("/auth", CheckLoginStatus, Authentication)
-	authModule.POST("/role_list", authority.GetRoleListServer)                 // 系统内所有角色列表
-	authModule.POST("/user_role_list", authority.GetUserRoleListServer)        // 用户角色列表
-	authModule.POST("/apply_role", authority.ApplyRoleServer)                  // 申请角色
-	authModule.POST("/apply_order_list", authority.ApplyRoleListServer)        // 申请角色工单列表
-	authModule.POST("/apply_order_list/csv", authority.ApplyRoleListCsvServer) // 申请角色工单列表csv
-	authModule.POST("/review_order", authority.ReviewApplyRoleServer)          // 审批申请工单接口
+	authModule.POST("/role_list", authority.GetRoleListServer)                     // 系统内所有角色列表
+	authModule.POST("/user_role_list", authority.GetUserRoleListServer)            // 用户角色列表
+	authModule.POST("/apply_role", authority.ApplyRoleServer)                      // 申请角色
+	authModule.POST("/apply_order_list", authority.ApplyRoleListServer)            // 申请角色工单列表
+	authModule.POST("/apply_order_list/csv", authority.ApplyRoleListCsvServer)     // 申请角色工单列表csv
+	authModule.POST("/apply_order_list/print", authority.ApplyRoleListPrintServer) // 申请角色工单列表pdf
+	authModule.POST("/review_order", authority.ReviewApplyRoleServer)              // 审批申请工单接口
 	// 首页数据看版
 	dashboardModule := router.Group("/dashboard", CheckLoginStatus)
 	dashboardModule.POST("/global_stats", dashboard.GlobalStatsServer)  // 首页全局数据指标
@@ -74,8 +77,9 @@ func Register(router *gin.Engine) {
 	_ = recordModule
 	// 报警记录模块
 	alarmModule := router.Group("/alarm", CheckLoginStatus, Authentication)
-	alarmModule.POST("/alarm_list", alarm.AlarmListServer)        // 报警记录列表
-	alarmModule.POST("/alarm_list/csv", alarm.AlarmListCsvServer) // 报警记录列表csv
+	alarmModule.POST("/alarm_list", alarm.AlarmListServer)            // 报警记录列表
+	alarmModule.POST("/alarm_list/csv", alarm.AlarmListCsvServer)     // 报警记录列表csv
+	alarmModule.POST("/alarm_list/print", alarm.AlarmListPrintServer) //报警记录列表pdf
 	// 工具模块
 	toolModule := router.Group("/tool")
 	toolModule.POST("/no_auth/generate_verification_code", tool.GenerateVerificationCode) // 发送验证码

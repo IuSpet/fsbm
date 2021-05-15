@@ -108,6 +108,36 @@ func GetShopListCsvServer(ctx *gin.Context) {
 	_ = os.Remove(fileName)
 }
 
+func GetShopListPrintServer(ctx *gin.Context) {
+	req := newGetShopListRequest()
+	err := ctx.Bind(req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	logs.CtxInfo(ctx, "req: %+v", req)
+	shopInfoList, totalCnt, err := getSortedShopListData(req, true)
+	if err != nil {
+		logs.CtxError(ctx, "err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	rsp := getShopListResponse{TotalCnt: totalCnt}
+	for i := range shopInfoList {
+		rsp.List = append(rsp.List, shopInfo{
+			Name:       shopInfoList[i].Name,
+			AdminName:  shopInfoList[i].AdminName,
+			AdminPhone: shopInfoList[i].AdminPhone,
+			AdminEmail: shopInfoList[i].AdminEmail,
+			Addr:       shopInfoList[i].Addr,
+			CreatedAt:  shopInfoList[i].CreatedAt.Format(util.YMD),
+			Status:     db.ShopStatusMapping[shopInfoList[i].Status],
+		})
+	}
+	util.EndJson(ctx, rsp)
+}
+
 // 注册新店铺
 func AddShopServer(ctx *gin.Context) {
 	req := newAddShopRequest()

@@ -107,6 +107,35 @@ func AlarmListCsvServer(ctx *gin.Context) {
 	_ = os.Remove(fileName)
 }
 
+func AlarmListPrintServer(ctx *gin.Context) {
+	req := newAlarmListRequest()
+	err := ctx.Bind(req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v")
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	alarmList, totalCnt, err := getSortedAlarmList(req, true)
+	if err != nil {
+		logs.CtxError(ctx, "get alarm list error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	rsp := alarmListResponse{TotalCnt: totalCnt}
+	for _, row := range alarmList {
+		rsp.List = append(rsp.List, alarmInfo{
+			AlarmId:      row.AlarmId,
+			ShopName:     row.ShopName,
+			AdminName:    row.AdminName,
+			AdminPhone:   row.AdminPhone,
+			Addr:         row.Addr,
+			AlarmContent: db.RecordAlarmAlarmTypeMapping[row.AlarmType],
+			AlarmAt:      row.AlarmAt,
+		})
+	}
+	util.EndJson(ctx, rsp)
+}
+
 func getSortedAlarmList(req *alarmListRequest, all bool) ([]alarmListRow, int64, error) {
 	alarmList, err := queryAlarmList(req.ShopName, req.AdminName, req.StartTime, req.EndTime, req.AlarmType)
 	if err != nil {
