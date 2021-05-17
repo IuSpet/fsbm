@@ -15,7 +15,8 @@ type roleInfo struct {
 }
 
 type getUserRoleListRequest struct {
-	Email string `json:"email"`
+	UserId int64  `json:"user_id"`
+	Email  string `json:"email"`
 }
 
 type getUserRoleListResponse struct {

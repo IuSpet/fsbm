@@ -54,7 +54,15 @@ func GetUserRoleListServer(ctx *gin.Context) {
 		return
 	}
 	logs.CtxInfo(ctx, "req: %+v", req)
-	user, err := db.GetUserByEmail(req.Email)
+	var user *db.UserAccountInfo
+	if req.UserId != -1 {
+		user, err = db.GetUserById(req.UserId)
+	} else if req.Email != "" {
+		user, err = db.GetUserByEmail(req.Email)
+	} else {
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
 	if err != nil {
 		logs.CtxError(ctx, "get user info error. err: %+v", err)
 		util.ErrorJson(ctx, util.DbError, "数据库错误")
@@ -437,4 +445,11 @@ func isValidReview(req *reviewApplyRoleRequest) bool {
 		return false
 	}
 	return true
+}
+
+func newGetUserRoleListRequest() *getUserRoleListRequest {
+	return &getUserRoleListRequest{
+		UserId: -1,
+		Email:  "",
+	}
 }
