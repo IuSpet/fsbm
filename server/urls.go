@@ -33,6 +33,7 @@ func Register(router *gin.Engine) {
 	adminModule.POST("/user_register/line_chart", admin.GetUserRegisterInfoServer) // 注册人数统计
 	adminModule.POST("/user_role/add", admin.AddUserRoleServer)                    // 增加用户角色
 	adminModule.POST("/user_role/delete", admin.DeleteUserRoleServer)              // 删除用户角色
+	adminModule.POST("/user_operation_list", admin.GetUserOperationListServer)     // 用户操作记录列表
 	// 用户模块
 	userModule := router.Group("/user")
 	userModule.POST("/register", userAccount.UserRegisterServer)                    // 注册

@@ -338,6 +338,32 @@ func DeleteUserRoleServer(ctx *gin.Context) {
 	util.EndJson(ctx, nil)
 }
 
+// 用户操作记录接口
+func GetUserOperationListServer(ctx *gin.Context) {
+	req := &getUserOperationListRequest{UserId: -1}
+	err := ctx.Bind(&req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	logs.CtxInfo(ctx, "req: %+v", req)
+	rows, err := db.GetUserOperationRows(req.UserId)
+	if err != nil {
+		logs.CtxError(ctx, "get user operation list error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	rsp := getUserOperationListResponse{}
+	for _, row := range rows {
+		rsp.List = append(rsp.List, userOperation{
+			Operation:  row.Operation,
+			OperatedAt: time.Unix(row.OperatedAt, 0).Format(util.YMDHMS),
+		})
+	}
+	util.EndJson(ctx, rsp)
+}
+
 func generateAuthUserRoleRows(userID int64, roleIDList []int64) []db.AuthUserRole {
 	var userRoleList []db.AuthUserRole
 	for _, roleID := range roleIDList {

@@ -91,3 +91,16 @@ type deleteUserRoleRequest struct {
 	UserId int64 `json:"user_id"`
 	RoleId int64 `json:"role_id"`
 }
+
+type getUserOperationListRequest struct {
+	UserId int64 `json:"user_id"`
+}
+
+type getUserOperationListResponse struct {
+	List []userOperation `json:"list"`
+}
+
+type userOperation struct {
+	Operation  string `json:"operation"`
+	OperatedAt string `json:"operated_at"`
+}

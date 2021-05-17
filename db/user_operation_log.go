@@ -37,3 +37,12 @@ func SaveUserOperationLog(row *UserOperationLog) (err error) {
 	err = conn.Debug().Save(row).Error
 	return
 }
+
+func GetUserOperationRows(id int64) (res []UserOperationLog, err error) {
+	conn, err := FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	err = conn.Debug().Where("user_id = ?", id).Order("operated_at desc").Find(&res).Error
+	return
+}
