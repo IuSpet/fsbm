@@ -44,6 +44,7 @@ func UserListServer(ctx *gin.Context) {
 	}
 	for idx := range userList {
 		rsp.UserInfoList = append(rsp.UserInfoList, userInfo{
+			Id:        userList[idx].ID,
 			Name:      userList[idx].Name,
 			Email:     userList[idx].Email,
 			Gender:    db.UserGenderMapping[userList[idx].Gender],
@@ -131,6 +132,7 @@ func UserListPrintServer(ctx *gin.Context) {
 	var rsp getUserListResponse
 	for _, item := range userList {
 		rsp.UserInfoList = append(rsp.UserInfoList, userInfo{
+			Id:        item.ID,
 			Name:      item.Name,
 			Email:     item.Email,
 			Gender:    db.UserGenderMapping[item.Gender],
@@ -154,7 +156,7 @@ func UserDetailServer(ctx *gin.Context) {
 		return
 	}
 	logs.CtxInfo(ctx, "req: %+v", req)
-	user, err := db.GetUserByEmail(req.Email)
+	user, err := db.GetUserById(req.UserId)
 	if err != nil {
 		logs.CtxError(ctx, "get user info error. err: %+v", err)
 		util.ErrorJson(ctx, util.DbError, "数据库错误")
@@ -168,18 +170,10 @@ func UserDetailServer(ctx *gin.Context) {
 	rsp.Email = user.Email
 	rsp.Status = db.UserStatusMapping[user.Status]
 	rsp.Name = user.Name
-	roleList, err := db.GetRoleByUserId(user.ID)
-	if err != nil {
-		logs.CtxError(ctx, "get role by id error. err: %+v", err)
-		util.ErrorJson(ctx, util.DbError, "内部错误")
-		return
-	}
-	for _, role := range roleList {
-		rsp.Roles = append(rsp.Roles, userDetailRole{
-			Type: role.Type,
-			Name: role.Role,
-		})
-	}
+	rsp.Age = int64(user.Age)
+	rsp.Gender = db.UserGenderMapping[user.Gender]
+	rsp.Phone = user.Phone
+	rsp.CreatedAt = user.CreatedAt.Format(util.YMDHMS)
 	util.EndJson(ctx, rsp)
 }
 

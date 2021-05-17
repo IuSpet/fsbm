@@ -70,6 +70,19 @@ func GetUserByEmail(email string) (res *UserAccountInfo, err error) {
 	return
 }
 
+func GetUserById(id int64) (res *UserAccountInfo, err error) {
+	conn, err := FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	res = &UserAccountInfo{ID: id}
+	err = conn.First(res).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
+	return
+}
+
 func GetAllUser() (res []UserAccountInfo, err error) {
 	conn, err := FsbmSession.GetConnection()
 	if err != nil {
