@@ -51,6 +51,7 @@ func Register(router *gin.Engine) {
 	shopModule := router.Group("/shop", CheckLoginStatus, Authentication)
 	shopModule.POST("/add_shop", shop.AddShopServer)                              // 增加店铺
 	shopModule.POST("/shop_info", shop.GetShopInfoServer)                         // 店铺信息
+	shopModule.POST("/shop_info/alarm_list", shop.GetShopAlarmListServer)         // 店铺报警记录
 	shopModule.POST("/shop_list", shop.GetShopListServer)                         // 店铺列表
 	shopModule.POST("/shop_list/csv", shop.GetShopListCsvServer)                  // 店铺列表csv
 	shopModule.POST("/shop_list/print", shop.GetShopListPrintServer)              // 店铺列表pdf

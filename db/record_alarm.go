@@ -75,3 +75,12 @@ func GetRecordAlarmByRecordId(id int64) (row *RecordAlarm, err error) {
 	}
 	return
 }
+
+func GetShopAlarmList(id int64) (res []RecordAlarm, err error) {
+	conn, err := FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	err = conn.Where("shop_id = ?", id).Order("alarm_at desc").Find(&res).Error
+	return
+}

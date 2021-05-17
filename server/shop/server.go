@@ -216,6 +216,33 @@ func GetShopInfoServer(ctx *gin.Context) {
 	util.EndJson(ctx, rsp)
 }
 
+// 查询店铺报警记录
+func GetShopAlarmListServer(ctx *gin.Context) {
+	req := &getShopInfoRequest{}
+	err := ctx.Bind(req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	logs.CtxInfo(ctx, "req: %+v", req)
+	shopAlarmList, err := db.GetShopAlarmList(req.ShopId)
+	if err != nil {
+		logs.CtxError(ctx, "get shop alarm list error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	rsp := getShopAlarmResponse{}
+	for _, item := range shopAlarmList {
+		rsp.List = append(rsp.List, shopAlarmInfo{
+			AlarmContent: db.RecordAlarmAlarmTypeMapping[item.AlarmType],
+			AlarmAt:      item.AlarmAt,
+			AlarmId:      item.ID,
+		})
+	}
+	util.EndJson(ctx, rsp)
+}
+
 // 查询某一用户拥有店铺列表
 func GetShopListByEmailServer(ctx *gin.Context) {
 	req := &getShopByEmailRequest{}

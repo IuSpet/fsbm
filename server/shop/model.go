@@ -121,3 +121,13 @@ type getShopInfoResponse struct {
 	UserPhone string `json:"user_phone"`
 	AlarmCnt  int64  `json:"alarm_cnt"`
 }
+
+type getShopAlarmResponse struct {
+	List []shopAlarmInfo `json:"list"`
+}
+
+type shopAlarmInfo struct {
+	AlarmContent string `json:"alarm_content"`
+	AlarmAt      string `json:"alarm_at"`
+	AlarmId      int64  `json:"alarm_id"`
+}
