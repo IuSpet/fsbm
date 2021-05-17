@@ -82,7 +82,7 @@ func GetShopListByUserId(id int64) (res []ShopList, err error) {
 	if err != nil {
 		return
 	}
-	err = conn.Where("user_id = ? and stats = 0", id).Find(&res).Error
+	err = conn.Where("user_id = ? and status = 0", id).Find(&res).Error
 	return
 }
 

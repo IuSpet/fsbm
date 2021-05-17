@@ -27,7 +27,7 @@ func queryAlarmList(shopName, adminName, startTime, endTime string, alarmType []
 		conn = conn.Where("admin_name like ", util.LikeCondition(adminName))
 	}
 	if startTime != "" && endTime != "" {
-		conn = conn.Where("alarm_at >= ? and alarm_at <= >", startTime, endTime)
+		conn = conn.Where("alarm_at >= ? and alarm_at <= ?", startTime, endTime)
 	}
 	if len(alarmType) > 0 {
 		conn = conn.Where("alarm_type in ?", alarmType)

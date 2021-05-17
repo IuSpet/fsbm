@@ -25,9 +25,10 @@ type getUserProfileRequest struct {
 }
 
 type getUserProfileResponse struct {
+	Email     string `json:"email"`
 	Name      string `json:"name"`
 	Phone     string `json:"phone"`
-	Gender    string `json:"gender"`
+	Gender    int8   `json:"gender"`
 	Age       int8   `json:"age"`
 	CreatedAt string `json:"created_at"`
 }

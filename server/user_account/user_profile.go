@@ -62,30 +62,34 @@ func ModifyServer(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.InvalidVerificationCode, "验证码错误")
 		return
 	}
-	existInfo, err := db.GetUserByEmail(req.Email)
+	user, err := db.GetUserByEmail(req.Email)
 	if err != nil {
 		logs.CtxError(ctx, "get user by email error. err: %+v", err)
-		util.ErrorJson(ctx, util.DbError, "内部错误")
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
 		return
 	}
-	modifyInfo := &db.UserAccountInfo{
-		ID:       existInfo.ID,
-		Name:     req.Name,
-		Email:    existInfo.Email,
-		Gender:   req.Gender,
-		Age:      req.Age,
-		Status:   0,
-		Password: encryptPassword(req.Password),
+	if user == nil {
+		logs.CtxError(ctx, "user not exist")
+		util.ErrorJson(ctx, util.UserNotExist, "用户不存在")
+		return
 	}
-	err = db.SaveUserInfo(modifyInfo)
+	oldUser := *user
+	if req.Password != "" {
+		user.Password = encryptPassword(req.Password)
+	}
+	user.Age = req.Age
+	user.Phone = req.Phone
+	user.Gender = req.Gender
+	user.Name = req.Name
+	err = db.SaveUserInfo(user)
 	if err != nil {
 		logs.CtxError(ctx, "save user info error, err: %+v", err)
-		util.ErrorJson(ctx, util.DbError, "内部错误")
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
 		return
 	}
-	oldInfo, _ := json.Marshal(existInfo)
-	newInfo, _ := json.Marshal(modifyInfo)
-	_ = task.SetUserOperationById(modifyInfo.ID, fmt.Sprintf(util.UserOperation_ModifyProfile, oldInfo, newInfo))
+	oldInfo, _ := json.Marshal(oldUser)
+	newInfo, _ := json.Marshal(user)
+	_ = task.SetUserOperationById(user.ID, fmt.Sprintf(util.UserOperation_ModifyProfile, oldInfo, newInfo))
 	util.EndJson(ctx, nil)
 }
 
@@ -155,9 +159,10 @@ func GetUserProfile(ctx *gin.Context) {
 		return
 	}
 	rsp := getUserProfileResponse{
+		Email:     user.Email,
 		Name:      user.Name,
 		Phone:     user.Phone,
-		Gender:    db.UserGenderMapping[user.Gender],
+		Gender:    user.Gender,
 		Age:       user.Age,
 		CreatedAt: user.CreatedAt.Format(util.YMD),
 	}
