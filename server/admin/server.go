@@ -266,6 +266,78 @@ func GetUserRegisterInfoServer(ctx *gin.Context) {
 	util.EndJson(ctx, rsp)
 }
 
+// 为用户增加角色
+func AddUserRoleServer(ctx *gin.Context) {
+	req := newAddUserRoleRequest()
+	err := ctx.Bind(&req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	logs.CtxInfo(ctx, "req: %+v", req)
+	if req.UserId == -1 || req.RoleId == -1 {
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	userRole, err := db.GetUserRoleRow(req.UserId, req.RoleId)
+	if err != nil {
+		logs.CtxError(ctx, "get user role error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	if userRole == nil {
+		userRole = &db.AuthUserRole{
+			UserID:    req.UserId,
+			RoleID:    req.RoleId,
+			StartTime: time.Now(),
+			EndTime:   time.Now().Add(time.Duration(req.Expire) * time.Second),
+			Status:    db.AuthUserRoleStatus_Active,
+		}
+	}
+	err = db.SaveAuthUserRoleRow(userRole)
+	if err != nil {
+		logs.CtxError(ctx, "save user role error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	util.EndJson(ctx, nil)
+}
+
+// 删除用户角色接口
+func DeleteUserRoleServer(ctx *gin.Context) {
+	req := newDeleteUserRoleRequest()
+	err := ctx.Bind(&req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	logs.CtxInfo(ctx, "req: %+v", req)
+	if req.UserId == -1 || req.RoleId == -1 {
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	userRole, err := db.GetUserRoleRow(req.UserId, req.RoleId)
+	if err != nil {
+		logs.CtxError(ctx, "get user role error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	if userRole == nil {
+		util.EndJson(ctx, nil)
+		return
+	}
+	userRole.Status = db.AuthUserRoleStatus_Expired
+	err = db.SaveAuthUserRoleRow(userRole)
+	if err != nil {
+		logs.CtxError(ctx, "save user role error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	util.EndJson(ctx, nil)
+}
+
 func generateAuthUserRoleRows(userID int64, roleIDList []int64) []db.AuthUserRole {
 	var userRoleList []db.AuthUserRole
 	for _, roleID := range roleIDList {
@@ -326,5 +398,20 @@ func getSortedUserList(req *getUserListRequest, all bool) ([]db.UserAccountInfo,
 		return userList[offset:], totalCnt, nil
 	} else {
 		return nil, totalCnt, nil
+	}
+}
+
+func newAddUserRoleRequest() *addUserRoleRequest {
+	return &addUserRoleRequest{
+		UserId: -1,
+		RoleId: -1,
+		Expire: 30 * 24 * 3600,
+	}
+}
+
+func newDeleteUserRoleRequest() *deleteUserRoleRequest {
+	return &deleteUserRoleRequest{
+		UserId: -1,
+		RoleId: -1,
 	}
 }

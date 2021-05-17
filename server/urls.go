@@ -29,10 +29,10 @@ func Register(router *gin.Engine) {
 	adminModule.POST("/user_list", admin.UserListServer)                           // 获取用户列表
 	adminModule.POST("/user_list/csv", admin.UserListCsvServer)                    // 用户列表导出csv
 	adminModule.POST("/user_list/print", admin.UserListPrintServer)                // 全部用户列表
-	adminModule.POST("/authority/modify")                                          // 管理员修改用户信息
-	adminModule.POST("/user_detail", admin.UserDetailServer)                       // 获取用户详细信息（包括权限等）
+	adminModule.POST("/user_detail", admin.UserDetailServer)                       // 获取用户详细信息
 	adminModule.POST("/user_register/line_chart", admin.GetUserRegisterInfoServer) // 注册人数统计
-	adminModule.POST("/user_info")
+	adminModule.POST("/user_role/add", admin.AddUserRoleServer)                    // 增加用户角色
+	adminModule.POST("/user_role/delete", admin.DeleteUserRoleServer)              // 删除用户角色
 	// 用户模块
 	userModule := router.Group("/user")
 	userModule.POST("/register", userAccount.UserRegisterServer)                    // 注册

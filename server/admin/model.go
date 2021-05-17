@@ -30,8 +30,8 @@ type userInfo struct {
 }
 
 type getUserDetailRequest struct {
-	Email string `json:"email"`
-	UserId int64 `json:"user_id"`
+	Email  string `json:"email"`
+	UserId int64  `json:"user_id"`
 }
 
 type getUserDetailResponse struct {
@@ -79,4 +79,15 @@ type userRegisterInfoResponse struct {
 type registerInfo struct {
 	Date string `json:"date"`
 	Cnt  int64  `json:"cnt"`
+}
+
+type addUserRoleRequest struct {
+	UserId int64 `json:"user_id"`
+	RoleId int64 `json:"role_id"`
+	Expire int64 `json:"expire"`
+}
+
+type deleteUserRoleRequest struct {
+	UserId int64 `json:"user_id"`
+	RoleId int64 `json:"role_id"`
 }
