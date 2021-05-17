@@ -46,6 +46,7 @@ func GetShopListServer(ctx *gin.Context) {
 	rsp := getShopListResponse{TotalCnt: totalCnt}
 	for i := range shopInfoList {
 		rsp.List = append(rsp.List, shopInfo{
+			Id:         shopInfoList[i].ShopId,
 			Name:       shopInfoList[i].Name,
 			AdminName:  shopInfoList[i].AdminName,
 			AdminPhone: shopInfoList[i].AdminPhone,
@@ -187,6 +188,32 @@ func AddShopServer(ctx *gin.Context) {
 	}
 	_ = task.SetUserOperationById(user.ID, fmt.Sprintf(util.UserOperation_AddShop, row.ID, row.Name))
 	util.EndJson(ctx, nil)
+}
+
+// 获取店铺信息
+func GetShopInfoServer(ctx *gin.Context) {
+	req := &getShopInfoRequest{}
+	err := ctx.Bind(req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	logs.CtxInfo(ctx, "req: %+v", req)
+	rsp, err := getShopInfo(req.ShopId)
+	if err != nil {
+		logs.CtxError(ctx, "get shop info error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	alarmCnt, err := getShopAlarmCnt(req.ShopId)
+	if err != nil {
+		logs.CtxError(ctx, "get shop alarm cnt error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	rsp.AlarmCnt = alarmCnt
+	util.EndJson(ctx, rsp)
 }
 
 // 查询某一用户拥有店铺列表

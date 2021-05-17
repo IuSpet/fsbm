@@ -91,6 +91,6 @@ func GetAvailableShopList() (res []ShopList, err error) {
 	if err != nil {
 		return
 	}
-	err = conn.Where("stats = 0").Find(&res).Error
+	err = conn.Where("status = 0").Find(&res).Error
 	return
 }

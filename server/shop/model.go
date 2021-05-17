@@ -18,6 +18,7 @@ type getShopListRequest struct {
 }
 
 type shopInfo struct {
+	Id         int64  `json:"id"`
 	Name       string `json:"name"`
 	AdminName  string `json:"admin_name"`
 	AdminPhone string `json:"admin_phone"`
@@ -33,6 +34,7 @@ type getShopListResponse struct {
 }
 
 type shopInfoRow struct {
+	ShopId     int64
 	Name       string
 	AdminName  string
 	AdminPhone string
@@ -105,4 +107,17 @@ type userShopInfo struct {
 	ShopId   int64  `json:"shop_id"`
 	ShopName string `json:"shop_name"`
 	Addr     string `json:"addr"`
+}
+
+type getShopInfoRequest struct {
+	ShopId int64 `json:"shop_id"`
+}
+
+type getShopInfoResponse struct {
+	ShopName  string `json:"shop_name"`
+	Addr      string `json:"addr"`
+	UserName  string `json:"user_name"`
+	UserEmail string `json:"user_email"`
+	UserPhone string `json:"user_phone"`
+	AlarmCnt  int64  `json:"alarm_cnt"`
 }

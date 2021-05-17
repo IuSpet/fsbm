@@ -32,7 +32,7 @@ func (NotifyUserMessage) TableName() string {
 }
 
 func init() {
-	table := UserOperationLog{}
+	table := NotifyUserMessage{}
 	RegisterMigration(table.TableName(), func() {
 		conn, err := FsbmSession.GetConnection()
 		if err != nil {
@@ -77,6 +77,6 @@ func GetNotSentMessageList() (res []NotifyUserMessage, err error) {
 		NotifyUserMessageSendMailSuccess | NotifyUserMessageSendWxMessageSuccess,
 		NotifyUserMessageSendPhoneMessageSuccess | NotifyUserMessageSendWxMessageSuccess,
 	}
-	err = conn.Where("status in ?", statusList).Find(res).Error
+	err = conn.Where("status in ?", statusList).Find(&res).Error
 	return
 }

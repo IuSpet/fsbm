@@ -17,7 +17,8 @@ func getShopListRows(name, addr, admin string, begin, end time.Time) (rows []sho
 		"a.status as status," +
 		"b.name as admin_name," +
 		"b.phone as admin_phone," +
-		"b.email as admin_email")
+		"b.email as admin_email," +
+		"a.id as shop_id")
 	conn = conn.Table("shop_list a left join user_account_info b on a.user_id = b.id")
 	if name != "" {
 		conn = conn.Where("a.name like ?", util.LikeCondition(name))
@@ -65,4 +66,30 @@ func getMonitorListRows(name, shop, admin, addr, videoType string) (rows []monit
 	}
 	err = conn.Debug().Find(&rows).Error
 	return
+}
+
+func getShopInfo(shopId int64) (res getShopInfoResponse, err error) {
+	conn, err := db.FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	conn = conn.Select("a.name as shop_name," +
+		"a.addr," +
+		"b.name as user_name," +
+		"b.email as user_email," +
+		"b.phone as user_phone")
+	conn = conn.Table("shop_list a left join user_account_info b on a.user_id = b.id")
+	conn = conn.Where("a.id = ?", shopId)
+	err = conn.Find(&res).Error
+	return
+}
+
+func getShopAlarmCnt(shopId int64) (alarmCnt int64, err error) {
+	conn, err := db.FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	var rows []db.RecordAlarm
+	err = conn.Where("shop_id = ?", shopId).Find(&rows).Error
+	return int64(len(rows)), err
 }
