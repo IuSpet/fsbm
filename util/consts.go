@@ -20,8 +20,10 @@ const (
 	UserDeleted               = 2007 // 用户已被删除
 	AvatarNotExist            = 2008 // 没有设置头像
 	ApplyRoleOrderNotExist    = 3001 // 角色申请工单不存在
-	ApplyROleOrderHasReviewed = 3002
-	AbnormalError             = 4001 // 异常错误（预料外错误统一用这个）
+	ApplyROleOrderHasReviewed = 3002 // 工单已被审批
+	ShopNotFount              = 4001 // 店铺信息不存在
+	ShopNotUniq               = 4002 // 店铺查询结果不唯一
+	AbnormalError             = 5001 // 异常错误（预料外错误统一用这个）
 	// redis key template
 	UserLoginTemplate            = "%s:login"
 	UserVerificationCodeTemplate = "%s:verification_code"

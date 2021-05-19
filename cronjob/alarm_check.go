@@ -32,6 +32,7 @@ func recordsScanNoHat(ctx context.Context, records []db.DetectionResultRecord) [
 请尽快前往查看
 `
 	for idx := range records {
+		records[idx].Status = db.DetectionResultRecordStatus_Normal
 		if records[idx].NoHatCnt > 0 {
 			records[idx].Status = db.DetectionResultRecordStatus_Alarm
 			shopList, err := db.GetShopListById([]int64{records[idx].SrcShopID})

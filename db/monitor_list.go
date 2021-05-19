@@ -47,3 +47,12 @@ func GetLiveMonitorRows() (res []MonitorList, err error) {
 	err = conn.Where("video_src <> ''").Find(&res).Error
 	return
 }
+
+func GetMonitorListByShopId(id int64) (res []MonitorList, err error) {
+	conn, err := FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	err = conn.Where("shop_id = ?", id).Find(&res).Error
+	return
+}

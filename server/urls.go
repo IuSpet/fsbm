@@ -6,6 +6,7 @@ import (
 	"fsbm/server/alarm"
 	"fsbm/server/authority"
 	"fsbm/server/dashboard"
+	"fsbm/server/detection"
 	"fsbm/server/shop"
 	"fsbm/server/tool"
 	userAccount "fsbm/server/user_account"
@@ -16,6 +17,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -77,8 +79,9 @@ func Register(router *gin.Engine) {
 	dashboardModule.POST("/global_stats", dashboard.GlobalStatsServer)  // 首页全局数据指标
 	dashboardModule.POST("/shop_list", dashboard.MapShopInfoListServer) // 首页地图中的店铺信息
 	// 识别记录模块
-	recordModule := router.Group("/record")
-	_ = recordModule
+	recordModule := router.Group("/record", CheckAccessToken)
+	recordModule.POST("/upload", detection.UploadDetectionResultServer) //上传识别记录
+	recordModule.POST("/device_info", detection.GetDeviceInfoServer)    // 获取店铺和设备信息（主要是id，上传记录使用）
 	// 报警记录模块
 	alarmModule := router.Group("/alarm", CheckLoginStatus, Authentication)
 	alarmModule.POST("/alarm_list", alarm.AlarmListServer)            // 报警记录列表
@@ -154,4 +157,12 @@ func AllowOrigin(ctx *gin.Context) {
 		ctx.AbortWithStatus(http.StatusNoContent)
 	}
 	ctx.Next()
+}
+
+func CheckAccessToken(ctx *gin.Context) {
+	token := ctx.GetHeader("Access-Token")
+	if strings.ToUpper(token) == "CD6509BE41BCC87579EC63AF5BB0ACFD" {
+		ctx.Next()
+	}
+	ctx.AbortWithStatus(http.StatusForbidden)
 }
