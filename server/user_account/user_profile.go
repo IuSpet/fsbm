@@ -139,7 +139,7 @@ func DeleteServer(ctx *gin.Context) {
 // 获取用户信息
 func GetUserProfile(ctx *gin.Context) {
 	var req getUserProfileRequest
-	logs.CtxInfo(ctx, "header: %+v", ctx.Request.Header)
+	//logs.CtxInfo(ctx, "header: %+v", ctx.Request.Header)
 	err := ctx.Bind(&req)
 	if err != nil {
 		logs.CtxError(ctx, "bind req error. err: %+v", err)

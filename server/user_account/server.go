@@ -171,15 +171,8 @@ func UserRegisterServer(ctx *gin.Context) {
 
 // 注销接口
 func LogoutServer(ctx *gin.Context) {
-	var req userCommonRequest
-	err := ctx.Bind(&req)
-	if err != nil {
-		logs.CtxError(ctx, "bind req error. err: %+v", err)
-		util.ErrorJson(ctx, util.ParamError, "参数错误")
-		return
-	}
-	logs.CtxInfo(ctx, "req: %+v", req)
-	delLoginStatus(ctx, req.Email)
+	email := ctx.GetString("email")
+	delLoginStatus(ctx, email)
 	util.EndJson(ctx, nil)
 }
 
