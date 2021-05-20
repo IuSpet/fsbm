@@ -73,6 +73,7 @@ type monitorInfo struct {
 	Addr        string `gorm:"column:addr" json:"addr"`
 	AdminName   string `gorm:"column:user_name" json:"admin_name"`
 	AdminPhone  string `gorm:"column:user_phone" json:"admin_phone"`
+	AdminEmail  string `gorm:"column:user_email" json:"admin_email"`
 	VideoType   string `gorm:"column:video_type" json:"video_type"`
 	VideoSrc    string `gorm:"column:video_src" json:"video_src"`
 }

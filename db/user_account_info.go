@@ -29,7 +29,7 @@ var UserStatusMapping = map[int8]string{
 }
 
 var UserGenderMapping = map[int8]string{
-	0: "未设置",
+	0: "其他",
 	1: "男",
 	2: "女",
 }

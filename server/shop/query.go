@@ -45,7 +45,8 @@ func getMonitorListRows(name, shop, admin, addr, videoType string) (rows []monit
 		"b.name as shop_name," +
 		"b.addr as addr," +
 		"c.name as user_name," +
-		"c.phone as user_phone")
+		"c.phone as user_phone," +
+		"c.email as user_email")
 	conn = conn.Table("monitor_list a " +
 		"LEFT JOIN shop_list b ON a.shop_id = b.id " +
 		"LEFT JOIN user_account_info c ON b.user_id = c.id")

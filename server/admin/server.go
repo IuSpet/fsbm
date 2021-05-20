@@ -242,8 +242,8 @@ func GetUserRegisterInfoServer(ctx *gin.Context) {
 		return
 	}
 	logs.CtxInfo(ctx, "req: %+v", req)
-	begin, _ := time.Parse(util.YMD, req.CreateBegin)
-	end, _ := time.Parse(util.YMD, req.CreateEnd)
+	begin, _ := time.Parse(util.YMDHMS, req.CreateBegin)
+	end, _ := time.Parse(util.YMDHMS, req.CreateEnd)
 	userList, err := getUserList(req.Name, req.Email, req.Phone, req.Gender, req.Age, begin, end)
 	if err != nil {
 		logs.CtxError(ctx, "get user list error. err: %+v", err)
@@ -381,16 +381,24 @@ func newGetUserListRequest() getUserListRequest {
 	return getUserListRequest{
 		Gender:      -1,
 		Age:         -1,
-		CreateBegin: time.Unix(0, 0).Format(util.YMD),
-		CreateEnd:   time.Now().Format(util.YMD),
+		CreateBegin: time.Unix(0, 0).Format(util.YMDHMS),
+		CreateEnd:   time.Now().Format(util.YMDHMS),
 		Page:        1,
 		PageSize:    20,
 	}
 }
 
+func newRegisterStatsRequest() *registerStatsRequest {
+	now := time.Now().Add(24 * time.Hour)
+	return &registerStatsRequest{
+		CreateBegin: now.AddDate(0, 0, -14).Format(util.YMD),
+		CreateEnd:   now.Format(util.YMD),
+	}
+}
+
 func getSortedUserList(req *getUserListRequest, all bool) ([]db.UserAccountInfo, int64, error) {
-	begin, _ := time.Parse(util.YMD, req.CreateBegin)
-	end, _ := time.Parse(util.YMD, req.CreateEnd)
+	begin, _ := time.Parse(util.YMDHMS, req.CreateBegin)
+	end, _ := time.Parse(util.YMDHMS, req.CreateEnd)
 	userList, err := getUserList(req.Name, req.Email, req.Phone, req.Gender, req.Age, begin, end)
 	if err != nil {
 		return nil, 0, err

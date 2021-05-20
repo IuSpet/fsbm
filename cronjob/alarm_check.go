@@ -11,6 +11,7 @@ import (
 
 // 监控任务
 func recordAlarmCheckTask(ctx context.Context) error {
+	fmt.Println("start task alarm")
 	// 查询未扫描过的记录
 	recordList, err := db.GetUncheckedRecords()
 	if err != nil {

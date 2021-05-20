@@ -33,6 +33,9 @@ func UploadDetectionResultServer(ctx *gin.Context) {
 			Status:      db.DetectionResultRecordStatus_NotScanYet,
 		})
 	}
+	if len(rows) == 0 {
+		util.EndJson(ctx, nil)
+	}
 	err = db.SaveDetectionResultRecordRows(rows)
 	if err != nil {
 		logs.CtxError(ctx, "save detection result error. err: %+v", err)
@@ -59,7 +62,7 @@ func GetDeviceInfoServer(ctx *gin.Context) {
 	}
 	if len(shopInfoList) == 0 {
 		logs.CtxInfo(ctx, "empty shop info list.")
-		util.ErrorJson(ctx, util.ShopNotFount, "找不到店铺信息")
+		util.ErrorJson(ctx, util.ShopNotFound, "找不到店铺信息")
 		return
 	}
 	if len(shopInfoList) > 1 {

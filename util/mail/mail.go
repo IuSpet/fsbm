@@ -1,7 +1,6 @@
 package mail
 
 import (
-	"fmt"
 	"github.com/jordan-wright/email"
 	"net/smtp"
 )
@@ -41,7 +40,6 @@ func newMail(h *DefaultMail) *email.Email {
 }
 
 func SendMail(msg *DefaultMail) error {
-	fmt.Println(msg)
 	e := newMail(msg)
 	e.From = mailConfig.from
 	return e.Send(mailConfig.smtpAddr, smtp.PlainAuth("", mailConfig.username, mailConfig.passport, mailConfig.host))

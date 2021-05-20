@@ -29,13 +29,40 @@ var monitorCsvColumns = []struct{ Field, Key string }{
 // 注册新监控
 func AddMonitorServer(ctx *gin.Context) {
 	var req addMonitorRequest
-	err := ctx.Bind(req)
+	err := ctx.Bind(&req)
 	if err != nil {
 		logs.CtxError(ctx, "bind req error. err: %+v", err)
 		util.ErrorJson(ctx, util.ParamError, "参数错误")
 		return
 	}
 	logs.CtxInfo(ctx, "req: %+v", req)
+	shopList, err := db.GetShopListById([]int64{req.ShopId})
+	if err != nil {
+		logs.CtxError(ctx, "get shop list error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	if len(shopList) == 0 {
+		logs.CtxError(ctx, "shop not exist")
+		util.ErrorJson(ctx, util.ShopNotFound, "店铺信息不存在")
+		return
+	}
+	shop := shopList[0]
+	user, err := db.GetUserByEmail(ctx.GetString("email"))
+	if err != nil {
+		logs.CtxError(ctx, "get user info error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	if user == nil {
+		logs.CtxError(ctx, "user not found. email: %s", ctx.GetString("email"))
+		util.ErrorJson(ctx, util.AbnormalError, "异常内部错误")
+		return
+	}
+	if shop.UserID != user.ID {
+		util.ErrorJson(ctx, util.ShopNotBelongAdjuster, "没有该店铺操作权限")
+		return
+	}
 	row := &db.MonitorList{
 		ShopId:    req.ShopId,
 		Name:      req.Name,

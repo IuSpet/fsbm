@@ -24,8 +24,9 @@ type DetectionResultRecord struct {
 	CreatedAt   time.Time `gorm:"autoCreateTime; not null"`
 	UpdatedAt   time.Time `gorm:"autoUpdateTime; not null"`
 }
+
 func (DetectionResultRecord) TableName() string {
-	return "detection_result"
+	return "detection_result_record"
 }
 
 func init() {
@@ -42,7 +43,7 @@ func init() {
 	})
 }
 
-func SaveDetectionResultRecordRows(rows []DetectionResultRecord) (err error){
+func SaveDetectionResultRecordRows(rows []DetectionResultRecord) (err error) {
 	conn, err := FsbmSession.GetConnection()
 	if err != nil {
 		return
@@ -51,11 +52,11 @@ func SaveDetectionResultRecordRows(rows []DetectionResultRecord) (err error){
 	return
 }
 
-func GetUncheckedRecords()(res []DetectionResultRecord,err error){
+func GetUncheckedRecords() (res []DetectionResultRecord, err error) {
 	conn, err := FsbmSession.GetConnection()
 	if err != nil {
 		return
 	}
-	err =conn.Where("status = ?",DetectionResultRecordStatus_NotScanYet).Find(&res).Error
+	err = conn.Where("status = ?", DetectionResultRecordStatus_NotScanYet).Find(&res).Error
 	return
 }

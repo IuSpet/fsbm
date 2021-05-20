@@ -13,6 +13,11 @@ type getUserListRequest struct {
 	SortFields  []sortField `json:"sort_fields"`
 }
 
+type registerStatsRequest struct {
+	CreateBegin string      `json:"create_begin"`
+	CreateEnd   string      `json:"create_end"`
+}
+
 type getUserListResponse struct {
 	UserInfoList []userInfo `json:"user_info_list"`
 	TotalCount   int64      `json:"total_count"`

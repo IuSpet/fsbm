@@ -21,8 +21,9 @@ const (
 	AvatarNotExist            = 2008 // 没有设置头像
 	ApplyRoleOrderNotExist    = 3001 // 角色申请工单不存在
 	ApplyROleOrderHasReviewed = 3002 // 工单已被审批
-	ShopNotFount              = 4001 // 店铺信息不存在
+	ShopNotFound              = 4001 // 店铺信息不存在
 	ShopNotUniq               = 4002 // 店铺查询结果不唯一
+	ShopNotBelongAdjuster     = 4003 // 店铺不属于操作者
 	AbnormalError             = 5001 // 异常错误（预料外错误统一用这个）
 	// redis key template
 	UserLoginTemplate            = "%s:login"
