@@ -51,4 +51,11 @@ const (
 	UserOperation_ModifyProfile = "修改个人信息,%s -> %s"
 	UserOperation_DeleteUser    = "删除账户"
 	UserOPeration_Register      = "注册账户"
+	// 短信发送平台配置
+	PhoneMessageUrl      = "http://gw.api.taobao.com/router/rest"
+	PhoneMessageMethod   = "alibaba.aliqin.fc.sms.num.send"
+	PhoneMessageTemplate = "" // 模版id
+	PhoneMessageSecret   = "" // app secret
+	PhoneMessageAppKey   = "" // app key
+	PhoneMessageSignName = "" // 签名
 )

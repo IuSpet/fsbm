@@ -10,3 +10,9 @@ type SortField struct {
 	Field string `json:"field"`
 	Order string `json:"order"`
 }
+
+type PhoneMessageModel struct {
+	ShopName     string `json:"shop_name"`
+	AlarmContent string `json:"alarm_content"`
+	AlarmDetail  string `json:"alarm_detail"`
+}

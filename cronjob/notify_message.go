@@ -15,7 +15,7 @@ func notifyMessageTask(ctx context.Context) error {
 	// 未发送消息
 	notSentMessageList, err := db.GetNotSentMessageList()
 	if err != nil {
-		logs.CtxError(ctx, "get not sent message list error. err: %+v", err)
+		logs.CtxError(ctx, "get not sent pmsg list error. err: %+v", err)
 		return err
 	}
 	for idx := range notSentMessageList {
@@ -42,7 +42,7 @@ func sendMessageAllChannel(ctx context.Context, message *db.NotifyUserMessage) e
 			Text:    []byte(message.Message),
 		})
 		if err != nil {
-			logs.CtxError(ctx, "[%d]message's mail send error. err: %+v", message.ID, err)
+			logs.CtxError(ctx, "[%d]pmsg's mail send error. err: %+v", message.ID, err)
 			if sendThreshold.After(message.CreatedAt) {
 				message.Status = db.NotifyUserMessageStatus_AlwaysSentFail
 				return errors.New(fmt.Sprintf("[%d]always send fail", message.ID))

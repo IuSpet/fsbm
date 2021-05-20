@@ -65,7 +65,7 @@ func recordsScanNoHat(ctx context.Context, records []db.DetectionResultRecord) [
 			}
 			err = db.SaveNotifyUserMessageRow(messageRow)
 			if err != nil {
-				logs.CtxError(ctx, "save message error. err: %+v", err)
+				logs.CtxError(ctx, "save pmsg error. err: %+v", err)
 				continue
 			}
 			alarmRecordRow.MessageId = messageRow.ID
