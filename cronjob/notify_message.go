@@ -5,8 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"fsbm/db"
+	"fsbm/util"
 	"fsbm/util/logs"
 	"fsbm/util/mail"
+	"fsbm/util/wxmsg"
 	"time"
 )
 
@@ -42,7 +44,25 @@ func sendMessageAllChannel(ctx context.Context, message *db.NotifyUserMessage) e
 			Text:    []byte(message.Message),
 		})
 		if err != nil {
-			logs.CtxError(ctx, "[%d]pmsg's mail send error. err: %+v", message.ID, err)
+			logs.CtxError(ctx, "[%d]msg's mail send error. err: %+v", message.ID, err)
+			if sendThreshold.After(message.CreatedAt) {
+				message.Status = db.NotifyUserMessageStatus_AlwaysSentFail
+				return errors.New(fmt.Sprintf("[%d]always send fail", message.ID))
+			}
+		} else {
+			message.Status |= db.NotifyUserMessageSendMailSuccess
+		}
+	}
+	// 发送公众号消息
+	if message.Status&db.NotifyUserMessageSendWxMessageSuccess == 0 {
+		err = wxmsg.SendMsg(user.OpenId, &util.WxMessageModel{
+			First:    "食品安全管理后台报警",
+			Keyword1: message.Message,
+			Keyword2: message.CreatedAt.Format(util.YMDHMS),
+			Remark:   "",
+		})
+		if err != nil {
+			logs.CtxError(ctx, "[%d]msg's wx send error. err: %+v", message.ID, err)
 			if sendThreshold.After(message.CreatedAt) {
 				message.Status = db.NotifyUserMessageStatus_AlwaysSentFail
 				return errors.New(fmt.Sprintf("[%d]always send fail", message.ID))

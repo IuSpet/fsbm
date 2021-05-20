@@ -3,6 +3,7 @@ package wxmsg
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"fsbm/util"
 	"io/ioutil"
@@ -27,6 +28,9 @@ type messageBody struct {
 }
 
 func SendMsg(openId string, msg *util.WxMessageModel) error {
+	if openId == "" {
+		return errors.New("empty openid")
+	}
 	c := &http.Client{}
 	body := newMessageBody(openId, msg)
 	data, err := json.Marshal(body)

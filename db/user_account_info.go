@@ -15,6 +15,7 @@ type UserAccountInfo struct {
 	Gender    int8      `gorm:"type:tinyint; not null; default:0; comment:0:未设置,1:男,2:女"`
 	Age       int8      `gorm:"type:tinyint; not null; default:0"`
 	Avatar    []byte    `gorm:"type:blob"`
+	OpenId    string    `gorm:"type:varchar(127); not null; comment:用户微信公众号openid"`
 	CreatedAt time.Time `gorm:"autoCreateTime; not null"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime; not null"`
 }
