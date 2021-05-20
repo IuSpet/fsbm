@@ -16,3 +16,10 @@ type PhoneMessageModel struct {
 	AlarmContent string `json:"alarm_content"`
 	AlarmDetail  string `json:"alarm_detail"`
 }
+
+type WxMessageModel struct {
+	First    string `json:"first"`
+	Keyword1 string `json:"keyword1"`
+	Keyword2 string `json:"keyword2"`
+	Remark   string `json:"remark"`
+}

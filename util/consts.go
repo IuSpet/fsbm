@@ -58,4 +58,7 @@ const (
 	PhoneMessageSecret   = "" // app secret
 	PhoneMessageAppKey   = "" // app key
 	PhoneMessageSignName = "" // 签名
+	// 微信公众号消息发送配置
+	WxMessageTemplate = "f8nZklEIKNvW1ziAnzIPs-Lc3s0hGfP-aIqRa9n4Llc"
+	WxMessageUrl = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=45_zraHru9-R1niEgjBt-6nAiiKma8EuDf5u3rD-keEe3WpWxQldByNJl-t_S4XxZtCX1CFTq4SJih4SMHtddl5zT6avnf3s3HFbC5dPXxwgzfq9LI2-t-2ZsAbnoY6KBuTGBP0iG7LxtBgYe8eCNTfABAUFL"
 )
