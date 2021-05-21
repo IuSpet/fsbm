@@ -52,15 +52,18 @@ const (
 	UserOperation_DeleteUser    = "删除账户"
 	UserOPeration_Register      = "注册账户"
 	// 短信发送平台配置
-	PhoneMessageUrl      = "http://gw.api.taobao.com/router/rest"
-	PhoneMessageMethod   = "alibaba.aliqin.fc.sms.num.send"
-	PhoneMessageTemplate = "" // 模版id
-	PhoneMessageSecret   = "" // app secret
-	PhoneMessageAppKey   = "" // app key
-	PhoneMessageSignName = "" // 签名
+	PhoneMessageUrl            = "http://gw.api.taobao.com/router/rest"
+	PhoneMessageMethod         = "alibaba.aliqin.fc.sms.num.send"
+	PhoneMessageTemplate       = "" // 模版id
+	PhoneMessageSecret         = "" // app secret
+	PhoneMessageAppKey         = "" // app key
+	PhoneMessageSignName       = "" // 签名
+	PhoneMessageV2TemplateCode = "SMS_217415565"
+	PhoneMessageV2Url          = "http://www.weikebaijia.net/ylxxt/sms_message_servlet_action"
+	PhoneMessageV2Action       = "send_template_sms_message"
 	// 微信公众号消息发送配置
 	WxMessageTemplate = "f8nZklEIKNvW1ziAnzIPs-Lc3s0hGfP-aIqRa9n4Llc"
-	WxMessageUrl      = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=45_zraHru9-R1niEgjBt-6nAiiKma8EuDf5u3rD-keEe3WpWxQldByNJl-t_S4XxZtCX1CFTq4SJih4SMHtddl5zT6avnf3s3HFbC5dPXxwgzfq9LI2-t-2ZsAbnoY6KBuTGBP0iG7LxtBgYe8eCNTfABAUFL"
+	WxMessageUrl      = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=45_RGW2cXRcVh5-pBNmSp6DTPN4qWlRjngAub3PAE4Z68pA_2CkIAuQdPIht5rFyML7ydn1iBdveoquqdFFnABDf_WeT7Sc26hSaUfxMnlx4aCVjgmNdz7SmsMK2OhTR-91J7MRpTDe4k23tSmsULTfAFAZQY"
 )
 
 // 运行时初始化常数

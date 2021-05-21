@@ -41,8 +41,8 @@ func SendMsg(openId string, msg *util.WxMessageModel) error {
 	if err != nil {
 		return err
 	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("charset", "utf-8")
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("charset", "utf-8")
 	rsp, err := c.Do(req)
 	defer func() {
 		_ = rsp.Body.Close()

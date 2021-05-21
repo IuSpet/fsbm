@@ -12,9 +12,9 @@ type SortField struct {
 }
 
 type PhoneMessageModel struct {
-	ShopName     string `json:"shop_name"`
-	AlarmContent string `json:"alarm_content"`
-	AlarmDetail  string `json:"alarm_detail"`
+	ShopName     string `json:"shopName"`
+	AlarmContent string `json:"alarmContent"`
+	AlarmDetail  string `json:"alarmDetail"`
 }
 
 type WxMessageModel struct {
