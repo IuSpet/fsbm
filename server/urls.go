@@ -80,7 +80,7 @@ func Register(router *gin.Engine) {
 	dashboardModule.POST("/shop_list", dashboard.MapShopInfoListServer) // 首页地图中的店铺信息
 	// 识别记录模块
 	recordModule := router.Group("/record", CheckAccessToken)
-	recordModule.POST("/upload", detection.UploadDetectionResultServer) //上传识别记录
+	recordModule.POST("/upload", detection.UploadDetectionResultServer) // 上传识别记录
 	recordModule.POST("/device_info", detection.GetDeviceInfoServer)    // 获取店铺和设备信息（主要是id，上传记录使用）
 	// 报警记录模块
 	alarmModule := router.Group("/alarm", CheckLoginStatus, Authentication)

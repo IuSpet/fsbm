@@ -158,6 +158,15 @@ func UserRegisterServer(ctx *gin.Context) {
 		return
 	}
 	logs.CtxInfo(ctx, "new user: %+v", newUser)
+	// 新用户默认拥有普通用户角色
+	normalUser := &db.AuthUserRole{
+		UserID:    newUser.ID,
+		RoleID:    util.Role_NormalUserId,
+		StartTime: time.Now(),
+		EndTime:   time.Now().AddDate(100, 0, 0),
+		Status:    db.AuthUserRoleStatus_Active,
+	}
+	_ = db.SaveAuthUserRoleRow(normalUser)
 	token := util.Md5(time.Now().Format(util.YMDHMS) + req.Email)
 	err = setLoginStatus(ctx, req.Email, token)
 	if err != nil {
