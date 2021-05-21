@@ -8,6 +8,7 @@ import (
 	"fsbm/util"
 	"fsbm/util/logs"
 	"fsbm/util/mail"
+	"fsbm/util/pmsg"
 	"fsbm/util/wxmsg"
 	"time"
 )
@@ -72,5 +73,23 @@ func sendMessageAllChannel(ctx context.Context, message *db.NotifyUserMessage) e
 		}
 	}
 	// 发送短信
+	if message.Status&db.NotifyUserMessageSendPhoneMessageSuccess == 0 {
+		alarm, _ := db.GetAlarmByMessageId(message.ID)
+		shop, _ := db.GetShopInfoById(alarm.ShopId)
+		err = pmsg.SendMessageV2(user.Phone, &util.PhoneMessageModel{
+			ShopName:     shop.Name,
+			AlarmContent: db.RecordAlarmAlarmTypeMapping[alarm.AlarmType],
+			AlarmDetail:  "请前往系统查看相信信息",
+		})
+		if err != nil {
+			logs.CtxError(ctx, "[%d]msg's wx send error. err: %+v", message.ID, err)
+			if sendThreshold.After(message.CreatedAt) {
+				message.Status = db.NotifyUserMessageStatus_AlwaysSentFail
+				return errors.New(fmt.Sprintf("[%d]always send fail", message.ID))
+			}
+		} else {
+			message.Status |= db.NotifyUserMessageSendPhoneMessageSuccess
+		}
+	}
 	return nil
 }
