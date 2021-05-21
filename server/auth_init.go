@@ -6,17 +6,17 @@ import "fsbm/util/auth"
 var AllPathPermission = map[string][]auth.SubjectPermission{
 	"/admin/user_list": {
 		{
-			PermissionType: "api",
+			PermissionType: "read",
 			PermissionName: "user_list",
 		},
 	},
-	"admin/authority/modify": {
+	"/admin/authority/modify": {
 		{
-			PermissionType: "api",
+			PermissionType: "write",
 			PermissionName: "authority_modify",
 		},
 	},
-	"admin/user_detail": {
+	"/admin/user_detail": {
 		{
 			PermissionType: "api",
 			PermissionName: "user_detail",

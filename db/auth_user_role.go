@@ -98,7 +98,8 @@ func GetUserRoleRow(userId, RoleId int64) (res *AuthUserRole, err error) {
 	if err != nil {
 		return
 	}
-	err = conn.Where("user_id = ? and role_id = 1", userId, RoleId).First(&res).Error
+	res = &AuthUserRole{}
+	err = conn.Debug().Where("user_id = ? and role_id = ?", userId, RoleId).First(res).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}

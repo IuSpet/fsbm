@@ -86,7 +86,8 @@ func Register(router *gin.Engine) {
 	alarmModule := router.Group("/alarm", CheckLoginStatus, Authentication)
 	alarmModule.POST("/alarm_list", alarm.AlarmListServer)            // 报警记录列表
 	alarmModule.POST("/alarm_list/csv", alarm.AlarmListCsvServer)     // 报警记录列表csv
-	alarmModule.POST("/alarm_list/print", alarm.AlarmListPrintServer) //报警记录列表pdf
+	alarmModule.POST("/alarm_list/print", alarm.AlarmListPrintServer) // 报警记录列表pdf
+	alarmModule.POST("/alarm_info", alarm.AlarmDetailInfoServer)      // 报警详细信息
 	// 工具模块
 	toolModule := router.Group("/tool")
 	toolModule.POST("/no_auth/generate_verification_code", tool.GenerateVerificationCode) // 发送验证码

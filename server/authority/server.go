@@ -46,8 +46,8 @@ func GetRoleListServer(ctx *gin.Context) {
 
 // 获取用户激活角色和过期角色
 func GetUserRoleListServer(ctx *gin.Context) {
-	var req getUserRoleListRequest
-	err := ctx.Bind(&req)
+	req := newGetUserRoleListRequest()
+	err := ctx.Bind(req)
 	if err != nil {
 		logs.CtxError(ctx, "bind req error. err: %+v", err)
 		util.ErrorJson(ctx, util.ParamError, "参数错误")
@@ -94,6 +94,7 @@ func GetUserRoleListServer(ctx *gin.Context) {
 			})
 		}
 	}
+	logs.CtxDebug(ctx,"rsp: %+v",rsp)
 	util.EndJson(ctx, rsp)
 }
 
@@ -169,7 +170,7 @@ func ApplyRoleListServer(ctx *gin.Context) {
 			Status:       db.AuthApplyRoleStatusMapping[row.Status],
 			Reviewer:     row.Reviewer,
 			ReviewReason: row.ReviewReason,
-			ReviewAt:     time.Unix(row.ReviewAt, 0).Format(util.YMDHMS),
+			ReviewAt:     getReviewTime(row.ReviewAt),
 			CreatedAt:    row.CreatedAt.Format(util.YMDHMS),
 		})
 	}
@@ -202,7 +203,7 @@ func ApplyRoleListCsvServer(ctx *gin.Context) {
 			Status:       db.AuthApplyRoleStatusMapping[row.Status],
 			Reviewer:     row.Reviewer,
 			ReviewReason: row.ReviewReason,
-			ReviewAt:     time.Unix(row.ReviewAt, 0).Format(util.YMDHMS),
+			ReviewAt:     getReviewTime(row.ReviewAt),
 			CreatedAt:    row.CreatedAt.Format(util.YMDHMS),
 		})
 	}
@@ -256,7 +257,7 @@ func ApplyRoleListPrintServer(ctx *gin.Context) {
 			Status:       db.AuthApplyRoleStatusMapping[row.Status],
 			Reviewer:     row.Reviewer,
 			ReviewReason: row.ReviewReason,
-			ReviewAt:     time.Unix(row.ReviewAt, 0).Format(util.YMDHMS),
+			ReviewAt:     getReviewTime(row.ReviewAt),
 			CreatedAt:    row.CreatedAt.Format(util.YMDHMS),
 		})
 	}
@@ -386,8 +387,8 @@ func newApplyRoleListRequest() *applyRoleListRequest {
 		Status:          []int8{db.AuthApplyRoleStatus_Unreviewd},
 		ApplyBeginTime:  time.Unix(0, 0).Format(util.YMDHMS),
 		ApplyEndTime:    time.Now().Format(util.YMDHMS),
-		ReviewBeginTime: time.Unix(0, 0).Format(util.YMDHMS),
-		ReviewEndTime:   time.Now().Format(util.YMDHMS),
+		ReviewBeginTime: "",
+		ReviewEndTime:   "",
 		ListReqField: util.ListReqField{
 			Page:       1,
 			PageSize:   10,
@@ -399,12 +400,22 @@ func newApplyRoleListRequest() *applyRoleListRequest {
 func getSortedApplyOrderList(req *applyRoleListRequest, all bool) ([]applyRoleRow, int64, error) {
 	applyBegin, err1 := time.Parse(util.YMDHMS, req.ApplyBeginTime)
 	applyEnd, err2 := time.Parse(util.YMDHMS, req.ApplyEndTime)
-	reviewBegin, err3 := time.Parse(util.YMDHMS, req.ReviewBeginTime)
-	reviewEnd, err4 := time.Parse(util.YMDHMS, req.ReviewEndTime)
-	if err1 != nil || err2 != nil || err3 != nil || err4 != nil {
+	if err1 != nil || err2 != nil {
 		return nil, 0, errors.New("time param error")
 	}
-	applyOrderList, err := getApplyRoleOrderList(req.User, req.Reviewer, req.Role, req.Status, applyBegin.Unix(), applyEnd.Unix(), reviewBegin.Unix(), reviewEnd.Unix())
+	var reviewBeginAt, reviewEndAt int64
+	reviewBeginAt = -1
+	reviewEndAt = -1
+	if req.ReviewBeginTime != "" && req.ReviewEndTime != "" {
+		reviewBegin, err3 := time.Parse(util.YMDHMS, req.ReviewBeginTime)
+		reviewEnd, err4 := time.Parse(util.YMDHMS, req.ReviewEndTime)
+		if err3 != nil || err4 != nil {
+			return nil, 0, errors.New("time param error")
+		}
+		reviewBeginAt = reviewBegin.Unix()
+		reviewEndAt = reviewEnd.Unix()
+	}
+	applyOrderList, err := getApplyRoleOrderList(req.User, req.Reviewer, req.Role, req.Status, applyBegin, applyEnd, reviewBeginAt, reviewEndAt)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -452,4 +463,11 @@ func newGetUserRoleListRequest() *getUserRoleListRequest {
 		UserId: -1,
 		Email:  "",
 	}
+}
+
+func getReviewTime(ts int64) string {
+	if ts == 0 {
+		return ""
+	}
+	return time.Unix(ts, 0).Format(util.YMDHMS)
 }

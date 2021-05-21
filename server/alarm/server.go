@@ -30,7 +30,7 @@ func AlarmListServer(ctx *gin.Context) {
 	req := newAlarmListRequest()
 	err := ctx.Bind(req)
 	if err != nil {
-		logs.CtxError(ctx, "bind req error. err: %+v")
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
 		util.ErrorJson(ctx, util.ParamError, "参数错误")
 		return
 	}
@@ -60,7 +60,7 @@ func AlarmListCsvServer(ctx *gin.Context) {
 	req := newAlarmListRequest()
 	err := ctx.Bind(req)
 	if err != nil {
-		logs.CtxError(ctx, "bind req error. err: %+v")
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
 		util.ErrorJson(ctx, util.ParamError, "参数错误")
 		return
 	}
@@ -111,7 +111,7 @@ func AlarmListPrintServer(ctx *gin.Context) {
 	req := newAlarmListRequest()
 	err := ctx.Bind(req)
 	if err != nil {
-		logs.CtxError(ctx, "bind req error. err: %+v")
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
 		util.ErrorJson(ctx, util.ParamError, "参数错误")
 		return
 	}
@@ -133,6 +133,25 @@ func AlarmListPrintServer(ctx *gin.Context) {
 			AlarmAt:      row.AlarmAt,
 		})
 	}
+	util.EndJson(ctx, rsp)
+}
+
+func AlarmDetailInfoServer(ctx *gin.Context) {
+	req := &alarmDetailInfoRequest{AlarmId: -1}
+	err := ctx.Bind(req)
+	if err != nil {
+		logs.CtxError(ctx, "bind param error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	info, err := getAlarmInfo(req.AlarmId)
+	if err != nil {
+		logs.CtxError(ctx, "get alarm info error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	info.AlarmContent = db.RecordAlarmAlarmTypeMapping[info.AlarmType]
+	rsp := alarmDetailInfoResponse{Info: info}
 	util.EndJson(ctx, rsp)
 }
 

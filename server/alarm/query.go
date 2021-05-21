@@ -35,3 +35,23 @@ func queryAlarmList(shopName, adminName, startTime, endTime string, alarmType []
 	err = conn.Debug().Find(&res).Error
 	return
 }
+
+func getAlarmInfo(id int64) (res alarmDetailInfo, err error) {
+	conn, err := db.FsbmSession.GetConnection()
+	if err != nil {
+		return
+	}
+	conn = conn.Table("record_alarm a " +
+		"left join shop_list b on a.shop_id = b.id " +
+		"left join user_account_info c on a.user_id = c.id")
+	conn = conn.Select("b.name as shop_name," +
+		"b.addr as addr," +
+		"c.name as admin_name," +
+		"c.phone as admin_phone," +
+		"c.email as admin_email," +
+		"a.alarm_type," +
+		"a.alarm_at")
+	conn = conn.Where("a.id = ?", id)
+	err = conn.Debug().Find(&res).Error
+	return
+}

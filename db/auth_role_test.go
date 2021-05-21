@@ -10,9 +10,9 @@ func TestAddRole(t *testing.T) {
 	conf.Init()
 	Init()
 	role := &AuthRole{
-		Role:   "role_2",
-		Type:   "test",
-		Status: 1,
+		Role:   "normal_user",
+		Type:   "user",
+		Status: 0,
 	}
 	err := SaveRole(role)
 	if err != nil {

@@ -47,3 +47,22 @@ type alarmListCsvRow struct {
 	AlarmAt      string `json:"alarm_at"`
 	Detail       string `json:"detail"`
 }
+
+type alarmDetailInfoRequest struct {
+	AlarmId int64 `json:"alarm_id"`
+}
+
+type alarmDetailInfoResponse struct {
+	Info alarmDetailInfo `json:"info"`
+}
+
+type alarmDetailInfo struct {
+	ShopName     string `json:"shop_name"`
+	Addr         string `json:"addr"`
+	AdminName    string `json:"admin_name"`
+	AdminPhone   string `json:"admin_phone"`
+	AdminEmail   string `json:"admin_email"`
+	AlarmContent string `json:"alarm_content"`
+	AlarmType    int8   `json:"alarm_type"`
+	AlarmAt      string `json:"alarm_at"`
+}

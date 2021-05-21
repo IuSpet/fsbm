@@ -3,6 +3,7 @@ package authority
 import (
 	"fsbm/db"
 	"fsbm/util"
+	"time"
 )
 
 func getUserRoleList(userId int64) ([]userRoleStatusInfo, error) {
@@ -16,7 +17,7 @@ func getUserRoleList(userId int64) ([]userRoleStatusInfo, error) {
 	return res, err
 }
 
-func getApplyRoleOrderList(user, reviewer string, role []string, status []int8, applyBegin, applyEnd, reviewBegin, reviewEnd int64) ([]applyRoleRow, error) {
+func getApplyRoleOrderList(user, reviewer string, role []string, status []int8, applyBegin, applyEnd time.Time, reviewBegin, reviewEnd int64) ([]applyRoleRow, error) {
 	conn, err := db.FsbmSession.GetConnection()
 	if err != nil {
 		return nil, err
@@ -34,17 +35,19 @@ func getApplyRoleOrderList(user, reviewer string, role []string, status []int8, 
 		"LEFT JOIN user_account_info b ON a.user_id = b.id " +
 		"LEFT JOIN user_account_info c ON a.review_user_id = c.id ")
 	conn = conn.Where("a.created_at between ? and ?", applyBegin, applyEnd)
-	conn = conn.Where("a.review_at >= ? and a.review_at <= ?", reviewBegin, reviewEnd)
+	if reviewBegin != -1 && reviewEnd != -1 {
+		conn = conn.Where("a.review_at >= ? and a.review_at <= ?", reviewBegin, reviewEnd)
+	}
 	if user != "" {
 		conn = conn.Where("b.name like ?", util.LikeCondition(user))
 	}
-	if role != nil {
+	if len(role) > 0 {
 		conn = conn.Where("a.role in ?", role)
 	}
 	if reviewer != "" {
 		conn = conn.Where("c.name like ?", util.LikeCondition(reviewer))
 	}
-	if status != nil {
+	if len(status) > 0 {
 		conn = conn.Where("a.status in ?", status)
 	}
 	var res []applyRoleRow
