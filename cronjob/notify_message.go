@@ -18,7 +18,7 @@ func notifyMessageTask(ctx context.Context) error {
 	// 未发送消息
 	notSentMessageList, err := db.GetNotSentMessageList()
 	if err != nil {
-		logs.CtxError(ctx, "get not sent pmsg list error. err: %+v", err)
+		logs.CtxError(ctx, "get not sent msg list error. err: %+v", err)
 		return err
 	}
 	for idx := range notSentMessageList {
