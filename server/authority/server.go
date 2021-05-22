@@ -4,7 +4,9 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"fsbm/db"
+	"fsbm/task"
 	"fsbm/util"
 	"fsbm/util/logs"
 	"github.com/gin-gonic/gin"
@@ -94,7 +96,7 @@ func GetUserRoleListServer(ctx *gin.Context) {
 			})
 		}
 	}
-	logs.CtxDebug(ctx,"rsp: %+v",rsp)
+	logs.CtxDebug(ctx, "rsp: %+v", rsp)
 	util.EndJson(ctx, rsp)
 }
 
@@ -141,6 +143,7 @@ func ApplyRoleServer(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.DbError, "数据库错误")
 		return
 	}
+	_ = task.SetUserOperationByEmail(ctx.GetString("email"), fmt.Sprintf(util.UserOperation_ApplyRole, role.ID, role.Role))
 	util.EndJson(ctx, nil)
 }
 

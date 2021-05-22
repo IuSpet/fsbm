@@ -14,8 +14,8 @@ type getUserListRequest struct {
 }
 
 type registerStatsRequest struct {
-	CreateBegin string      `json:"create_begin"`
-	CreateEnd   string      `json:"create_end"`
+	CreateBegin string `json:"create_begin"`
+	CreateEnd   string `json:"create_end"`
 }
 
 type getUserListResponse struct {
@@ -40,6 +40,7 @@ type getUserDetailRequest struct {
 }
 
 type getUserDetailResponse struct {
+	Id        int64  `json:"id"`
 	Email     string `json:"email"`
 	Name      string `json:"name"`
 	Age       int64  `json:"age"`
@@ -108,4 +109,13 @@ type getUserOperationListResponse struct {
 type userOperation struct {
 	Operation  string `json:"operation"`
 	OperatedAt string `json:"operated_at"`
+}
+
+type modifyUserInfoRequest struct {
+	Id       int64  `json:"id"`
+	Name     string `json:"name"`
+	Gender   int8   `json:"gender"`
+	Status   int8   `json:"status"`
+	Password string `json:"password"`
+	Age      int8   `json:"age"`
 }

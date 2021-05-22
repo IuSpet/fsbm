@@ -5,7 +5,7 @@ import "time"
 type UserOperationLog struct {
 	ID         int64     `gorm:"AUTO_INCREMENT; primaryKey"`
 	UserId     int64     `gorm:"type:bigint;not null;comment:用户id"`
-	Operation  string    `gorm:"type:varchar(255);not null;comment:操作描述"`
+	Operation  string    `gorm:"type:text;not null;comment:操作描述"`
 	OperatedAt int64     `gorm:"type:bigint;not null;comment:操作时间"`
 	CreatedAt  time.Time `gorm:"autoCreateTime; not null"`
 	UpdatedAt  time.Time `gorm:"autoUpdateTime; not null"`

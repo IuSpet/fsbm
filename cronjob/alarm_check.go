@@ -6,6 +6,7 @@ import (
 	"fsbm/db"
 	"fsbm/util"
 	"fsbm/util/logs"
+	"fsbm/util/redis"
 	"time"
 )
 
@@ -32,6 +33,7 @@ func recordsScanNoHat(ctx context.Context, records []db.DetectionResultRecord) [
 详细信息："http://47.95.248.242/#/alarm/alarm_detail?id=%d"
 请尽快前往查看
 `
+	alarmCnt := 0
 	for idx := range records {
 		records[idx].Status = db.DetectionResultRecordStatus_Normal
 		if records[idx].NoHatCnt > 0 {
@@ -70,7 +72,10 @@ func recordsScanNoHat(ctx context.Context, records []db.DetectionResultRecord) [
 			}
 			alarmRecordRow.MessageId = messageRow.ID
 			_ = db.SaveRecordAlarmRow(alarmRecordRow)
+			alarmCnt += 1
 		}
 	}
+	key := fmt.Sprintf(util.DashboardAlarmCnt, time.Now().Format(util.YMD))
+	_ = redis.IncrByWithRetyr(ctx, key, int64(alarmCnt))
 	return records
 }

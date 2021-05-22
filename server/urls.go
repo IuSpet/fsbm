@@ -36,6 +36,7 @@ func Register(router *gin.Engine) {
 	adminModule.POST("/user_role/add", admin.AddUserRoleServer)                    // 增加用户角色
 	adminModule.POST("/user_role/delete", admin.DeleteUserRoleServer)              // 删除用户角色
 	adminModule.POST("/user_operation_list", admin.GetUserOperationListServer)     // 用户操作记录列表
+	adminModule.POST("/user_info/modify", admin.ModifyUserInfoServer)              // 修改用户信息
 	// 用户模块
 	userModule := router.Group("/user")
 	userModule.POST("/register", userAccount.UserRegisterServer)                    // 注册

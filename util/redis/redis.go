@@ -61,3 +61,21 @@ func Del(ctx context.Context, key string) {
 	redisClient.Del(ctx, key)
 	return
 }
+
+func IncrByWithRetyr(ctx context.Context, key string, value int64) (err error) {
+	for i := 0; i < 5; i++ {
+		_, err = redisClient.IncrBy(ctx, key, value).Result()
+		if err == nil {
+		}
+	}
+	return
+}
+
+func IncrWithRetyr(ctx context.Context, key string) (err error) {
+	for i := 0; i < 5; i++ {
+		_, err = redisClient.Incr(ctx, key).Result()
+		if err == nil {
+		}
+	}
+	return
+}

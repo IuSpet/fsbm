@@ -174,6 +174,7 @@ func UserDetailServer(ctx *gin.Context) {
 	rsp.Gender = db.UserGenderMapping[user.Gender]
 	rsp.Phone = user.Phone
 	rsp.CreatedAt = user.CreatedAt.Format(util.YMDHMS)
+	rsp.Id = user.ID
 	util.EndJson(ctx, rsp)
 }
 
@@ -364,6 +365,37 @@ func GetUserOperationListServer(ctx *gin.Context) {
 	util.EndJson(ctx, rsp)
 }
 
+func ModifyUserInfoServer(ctx *gin.Context) {
+	req := &modifyUserInfoRequest{}
+	err := ctx.Bind(&req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	logs.CtxInfo(ctx, "req: %+v", req)
+	user, err := db.GetUserById(req.Id)
+	if err != nil || user == nil {
+		logs.CtxError(ctx, "get user error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	user.Name = req.Name
+	user.Age = req.Age
+	user.Status = req.Status
+	user.Gender = req.Gender
+	if req.Password != "" {
+		user.Password = encryptPassword(req.Password)
+	}
+	err = db.SaveUserInfo(user)
+	if err != nil {
+		logs.CtxError(ctx, "save user error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	util.EndJson(ctx, nil)
+}
+
 func generateAuthUserRoleRows(userID int64, roleIDList []int64) []db.AuthUserRole {
 	var userRoleList []db.AuthUserRole
 	for _, roleID := range roleIDList {
@@ -448,4 +480,9 @@ func newDeleteUserRoleRequest() *deleteUserRoleRequest {
 		UserId: -1,
 		RoleId: -1,
 	}
+}
+
+// 密码加盐后sha256加密
+func encryptPassword(password string) string {
+	return util.Sha256(util.Salt + password)
 }
