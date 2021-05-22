@@ -281,6 +281,33 @@ func GetShopListByEmailServer(ctx *gin.Context) {
 	util.EndJson(ctx, rsp)
 }
 
+func GetShopPosServer(ctx *gin.Context) {
+	req := &struct {
+		ShopId int64 `json:"shop_id"`
+	}{}
+	err := ctx.Bind(req)
+	if err != nil {
+		logs.CtxError(ctx, "bind req error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	logs.CtxInfo(ctx, "req: %+v", req)
+	shop, err := db.GetShopInfoById(req.ShopId)
+	if err != nil {
+		logs.CtxError(ctx, "get shop info error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	rsp := struct {
+		Lng float64 `json:"lng"`
+		Lat float64 `json:"lat"`
+	}{
+		Lng: shop.Longitude,
+		Lat: shop.Latitude,
+	}
+	util.EndJson(ctx, rsp)
+}
+
 func getShopListData(req *getShopListRequest) ([]shopInfoRow, error) {
 	begin, err1 := time.Parse(util.YMDHMS, req.CreateBegin)
 	end, err2 := time.Parse(util.YMDHMS, req.CreateEnd)

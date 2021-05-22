@@ -76,6 +76,6 @@ func recordsScanNoHat(ctx context.Context, records []db.DetectionResultRecord) [
 		}
 	}
 	key := fmt.Sprintf(util.DashboardAlarmCnt, time.Now().Format(util.YMD))
-	_ = redis.IncrByWithRetyr(ctx, key, int64(alarmCnt))
+	_ = redis.IncrByWithRetry(ctx, key, int64(alarmCnt))
 	return records
 }

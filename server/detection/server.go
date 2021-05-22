@@ -47,7 +47,7 @@ func UploadDetectionResultServer(ctx *gin.Context) {
 	}
 	now := time.Now()
 	key1 := fmt.Sprintf(util.DashboardRecordCnt, now.Format(util.YMD))
-	_ = redis.IncrByWithRetyr(ctx, key1, int64(len(rows)))
+	_ = redis.IncrByWithRetry(ctx, key1, int64(len(rows)))
 	key2 := fmt.Sprintf(util.DashboardLatestRecord, now.Format(util.YMD))
 	_ = redis.SetWithRetry(ctx, key2, now.Format(util.YMDHMS)[12:], 0)
 	util.EndJson(ctx, nil)

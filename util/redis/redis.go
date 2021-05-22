@@ -37,7 +37,7 @@ func GetInt64WithRetry(ctx context.Context, key string) (res int64, err error) {
 	for i := 0; i < 5; i++ {
 		val, err = redisClient.Get(ctx, key).Result()
 		if err == nil {
-			return
+			break
 		}
 		if err == redis.Nil {
 			return 0, nil
@@ -62,7 +62,7 @@ func Del(ctx context.Context, key string) {
 	return
 }
 
-func IncrByWithRetyr(ctx context.Context, key string, value int64) (err error) {
+func IncrByWithRetry(ctx context.Context, key string, value int64) (err error) {
 	for i := 0; i < 5; i++ {
 		_, err = redisClient.IncrBy(ctx, key, value).Result()
 		if err == nil {
@@ -71,7 +71,7 @@ func IncrByWithRetyr(ctx context.Context, key string, value int64) (err error) {
 	return
 }
 
-func IncrWithRetyr(ctx context.Context, key string) (err error) {
+func IncrWithRetry(ctx context.Context, key string) (err error) {
 	for i := 0; i < 5; i++ {
 		_, err = redisClient.Incr(ctx, key).Result()
 		if err == nil {
