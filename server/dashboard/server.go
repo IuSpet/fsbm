@@ -87,8 +87,11 @@ func getShopPassRate() (float64, error) {
 	}
 	totalCnt := len(shopList)
 	alarmCnt := len(alarmShop)
+	passCnt := totalCnt - alarmCnt
+	fmt.Println(totalCnt)
+	fmt.Println(alarmCnt)
 	if totalCnt == 0 {
 		return 0, nil
 	}
-	return math.Floor(float64(alarmCnt)/float64(totalCnt)*10000.0) / 10000.0, nil
+	return math.Floor(float64(passCnt)/float64(totalCnt)*10000.0) / 10000.0, nil
 }

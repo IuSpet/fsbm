@@ -71,6 +71,6 @@ const (
 var (
 	Role_NormalUserId  int64 // 普通用户角色id
 	Role_AdminId       int64 // 管理员角色id
-	Role_supervisionId int64 // 监管角色id
+	Role_SupervisionId int64 // 监管角色id
 	Role_ShopOwnerId   int64 // 店铺管理员角色id
 )

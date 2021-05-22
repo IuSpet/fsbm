@@ -160,6 +160,8 @@ func getSortedAlarmList(req *alarmListRequest, all bool) ([]alarmListRow, int64,
 	if err != nil {
 		return nil, 0, err
 	}
+	fmt.Println(req.SortFields)
+	fmt.Println(len(alarmList))
 	if len(req.SortFields) > 0 {
 		sort.SliceStable(alarmList, func(i, j int) bool {
 			a, b := reflect.ValueOf(alarmList[i]), reflect.ValueOf(alarmList[j])

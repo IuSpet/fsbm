@@ -360,7 +360,7 @@ func newGetShopListRequest() *getShopListRequest {
 		Name:        "",
 		Admin:       "",
 		Addr:        "",
-		CreateBegin: time.Now().AddDate(0, 0, -7).Format(util.YMDHMS),
+		CreateBegin: time.Unix(0, 0).Format(util.YMDHMS),
 		CreateEnd:   time.Now().Format(util.YMDHMS),
 	}
 }

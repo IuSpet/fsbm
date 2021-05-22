@@ -8,8 +8,8 @@ import (
 )
 
 func Run() {
+	InitRoleId()
 	router := gin.Default()
-
 	Register(router)
 	_ = router.Run()
 }
@@ -25,6 +25,6 @@ func InitRoleId() {
 	}
 	util.Role_AdminId = admin.ID
 	util.Role_NormalUserId = normalUser.ID
-	util.Role_supervisionId = supervision.ID
+	util.Role_SupervisionId = supervision.ID
 	util.Role_ShopOwnerId = shopOwner.ID
 }
