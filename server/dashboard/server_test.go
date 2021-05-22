@@ -35,3 +35,14 @@ func TestGetRedisValue(t *testing.T) {
 	}
 	fmt.Println(latestRecord)
 }
+
+func TestSetValue(t *testing.T){
+	now := time.Now()
+	ctx := context.Background()
+	conf.Init()
+	db.Init()
+	key1 := fmt.Sprintf(util.DashboardRecordCnt, now.Format(util.YMD))
+	redis.SetWithRetry(ctx,key1,8,0)
+	key2 := fmt.Sprintf(util.DashboardAlarmCnt, now.Format(util.YMD))
+	redis.SetWithRetry(ctx,key2,2,0)
+}
