@@ -9,7 +9,6 @@ import (
 	"fsbm/util/logs"
 	"fsbm/util/mail"
 	"fsbm/util/pmsg"
-	"fsbm/util/wxmsg"
 	"time"
 )
 
@@ -55,23 +54,24 @@ func sendMessageAllChannel(ctx context.Context, message *db.NotifyUserMessage) e
 		}
 	}
 	// 发送公众号消息
-	if message.Status&db.NotifyUserMessageSendWxMessageSuccess == 0 {
-		err = wxmsg.SendMsg(user.OpenId, &util.WxMessageModel{
-			First:    "食品安全管理后台报警",
-			Keyword1: message.Message,
-			Keyword2: message.CreatedAt.Format(util.YMDHMS),
-			Remark:   "",
-		})
-		if err != nil {
-			logs.CtxError(ctx, "[%d]msg's wx send error. err: %+v", message.ID, err)
-			if sendThreshold.After(message.CreatedAt) {
-				message.Status = db.NotifyUserMessageStatus_AlwaysSentFail
-				return errors.New(fmt.Sprintf("[%d]always send fail", message.ID))
-			}
-		} else {
-			message.Status |= db.NotifyUserMessageSendMailSuccess
-		}
-	}
+	// 没有刷新access_key，暂时去掉微信消息发送
+	//if message.Status&db.NotifyUserMessageSendWxMessageSuccess == 0 {
+	//	err = wxmsg.SendMsg(user.OpenId, &util.WxMessageModel{
+	//		First:    "食品安全管理后台报警",
+	//		Keyword1: message.Message,
+	//		Keyword2: message.CreatedAt.Format(util.YMDHMS),
+	//		Remark:   "",
+	//	})
+	//	if err != nil {
+	//		logs.CtxError(ctx, "[%d]msg's wx send error. err: %+v", message.ID, err)
+	//		if sendThreshold.After(message.CreatedAt) {
+	//			message.Status = db.NotifyUserMessageStatus_AlwaysSentFail
+	//			return errors.New(fmt.Sprintf("[%d]always send fail", message.ID))
+	//		}
+	//	} else {
+	//		message.Status |= db.NotifyUserMessageSendMailSuccess
+	//	}
+	//}
 	// 发送短信
 	if message.Status&db.NotifyUserMessageSendPhoneMessageSuccess == 0 {
 		alarm, _ := db.GetAlarmByMessageId(message.ID)
