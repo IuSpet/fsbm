@@ -10,6 +10,7 @@ import (
 func Run() {
 	InitRoleId()
 	router := gin.Default()
+	//pprof.Register(router)
 	Register(router)
 	_ = router.Run()
 }

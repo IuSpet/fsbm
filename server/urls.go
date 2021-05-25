@@ -66,7 +66,8 @@ func Register(router *gin.Engine) {
 	shopModule.POST("/device/monitor_list/print", shop.GetMonitorListPrintServer) // 监控列表pdf
 	shopModule.POST("/device/live_wall_src", shop.GetLiveWallSrcServer)           // 直播墙源
 	shopModule.POST("/shop_list_by_email", shop.GetShopListByEmailServer)         // 某用户负责店铺
-	shopModule.POST("/shop_pos", shop.GetShopPosServer)
+	shopModule.POST("/shop_pos", shop.GetShopPosServer)                           // 获取店铺坐标
+	shopModule.POST("/device_list", shop.GetShopDeviceListServer)
 	// 权限管理模块
 	authModule := router.Group("/auth", CheckLoginStatus, Authentication)
 	authModule.POST("/role_list", authority.GetRoleListServer)                     // 系统内所有角色列表

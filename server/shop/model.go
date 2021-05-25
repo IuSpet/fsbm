@@ -83,6 +83,7 @@ type getLiveWallSrcResponse struct {
 }
 
 type liveSrcInfo struct {
+	Id          int64  `json:"id"`
 	MonitorName string `json:"monitor_name"`
 	ShopName    string `json:"shop_name"`
 	VideoType   string `json:"video_type"`
@@ -131,4 +132,8 @@ type shopAlarmInfo struct {
 	AlarmContent string `json:"alarm_content"`
 	AlarmAt      string `json:"alarm_at"`
 	AlarmId      int64  `json:"alarm_id"`
+}
+
+type getShopDeviceListResponse struct {
+	List []liveSrcInfo `json:"list"`
 }

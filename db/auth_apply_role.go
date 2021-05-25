@@ -88,6 +88,6 @@ func GetAuthApplyRoleByUserRole(userId, roleId int64) (res []AuthApplyRole, err 
 	if err != nil {
 		return
 	}
-	err = conn.Debug().Where("user_id = ? and role_id = ?", userId, roleId).Find(&res).Error
+	err = conn.Debug().Where("user_id = ? and role_id = ? and status = ?", userId, roleId, AuthApplyRoleStatus_Unreviewd).Find(&res).Error
 	return
 }

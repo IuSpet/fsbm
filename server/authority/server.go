@@ -366,17 +366,19 @@ func ReviewApplyRoleServer(ctx *gin.Context) {
 		util.ErrorJson(ctx, util.DbError, "数据库错误")
 		return
 	}
-	for i := range orderList {
-		orderList[i].ReviewReason = "自动通过"
-		orderList[i].ReviewAt = now.Unix()
-		orderList[i].ReviewUserId = -1
-		orderList[i].Status = db.AuthApplyRoleStatus_Approve
-	}
-	err = db.SaveAuthApplyRoleRows(orderList)
-	if err != nil {
-		logs.CtxError(ctx, "save auth apply role rows error. err: %+v", err)
-		util.ErrorJson(ctx, util.DbError, "数据库错误")
-		return
+	if len(orderList) > 0 {
+		for i := range orderList {
+			orderList[i].ReviewReason = "自动通过"
+			orderList[i].ReviewAt = now.Unix()
+			orderList[i].ReviewUserId = -1
+			orderList[i].Status = db.AuthApplyRoleStatus_Approve
+		}
+		err = db.SaveAuthApplyRoleRows(orderList)
+		if err != nil {
+			logs.CtxError(ctx, "save auth apply role rows error. err: %+v", err)
+			util.ErrorJson(ctx, util.DbError, "数据库错误")
+			return
+		}
 	}
 	util.EndJson(ctx, nil)
 	return

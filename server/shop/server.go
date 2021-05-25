@@ -308,6 +308,35 @@ func GetShopPosServer(ctx *gin.Context) {
 	util.EndJson(ctx, rsp)
 }
 
+func GetShopDeviceListServer(ctx *gin.Context) {
+	req := &struct {
+		ShopId int64 `json:"shop_id"`
+	}{}
+	err := ctx.Bind(req)
+	if err != nil {
+		logs.CtxError(ctx, "bind params error. err: %+v", err)
+		util.ErrorJson(ctx, util.ParamError, "参数错误")
+		return
+	}
+	deviceList, err := db.GetMonitorListByShopId(req.ShopId)
+	if err != nil {
+		logs.CtxError(ctx, "get monitor list error. err: %+v", err)
+		util.ErrorJson(ctx, util.DbError, "数据库错误")
+		return
+	}
+	rsp := getShopDeviceListResponse{}
+	for _, device := range deviceList {
+		rsp.List = append(rsp.List, liveSrcInfo{
+			Id:          device.ID,
+			MonitorName: device.Name,
+			ShopName:    "",
+			VideoType:   device.VideoType,
+			VideoSrc:    device.VideoSrc,
+		})
+	}
+	util.EndJson(ctx, rsp)
+}
+
 func getShopListData(req *getShopListRequest) ([]shopInfoRow, error) {
 	begin, err1 := time.Parse(util.YMDHMS, req.CreateBegin)
 	end, err2 := time.Parse(util.YMDHMS, req.CreateEnd)
